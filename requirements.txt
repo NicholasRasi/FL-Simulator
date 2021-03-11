@@ -1,0 +1,7 @@
+coloredlogs
+numpy
+pylint
+tensorflow
+json-tricks
+matplotlib
+tqdm
