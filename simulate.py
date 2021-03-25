@@ -13,10 +13,6 @@ logging.info("init configuration...")
 config = Config()
 logging.info(json.dumps(config.__dict__, indent=3))
 
-logging.info("init status...")
-init_status = Status(logger=logger, config=config)
-fl = FedAvg(status=init_status, config=config, logger=logger)
-
-logging.info("starting training...")
+fl = FedAvg(config=config, logger=logger)
 fl.run_server()
 

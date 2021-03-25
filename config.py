@@ -5,16 +5,20 @@ class Config:
 
     def __init__(self):
         # SIMULATION
+        # number or repetitions
+        self.repetitions = int(os.getenv('FL_REP') or 1)
+
+        # output folder
         self.simulation_output_folder = str(os.getenv('FL_OUT_FOLDER') or "output")
 
         # file where to save the simulation output data
         self.simulation_output_file = str(os.getenv('FL_OUT_FILE') or "base.json")
 
         # model used for the simulation
-        self.model_name = str(os.getenv('FL_MODEL') or "mnist")
+        self.model_name = str(os.getenv('FL_MODEL') or "fashion_mnist")
 
         # total number of rounds
-        self.num_rounds = int(os.getenv('FL_ROUNDS') or 10)
+        self.num_rounds = int(os.getenv('FL_ROUNDS') or 40)
 
         # algorithm used for the FL aggregation
         self.aggregation = str(os.getenv('FL_ALG') or "fedavg")
@@ -37,24 +41,21 @@ class Config:
         # algorithm used for the local data optimizer (eval)
         self.local_data_opt_eval = str(os.getenv('FL_L_DAT_OPT_E') or "random")
 
-        # use i.d.d data
-        # self.iid = bool(os.getenv('FL_IID') or True)
-
         # optimizer used (local iteration) string or optimizer instance
         self.optimizer = str(os.getenv('FL_OPT') or "sgd")
 
         # fixing random state for reproducibility
-        self.random_seed = 19680801
+        self.random_seed = os.getenv('FL_SEED') or None # 19680801
 
         # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
-        self.tf_verbosity = 0
+        self.tf_verbosity = int(os.getenv('FL_TF_VERBOSITY') or 0)
 
         # DEVICES
         # total number of devices (D)
         self.num_devs = int(os.getenv('FL_MIN') or 50)
 
         # probability a device is available for a round
-        self.p_available = float(os.getenv('FL_P_AVAIL') or 1)
+        self.p_available = float(os.getenv('FL_P_AVAIL') or 0.8)
 
         # probability a device fails during a round
         self.p_fail = float(os.getenv('FL_P_FAIL') or 0)
@@ -89,7 +90,7 @@ class Config:
         # ENERGY
         # mean and variance of energy available at each device [mWh]
         self.energy_mean = int(os.getenv('FL_ENE_MEAN') or 3000)
-        self.energy_var = int(os.getenv('FL_ENE_VAR') or 1000)
+        self.energy_var = int(os.getenv('FL_ENE_VAR') or 0)
 
         # power consumption for 1 second of computation [mW/s]
         self.pow_comp_s = int(os.getenv('FL_ENE_COM_S') or 100)
@@ -105,6 +106,9 @@ class Config:
         # mean and variance of number of examples available at each device
         self.local_data_mean = int(os.getenv('FL_A_MEAN') or 100)
         self.local_data_var = int(os.getenv('FL_A_VAR') or 0)
+
+        # use i.d.d data
+        self.non_iid_partitions = float(os.getenv('FL_IID') or 0)
 
         # increment of the local dataset size at each round
         # self.local_data_incr_round = int(os.getenv('FL_A_INCR_STEP') or 0)

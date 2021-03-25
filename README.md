@@ -87,7 +87,9 @@ The **Random Optimizer** randomly selects the available examples.
 ## Simulation Parameters
 The simulation parameters defines how the simulation is performed and which are the algorithms used
 to perform the FL phases.
-
+- **repetitions**:
+    - type: int
+    - desc: the number of repetitions for each run
 - **simulation_output_folder**:
     - type: str
     - desc: folder where to save the simulation output data

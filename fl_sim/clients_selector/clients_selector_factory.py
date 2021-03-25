@@ -10,5 +10,5 @@ class ClientsSelectorFactory:
     def get_clients_selector(selector: str, config: Config, status: Status, logger):
         if selector == "random":
             return RandomSelector(config, status, logger)
-        elif selector == "bestrt":
+        elif selector == "best_ips":
             return BestRTSelector(config, status, logger)

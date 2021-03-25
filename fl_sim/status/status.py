@@ -29,16 +29,31 @@ class Status:
                     "energy": self.randint(mean=config.energy_mean, var=config.energy_var, size=(config.num_rounds, config.num_devs), dtype=int),
                     "net_speed": self.randint(mean=config.netspeed_mean, var=config.netspeed_var, size=(config.num_rounds, config.num_devs), dtype=int),
                     "local_data_sizes": self.randint(mean=config.local_data_mean, var=config.local_data_var, size=config.num_devs, dtype=int),
-                    "local_data": [],
+                    "local_data": (),
+                    "local_data_stats": None,
                     "local_models": [model_loader.get_compiled_model(optimizer=config.optimizer)] * config.num_devs
                 }
             }
 
-            for local_data_size in self.con["devs"]["local_data_sizes"]:
-                x_train_local, y_train_local = DatasetModelLoader.select_random_samples(x_train, y_train, local_data_size)
-                x_test_local, y_test_local = DatasetModelLoader.select_random_samples(x_test, y_test, local_data_size)
-                self.con["devs"]["local_data"].append(((x_train_local, y_train_local), (x_test_local, y_test_local)))
+            # init local data
 
+            if config.non_iid_partitions > 0:
+                # non-iid partitions
+                train_indexes = DatasetModelLoader.select_non_iid_samples(y_train, config.num_devs,
+                                                                          self.con["devs"]["local_data_sizes"],
+                                                                          config.non_iid_partitions)
+                eval_indexes = DatasetModelLoader.select_random_samples(y_test, config.num_devs,
+                                                                        self.con["devs"]["local_data_sizes"])
+            else:
+                # random sampling
+                train_indexes = DatasetModelLoader.select_random_samples(y_train, config.num_devs,
+                                                                         self.con["devs"]["local_data_sizes"])
+                eval_indexes = DatasetModelLoader.select_random_samples(y_test, config.num_devs,
+                                                                        self.con["devs"]["local_data_sizes"])
+            self.con["devs"]["local_data"] = (train_indexes, eval_indexes)
+            self.con["devs"]["local_data_stats"] = DatasetModelLoader.record_data_stats(y_train, train_indexes)
+
+            # init global model
             self.global_model = self.con["devs"]["local_models"][0]
 
             # init number of trainable model weights

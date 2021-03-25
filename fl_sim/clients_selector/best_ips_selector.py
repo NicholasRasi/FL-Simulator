@@ -3,7 +3,7 @@ import numpy as np
 from fl_sim.clients_selector.clients_selector import ClientsSelector
 
 
-class BestRTSelector(ClientsSelector):
+class BestIPSSelector(ClientsSelector):
 
     def select_devices(self, num_round: int) -> List:
         avail_indexes = self.get_available_devices(num_round)

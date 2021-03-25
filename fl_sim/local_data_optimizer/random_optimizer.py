@@ -8,6 +8,6 @@ class RandomOptimizer(LocalDataOptimizer):
         x, y = data
         # get randomly num_examples examples among the available ones
         num_examples = min(x.shape[0], num_examples)
-        x_sub, y_sub = DatasetModelLoader.select_random_samples(x, y, num_examples)
+        sub_indexes = DatasetModelLoader.select_random_samples(y, 1, [num_examples])[0]
 
-        return x_sub, y_sub
+        return x[sub_indexes], y[sub_indexes]

@@ -12,7 +12,7 @@ class GlobalUpdateOptimizer(ABC):
         self.logger = logger
 
     @abstractmethod
-    def optimize(self, r: int, dev_index: int) -> dict:
+    def optimize(self, r: int, dev_index: int, phase: str) -> dict:
         """
         :return: a dict with the number of epochs, batch size, num examples
         """

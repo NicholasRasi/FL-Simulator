@@ -9,42 +9,59 @@ from fl_sim.aggregation_strategy import FedAvgAgg
 from fl_sim.clients_selector.clients_selector_factory import ClientsSelectorFactory
 from fl_sim.global_update_optimizer import GlobalUpdateOptimizerFactory
 from fl_sim.local_data_optimizer import LocalDataOptimizerFactory
+from fl_sim.status.dataset_model_loader import DatasetModelLoader
 
 
 
 class FedAvg:
 
-    def __init__(self, status: Status, config: Config, logger):
-        self.status = status
+    def __init__(self, config: Config, logger):
+        self.status = None
+        self.clients_selector = None
+        self.global_update_optimizer = None
+        self.local_data_optimizer = None
         self.config = config
         self.logger = logger
+        self.run_data = []
         self.output_dir = self.config.simulation_output_folder
+        model_loader = DatasetModelLoader(config.model_name)
+        self.x_train, self.y_train, self.x_test, self.y_test = model_loader.get_dataset()
+
+    def init_status(self):
+        self.status = Status(logger=self.logger, config=self.config)
+
+    def init_optimizers(self):
         self.clients_selector = {
-            "fit": ClientsSelectorFactory.get_clients_selector(self.config.selection_fit, config, status, logger),
-            "eval": ClientsSelectorFactory.get_clients_selector(self.config.selection_eval, config, status, logger)
+            "fit": ClientsSelectorFactory.get_clients_selector(self.config.selection_fit, self.config,
+                                                               self.status, self.logger),
+            "eval": ClientsSelectorFactory.get_clients_selector(self.config.selection_eval, self.config,
+                                                                self.status, self.logger)
         }
         self.global_update_optimizer = {
             "fit": GlobalUpdateOptimizerFactory.get_optimizer(self.config.global_upd_opt_fit,
                                                               self.config.epochs,
                                                               self.config.batch_size_fit,
-                                                              self.config.num_examples_fit, status, logger),
+                                                              self.config.num_examples_fit, self.status, self.logger),
             "eval": GlobalUpdateOptimizerFactory.get_optimizer(self.config.global_upd_opt_eval,
                                                                0,
                                                                self.config.batch_size_eval,
-                                                               self.config.num_examples_eval, status, logger)
+                                                               self.config.num_examples_eval, self.status, self.logger)
         }
         self.local_data_optimizer = {
-            "fit": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_fit, status, logger),
-            "eval": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_eval, status, logger),
+            "fit": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_fit, self.status, self.logger),
+            "eval": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_eval, self.status, self.logger),
         }
 
-    def export_data(self):
+
+    def save_run_data(self):
+        self.run_data.append(self.status.to_dict())
+
+    def export_all_data(self):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
         with open(self.output_dir + "/" + self.config.simulation_output_file, 'w') as fp:
-            dump({"status": self.status.to_dict(),
-                  "config": self.config.__dict__}, fp)
+            dump({"status": self.run_data, "config": self.config.__dict__}, fp)
 
     def select_devs(self, r: int, phase: str):
         if phase == "fit":
@@ -78,21 +95,33 @@ class FedAvg:
     def get_failed_devs(self, r: int):
         return np.where(self.status.con["devs"]["failures"][r] == 1)[0]
 
-    def load_local_data(self, r: int, phase: str, dev_index: int):
+    def load_local_data(self, phase: str, dev_index: int):
         if phase == "fit":
-            (x, y), _ = self.status.con["devs"]["local_data"][dev_index]
+            x = self.x_train[self.status.con["devs"]["local_data"][0][dev_index]]
+            y = self.y_train[self.status.con["devs"]["local_data"][0][dev_index]]
         else:  # eval
-            _, (x, y) = self.status.con["devs"]["local_data"][dev_index]
-
+            x = self.x_test[self.status.con["devs"]["local_data"][1][dev_index]]
+            y = self.y_test[self.status.con["devs"]["local_data"][1][dev_index]]
         return x, y
 
     def run_server(self):
-        for r in trange(self.config.num_rounds):
-            self.model_fit(r)
-            self.model_eval(r)
+        for repetition in range(1, self.config.repetitions+1):
+            self.logger.info("starting repetition {}/{}".format(repetition, self.config.repetitions))
 
-        self.logger.info("training completed")
-        self.export_data()
+            self.logger.info("init status and optimizers...")
+            self.init_status()
+            self.init_optimizers()
+
+            self.logger.info("starting training...")
+
+            for r in trange(self.config.num_rounds):
+                self.model_fit(r)
+                self.model_eval(r)
+            self.logger.info("training completed")
+            self.logger.info("saving run data")
+            self.save_run_data()
+
+        self.export_all_data()
         self.logger.info("export to {} completed".format(self.config.simulation_output_file))
 
     def model_fit(self, r: int):
@@ -105,7 +134,7 @@ class FedAvg:
         failing_devs_indexes = self.get_failed_devs(r)
         for dev_index in dev_indexes:
             # run update optimizer
-            global_config = self.global_update_optimizer["fit"].optimize(r, dev_index)
+            global_config = self.global_update_optimizer["fit"].optimize(r, dev_index, "fit")
 
             # update global configs status
             self.update_optimizer_configs(r, dev_index, "fit", "global", global_config)
@@ -145,7 +174,7 @@ class FedAvg:
         failing_devs_indexes = self.get_failed_devs(r)
         for dev_index in dev_indexes:
             # run global update optimizer
-            global_config = self.global_update_optimizer["eval"].optimize(r, dev_index)
+            global_config = self.global_update_optimizer["eval"].optimize(r, dev_index, "eval")
 
             # update global configs status
             self.update_optimizer_configs(r, dev_index, "eval", "global", global_config)
@@ -174,9 +203,9 @@ class FedAvg:
 
     def run_client_fit(self, r: int, dev_index: int, config: dict):
         # load training data
-        x_train, y_train = self.load_local_data(r, "fit", dev_index)
+        x_train, y_train = self.load_local_data("fit", dev_index)
 
-        # run local update optimizer
+        # run local data optimizer
         x_train_sub, y_train_sub = data = self.local_data_optimizer["fit"].optimize(r, dev_index, config["num_examples"], (x_train, y_train))
         config["num_examples"] = x_train_sub.shape[0]
 
@@ -215,9 +244,9 @@ class FedAvg:
 
     def run_client_eval(self, r: int, dev_index: int, config: dict):
         # load test data
-        x_test, y_test = self.load_local_data(r, "eval", dev_index)
+        x_test, y_test = self.load_local_data("eval", dev_index)
 
-        # run local evaluate optimizer
+        # run local data optimizer
         x_test_sub, y_test_sub = self.local_data_optimizer["eval"].optimize(r, dev_index, config["num_examples"], (x_test, y_test))
         config["num_examples"] = x_test_sub.shape[0]
 
