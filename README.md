@@ -1,5 +1,5 @@
 # Federated Learning Simulator
-An FL simulator with device availability, failures, computation, network, local data and energy heterogeneity simulation.
+A [Federated Learning](https://arxiv.org/abs/1602.05629) simulator with device availability, failures, computation, network, local data and energy heterogeneity simulation.
 
 The goal of this simulator is to execute an FL algorithm, such as FedAvg, in a real FL scenario, i.e., many
 heterogeneous devices, with different computation, network, energy capabilities and local data availability.
@@ -31,7 +31,7 @@ During the eval phase the model is evaluated locally, the resulting losses and a
 well the model is performing.
 
 ### Optimizers
-The simulator is designed to test different optimizers in a real FL scenario. Optmizers are algorithms that
+The simulator is designed to test different optimizers in a real FL scenario. Optimizers are algorithms that
 are executed during the FL protocol 
 
 The execution of the optimizers is sketched in the following image:
@@ -55,12 +55,12 @@ The **Random Selector** randomly select devices among the available ones.
 
 ### Global Update Optimizer
 The **Global Update Optimizer** computes ```epochs``` (E), ```batch_size``` (B) and ```num_examples``` (N) so the
-amount of computation performed locally by each devices. The configuration can be different for everys elected device.
+amount of computation performed locally by each devices. The configuration can be different for every elected device.
 
 The **Global Update Optimizer** must implement the ***optimize*** method that given a round and a device index
 return the update configuration, as a dict:
 ```
-def optimize(self, r: int, dev_index: int) -> dict
+def optimize(self, r: int, dev_index: int, phase: str) -> dict:
 ```
 
 Example of returned configuration:
@@ -151,7 +151,7 @@ to perform the FL phases.
 ### Devices Parameters
 In FL devices can join and leave the network at every instant of time. ```num_devs``` defines the total number of
 devices that can take part to the network concurrently. A local update of the model on the device can fail,
-e.g., the process is stopped by the OS. The availability and failures are modelled with a binomial distribution
+e.g., the process is stopped by the OS. The availability and failures are modeled with a binomial distribution
 with probability ```p_available``` and ```p_fail``` respectively.
 
 - **num_devs**:
@@ -192,7 +192,7 @@ used for each round. Other update optimizers can compute these values dynamicall
 
 ### Computation
 Devices in FL are heterogeneous (e.g. smartphones with different CPUs and memory).
-The computation capabilities of each device is modelled through the number of iterations the device
+The computation capabilities of each device is modeled through the number of iterations the device
 is capable of running per second (IPS).
 IPS is taken from a uniform distribution between [ips_mean - ips_var, ips_mean + ips_var].
 IPS is assumed to be fixed for each device for each round.
@@ -243,7 +243,7 @@ to different networks.
 
 ### Local Data
 The size of the data locally available is generally different among devices. While some devices could have a large
-dataset other may have a smaller one. The local data size is modelled with a uniform distribution
+dataset other may have a smaller one. The local data size is modeled with a uniform distribution
 between [local_data_mean - local_data_var, local_data_mean + local_data_var].
 The data set size is assumed to be fixed for each device for each round.
 
@@ -253,4 +253,10 @@ The data set size is assumed to be fixed for each device for each round.
 - **local_data_var**:
     - type: int
     - desc: number of examples variance
-
+- **non_iid_partitions**:
+    - type: float
+    - desc: if set to 0 the non-iid partitions are not created (and examples will be extracted from the dataset randomly),
+    otherwise the partitions will be created as described in [Measuring the Effects of Non-Identical Data Distribution for
+    Federated Visual Classification](https://arxiv.org/pdf/1909.06335.pdf). Small values (e.g., 0.1) will create high partitioning while
+    bigger values (e.g., 100) will act as random sampling. This parameter indirectly also controls the number of available examples,
+    so for some small values the **local_data_mean** and **local_data_var** will be discarded.
