@@ -7,8 +7,14 @@ simulation:
   output_file: "output.json"
   # model
   model_name: "mnist"
-  # total number of rounds
-  num_rounds: 4
+  # maximum number of rounds
+  num_rounds: 40
+  # list of stopping conditions (OR) for ending the simulation
+  stop_conds:
+    # global model accuracy (during evaluation)
+    accuracy: 1
+    # global model loss (during evaluation)
+    loss: 0
   # initializer set the initialization policy
   initializer: "default"
   # fixing random state for reproducibility
