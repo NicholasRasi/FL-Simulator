@@ -3,8 +3,8 @@ from json_tricks import dump
 import numpy as np
 import os
 from tqdm import trange
-from config import Config
 from fl_sim import Status
+from fl_sim.configuration import Config
 from fl_sim.aggregation_strategy import FedAvgAgg
 from fl_sim.clients_selector.clients_selector_factory import ClientsSelectorFactory
 from fl_sim.global_update_optimizer import GlobalUpdateOptimizerFactory
@@ -23,8 +23,8 @@ class FedAvg:
         self.config = config
         self.logger = logger
         self.run_data = []
-        self.output_dir = self.config.simulation_output_folder
-        model_loader = DatasetModelLoader(config.model_name)
+        self.output_dir = self.config.simulation["output_folder"]
+        model_loader = DatasetModelLoader(config.simulation["model_name"])
         self.x_train, self.y_train, self.x_test, self.y_test = model_loader.get_dataset()
 
     def init_status(self):
@@ -32,24 +32,26 @@ class FedAvg:
 
     def init_optimizers(self):
         self.clients_selector = {
-            "fit": ClientsSelectorFactory.get_clients_selector(self.config.selection_fit, self.config,
+            "fit": ClientsSelectorFactory.get_clients_selector(self.config.algorithms["fit"]["selection"], self.config,
                                                                self.status, self.logger),
-            "eval": ClientsSelectorFactory.get_clients_selector(self.config.selection_eval, self.config,
+            "eval": ClientsSelectorFactory.get_clients_selector(self.config.algorithms["eval"]["selection"], self.config,
                                                                 self.status, self.logger)
         }
         self.global_update_optimizer = {
-            "fit": GlobalUpdateOptimizerFactory.get_optimizer(self.config.global_upd_opt_fit,
-                                                              self.config.epochs,
-                                                              self.config.batch_size_fit,
-                                                              self.config.num_examples_fit, self.status, self.logger),
-            "eval": GlobalUpdateOptimizerFactory.get_optimizer(self.config.global_upd_opt_eval,
+            "fit": GlobalUpdateOptimizerFactory.get_optimizer(self.config.algorithms["fit"]["update"],
+                                                              self.config.algorithms["fit"]["params"]["epochs"],
+                                                              self.config.algorithms["fit"]["params"]["batch_size"],
+                                                              self.config.algorithms["fit"]["params"]["num_examples"],
+                                                              self.status, self.logger),
+            "eval": GlobalUpdateOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["update"],
                                                                0,
-                                                               self.config.batch_size_eval,
-                                                               self.config.num_examples_eval, self.status, self.logger)
+                                                               self.config.algorithms["eval"]["params"]["batch_size"],
+                                                               self.config.algorithms["eval"]["params"]["num_examples"],
+                                                               self.status, self.logger)
         }
         self.local_data_optimizer = {
-            "fit": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_fit, self.status, self.logger),
-            "eval": LocalDataOptimizerFactory.get_optimizer(self.config.local_data_opt_eval, self.status, self.logger),
+            "fit": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["fit"]["data"], self.status, self.logger),
+            "eval": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["data"], self.status, self.logger),
         }
 
 
@@ -60,7 +62,7 @@ class FedAvg:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
-        with open(self.output_dir + "/" + self.config.simulation_output_file, 'w') as fp:
+        with open(self.output_dir + "/" + self.config.simulation["output_file"], 'w') as fp:
             dump({"status": self.run_data, "config": self.config.__dict__}, fp)
 
     def select_devs(self, r: int, phase: str):
@@ -105,8 +107,8 @@ class FedAvg:
         return x, y
 
     def run_server(self):
-        for repetition in range(1, self.config.repetitions+1):
-            self.logger.info("starting repetition {}/{}".format(repetition, self.config.repetitions))
+        for repetition in range(1, self.config.simulation["repetitions"]+1):
+            self.logger.info("starting repetition {}/{}".format(repetition, self.config.simulation["repetitions"]))
 
             self.logger.info("init status and optimizers...")
             self.init_status()
@@ -114,7 +116,7 @@ class FedAvg:
 
             self.logger.info("starting training...")
 
-            for r in trange(self.config.num_rounds):
+            for r in trange(self.config.simulation["num_rounds"]):
                 self.model_fit(r)
                 self.model_eval(r)
             self.logger.info("training completed")
@@ -122,7 +124,7 @@ class FedAvg:
             self.save_run_data()
 
         self.export_all_data()
-        self.logger.info("export to {} completed".format(self.config.simulation_output_file))
+        self.logger.info("export to {} completed".format(self.config.simulation["output_file"]))
 
     def model_fit(self, r: int):
         # local fit
@@ -206,7 +208,8 @@ class FedAvg:
         x_train, y_train = self.load_local_data("fit", dev_index)
 
         # run local data optimizer
-        x_train_sub, y_train_sub = data = self.local_data_optimizer["fit"].optimize(r, dev_index, config["num_examples"], (x_train, y_train))
+        x_train_sub, y_train_sub = self.local_data_optimizer["fit"].optimize(r, dev_index,
+                                                                             config["num_examples"], (x_train, y_train))
         config["num_examples"] = x_train_sub.shape[0]
 
         # update local model
@@ -215,7 +218,7 @@ class FedAvg:
         history = model.fit(x_train_sub, y_train_sub,
                             epochs=config["epochs"],
                             batch_size=config["batch_size"],
-                            verbose=self.config.tf_verbosity)
+                            verbose=self.config.simulation["tf_verbosity"])
         mean_acc = stats.mean(history.history['accuracy'])
         mean_loss = stats.mean(history.history['loss'])
 
@@ -224,7 +227,7 @@ class FedAvg:
         computation_time = local_iterations / self.status.con["devs"]["ips"][dev_index]
         network_consumption = 2 * self.status.con["model"]["tot_weights"]
         communication_time = 2 * self.status.con["model"]["tot_weights"] / self.status.con["devs"]["net_speed"][r, dev_index]
-        energy_consumption = self.config.pow_comp_s * computation_time + self.config.pow_net_s * communication_time
+        energy_consumption = self.config.energy["pow_comp_s"] * computation_time + self.config.energy["pow_net_s"] * communication_time
 
         # update global configs status
         self.update_optimizer_configs(r, dev_index, "fit", "local", config)
@@ -247,20 +250,21 @@ class FedAvg:
         x_test, y_test = self.load_local_data("eval", dev_index)
 
         # run local data optimizer
-        x_test_sub, y_test_sub = self.local_data_optimizer["eval"].optimize(r, dev_index, config["num_examples"], (x_test, y_test))
+        x_test_sub, y_test_sub = self.local_data_optimizer["eval"].optimize(r, dev_index,
+                                                                            config["num_examples"], (x_test, y_test))
         config["num_examples"] = x_test_sub.shape[0]
 
         # evaluate model
         model = self.status.con["devs"]["local_models"][dev_index]
         model.set_weights(self.status.global_model.get_weights())
-        loss, accuracy = model.evaluate(x_test_sub, y_test_sub, verbose=self.config.tf_verbosity)
+        loss, accuracy = model.evaluate(x_test_sub, y_test_sub, verbose=self.config.simulation["tf_verbosity"])
 
         # compute metrics
         local_iterations = x_test_sub.shape[0] / config["batch_size"]
         computation_time = local_iterations / self.status.con["devs"]["ips"][dev_index]
         network_consumption = self.status.con["model"]["tot_weights"]
         communication_time = self.status.con["model"]["tot_weights"] / self.status.con["devs"]["net_speed"][r, dev_index]
-        energy_consumption = self.config.pow_comp_s * computation_time + self.config.pow_net_s * communication_time
+        energy_consumption = self.config.energy["pow_comp_s"] * computation_time + self.config.energy["pow_net_s"] * communication_time
 
         # update global configs status
         self.update_optimizer_configs(r, dev_index, "eval", "local", config)

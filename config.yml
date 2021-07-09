@@ -1,0 +1,82 @@
+simulation:
+  # number or repetitions
+  repetitions: 1
+  # simulation output folder
+  output_folder: "output"
+  # simulation output file
+  output_file: "output.json"
+  # model
+  model_name: "mnist"
+  # total number of rounds
+  num_rounds: 40
+  # fixing random state for reproducibility
+  seed: none # 19680801
+  # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
+  tf_verbosity: 0
+
+algorithms:
+  fit:
+    # algorithm used for the FL aggregation
+    aggregation: "fedavg"
+    # algorithm used for the clients selection
+    selection: "random"
+    # algorithm used for the update optimizer
+    update: "static"
+    # algorithm used for the local data optimizer
+    data: "random"
+    # parameters used by the algorithm
+    params:
+      # fraction of devices used for the computation
+      k: 0.5
+      # number of epochs executed for fit for each round
+      epochs: 10
+      # batch size used for fit for each round
+      batch_size: 32
+      # number of examples used for fit for each round
+      num_examples: 100
+  eval:
+    aggregation: "fedavg"
+    selection: "random"
+    update: "static"
+    data: "random"
+    params:
+      k: 0.5
+      epochs: 10
+      batch_size: 32
+      num_examples: 100
+  # optimizer used (local iteration) string or optimizer instance
+  optimizer: "sgd"
+
+devices:
+  # total number of devices (D)
+  num: 50
+  # probability a device is available for a round
+  p_available: 0.8
+  # probability a device fails during a round
+  p_fail: 0
+
+computation:
+  # mean and variance of number of computed iterations/second per device (among devices) [iter/s]
+  ips_mean: 100
+  ips_var: 50
+
+energy:
+  # mean and variance of energy available at each device [mWh]
+  avail_mean: 3000
+  avail_var: 0
+  # power consumption for 1 second of computation [mW/s]
+  pow_comp_s: 100
+  # power consumption for 1 second of network used [mW/s]
+  pow_net_s: 200
+
+network:
+  # mean and variance of network speed available at each device [params/s]
+  speed_mean: 1000000
+  speed_var: 0
+
+data:
+  # mean and variance of number of examples available at each device
+  num_examples_mean: 100
+  num_examples_var: 0
+  # use non-i.d.d data
+  non_iid_partitions: 0

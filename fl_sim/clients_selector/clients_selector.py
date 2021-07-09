@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from typing import List
-from config import Config
+from fl_sim.configuration import Config
 from fl_sim import Status
 import numpy as np
 

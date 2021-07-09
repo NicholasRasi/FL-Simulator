@@ -5,3 +5,4 @@ tensorflow
 json-tricks
 matplotlib
 tqdm
+PyYAML

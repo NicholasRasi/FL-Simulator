@@ -1,6 +1,6 @@
-from config import Config
 from fl_sim import Status
-from .best_rt_selector import BestRTSelector
+from fl_sim.configuration import Config
+from .best_ips_selector import BestIPSSelector
 from .random_selector import RandomSelector
 
 
@@ -11,4 +11,4 @@ class ClientsSelectorFactory:
         if selector == "random":
             return RandomSelector(config, status, logger)
         elif selector == "best_ips":
-            return BestRTSelector(config, status, logger)
+            return BestIPSSelector(config, status, logger)
