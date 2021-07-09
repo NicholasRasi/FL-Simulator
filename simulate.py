@@ -1,8 +1,9 @@
 import coloredlogs
 import json
 import logging
-from fl_sim import FedAvg, Config
 import argparse
+from fl_sim import Config
+from fl_sim.simulator.sim import Simulator
 
 log_format = "%(asctime)s:%(hostname)s:%(message)s"
 logging.basicConfig(level='DEBUG', format=log_format)
@@ -17,7 +18,6 @@ logging.info("init configuration...")
 config = Config(args.config)
 logging.info(json.dumps(config.__dict__, indent=3))
 
-
-fl = FedAvg(config=config, logger=logger)
-fl.run_server()
+simulator = Simulator(config=config, logger=logger)
+simulator.run()
 

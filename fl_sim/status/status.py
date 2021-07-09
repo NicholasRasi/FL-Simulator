@@ -123,6 +123,28 @@ class Status:
                     }}
                 for phase in ["fit", "eval"]}
 
+
+    def update_optimizer_configs(self, r: int, dev_index: int, phase: str, location: str, config: dict):
+        self.var[phase]["upd_opt_configs"][location]["epochs"][r, dev_index] = config["epochs"]
+        self.var[phase]["upd_opt_configs"][location]["batch_size"][r, dev_index] = config["batch_size"]
+        self.var[phase]["upd_opt_configs"][location]["num_examples"][r, dev_index] = config["num_examples"]
+
+    def update_agg_model_metrics(self, r: int, phase: str, agg_loss: float, agg_accuracy: float):
+        self.var[phase]["model_metrics"]["agg_loss"][r] = agg_loss
+        self.var[phase]["model_metrics"]["agg_accuracy"][r] = agg_accuracy
+
+    def update_sim_data(self, r: int, phase: str, dev_index: int, computation_time: float, communication_time: float,
+                        local_iterations: float, network_consumption: float, energy_consumption: float, accuracy: float,
+                        loss: float):
+        self.var[phase]["times"]["computation"][r, dev_index] = computation_time
+        self.var[phase]["times"]["communication"][r, dev_index] = communication_time
+        self.var[phase]["consumption"]["resources"][r, dev_index] = local_iterations
+        self.var[phase]["consumption"]["network"][r, dev_index] = network_consumption
+        self.var[phase]["consumption"]["energy"][r, dev_index] = energy_consumption
+        self.var[phase]["model_metrics"]["accuracy"][r, dev_index] = accuracy
+        self.var[phase]["model_metrics"]["loss"][r, dev_index] = loss
+
+
     @staticmethod
     def randint(mean: int, var: int, size, dtype):
         if var == 0:
