@@ -1,5 +1,5 @@
 from .local_data_optimizer import LocalDataOptimizer
-from ..status.dataset_model_loader import DatasetModelLoader
+from fl_sim.dataset.model_loader import DatasetModelLoader
 
 
 class RandomOptimizer(LocalDataOptimizer):

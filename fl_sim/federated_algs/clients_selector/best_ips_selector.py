@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from fl_sim.clients_selector.clients_selector import ClientsSelector
+from fl_sim.federated_algs.clients_selector.clients_selector import ClientsSelector
 
 
 class BestIPSSelector(ClientsSelector):

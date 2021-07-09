@@ -5,30 +5,29 @@ import os
 from tqdm import trange
 from fl_sim import Status
 from fl_sim.configuration import Config
-from fl_sim.aggregation_strategy import FedAvgAgg
-from fl_sim.clients_selector.clients_selector_factory import ClientsSelectorFactory
-from fl_sim.global_update_optimizer import GlobalUpdateOptimizerFactory
-from fl_sim.local_data_optimizer import LocalDataOptimizerFactory
-from fl_sim.status.dataset_model_loader import DatasetModelLoader
+from fl_sim.federated_algs.aggregation_strategy import FedAvgAgg
+from fl_sim.federated_algs.clients_selector import ClientsSelectorFactory
+from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
+from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
+from fl_sim.dataset.model_loader import DatasetModelLoader
 
 
 
 class FedAvg:
 
     def __init__(self, config: Config, logger):
+        self.config = config
+        self.logger = logger
+
         self.status = None
         self.clients_selector = None
         self.global_update_optimizer = None
         self.local_data_optimizer = None
-        self.config = config
-        self.logger = logger
         self.run_data = []
         self.output_dir = self.config.simulation["output_folder"]
         model_loader = DatasetModelLoader(config.simulation["model_name"])
         self.x_train, self.y_train, self.x_test, self.y_test = model_loader.get_dataset()
 
-    def init_status(self):
-        self.status = Status(logger=self.logger, config=self.config)
 
     def init_optimizers(self):
         self.clients_selector = {
@@ -54,6 +53,8 @@ class FedAvg:
             "eval": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["data"], self.status, self.logger),
         }
 
+    def init_status(self):
+        self.status = Status(logger=self.logger, config=self.config)
 
     def save_run_data(self):
         self.run_data.append(self.status.to_dict())

@@ -1,20 +1,20 @@
 import numpy as np
 
 from fl_sim.configuration import Config
-from .dataset_model_loader import DatasetModelLoader
+from fl_sim.dataset.model_loader import DatasetModelLoader
 import tensorflow.keras.backend as keras
 
 
 class Status:
 
-    def __init__(self, config: Config, logger, initializer="default"):
+    def __init__(self, config: Config, logger):
         self.logger = logger
         self.devices = {}
 
         if "random_seed" in config.simulation:
             np.random.seed(config.simulation["random_seed"])
 
-        if initializer == "default":
+        if config.simulation["initializer"] == "default":
             # CONSTANT DATA
             # init model and dataset
             model_loader = DatasetModelLoader(config.simulation["model_name"])

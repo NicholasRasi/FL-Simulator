@@ -17,6 +17,7 @@ logging.info("init configuration...")
 config = Config(args.config)
 logging.info(json.dumps(config.__dict__, indent=3))
 
+
 fl = FedAvg(config=config, logger=logger)
 fl.run_server()
 
