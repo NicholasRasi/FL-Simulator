@@ -1,5 +1,5 @@
 import numpy as np
-
+import sys
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader import DatasetModelLoader
 import tensorflow.keras.backend as keras
@@ -116,10 +116,11 @@ class Status:
                     "model_metrics": {
                         "accuracy": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
                                              dtype=float),
-                        "loss": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
-                                         dtype=float),
+                        "loss": np.full(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                                        fill_value=sys.float_info.max, dtype=float),
                         "agg_accuracy": np.zeros(shape=config.simulation["num_rounds"], dtype=float),
-                        "agg_loss": np.zeros(shape=config.simulation["num_rounds"], dtype=float)
+                        "agg_loss": np.full(shape=config.simulation["num_rounds"],
+                                            fill_value=sys.float_info.max, dtype=float)
                     }}
                 for phase in ["fit", "eval"]}
 
