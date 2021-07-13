@@ -15,7 +15,7 @@ simulation:
     accuracy: 1
     # global model loss (during evaluation)
     loss: 0
-  # initializer set the initialization policy
+  # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
   seed: none # 19680801
