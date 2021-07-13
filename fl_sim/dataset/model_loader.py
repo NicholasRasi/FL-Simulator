@@ -7,6 +7,7 @@ class DatasetModelLoader:
     def __init__(self, model: str):
         self.model = model
 
+
     def get_dataset(self):
         if self.model == "mnist":
             # load MNIST data
@@ -102,6 +103,8 @@ class DatasetModelLoader:
             )
 
             return tf_model
+        else:
+            return None
 
     @staticmethod
     def select_random_samples(y, num_clients, nk):

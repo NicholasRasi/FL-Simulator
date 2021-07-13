@@ -8,7 +8,7 @@ simulation:
   # model
   model_name: "mnist"
   # maximum number of rounds
-  num_rounds: 40
+  num_rounds: 4
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -21,6 +21,8 @@ simulation:
   seed: none # 19680801
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
+  # number of concurrent processes
+  num_processes: 2
 
 algorithms:
   fit:

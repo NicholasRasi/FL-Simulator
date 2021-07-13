@@ -6,3 +6,4 @@ json-tricks
 matplotlib
 tqdm
 PyYAML
+autopep8

@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader import DatasetModelLoader
-import tensorflow.keras.backend as keras
+from fl_sim.utils import FedPhase
 
 
 class Status:
@@ -16,9 +16,8 @@ class Status:
 
         if config.simulation["initializer"] == "default":
             # CONSTANT DATA
-            # init model and dataset
-            model_loader = DatasetModelLoader(config.simulation["model_name"])
-            x_train, y_train, x_test, y_test = model_loader.get_dataset()
+            # init dataset
+            x_train, y_train, x_test, y_test = DatasetModelLoader(config.simulation["model_name"]).get_dataset()
 
             # init constant simulation data
             self.con = {
@@ -48,7 +47,7 @@ class Status:
                                                      size=config.devices["num"], dtype=int),
                     "local_data": (),
                     "local_data_stats": None,
-                    "local_models": [model_loader.get_compiled_model(optimizer=config.algorithms["optimizer"])] * config.devices["num"]
+                    "local_models_weights": [None] * config.devices["num"]
                 }
             }
 
@@ -70,16 +69,11 @@ class Status:
             self.con["devs"]["local_data_stats"] = DatasetModelLoader.record_data_stats(y_train, train_indexes)
 
             # init global model
-            self.global_model = model_loader.get_compiled_model(optimizer=config.algorithms["optimizer"])
+            self.global_model_weights = None
 
-            # init number of trainable model weights
-            trainable_count = np.sum([keras.count_params(w) for w in self.global_model.trainable_weights])
-            non_trainable_count = np.sum([keras.count_params(w) for w in self.global_model.non_trainable_weights])
-
+            # number of parameters of the model (initialized after the first train)
             self.con["model"] = {
-                "trainable_weights": int(trainable_count),
-                "non_trainable_weights": int(non_trainable_count),
-                "tot_weights": int(trainable_count + non_trainable_count)
+                "tot_weights": None
             }
 
             # init variable data and metrics
@@ -97,7 +91,7 @@ class Status:
                                                    dtype=int),
                             "num_examples": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
                                                      dtype=int),
-                        } for loc in ["global", "local"]
+                            } for loc in ["global", "local"]
                         },
                     "times": {
                         "computation": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
@@ -125,25 +119,28 @@ class Status:
                 for phase in ["fit", "eval"]}
 
 
-    def update_optimizer_configs(self, r: int, dev_index: int, phase: str, location: str, config: dict):
-        self.var[phase]["upd_opt_configs"][location]["epochs"][r, dev_index] = config["epochs"]
-        self.var[phase]["upd_opt_configs"][location]["batch_size"][r, dev_index] = config["batch_size"]
-        self.var[phase]["upd_opt_configs"][location]["num_examples"][r, dev_index] = config["num_examples"]
+    def update_optimizer_configs(self, num_round: int, dev_index: int, fed_phase: FedPhase, location: str, config: dict):
+        phase = fed_phase.value
+        self.var[phase]["upd_opt_configs"][location]["epochs"][num_round, dev_index] = config["epochs"]
+        self.var[phase]["upd_opt_configs"][location]["batch_size"][num_round, dev_index] = config["batch_size"]
+        self.var[phase]["upd_opt_configs"][location]["num_examples"][num_round, dev_index] = config["num_examples"]
 
-    def update_agg_model_metrics(self, r: int, phase: str, agg_loss: float, agg_accuracy: float):
-        self.var[phase]["model_metrics"]["agg_loss"][r] = agg_loss
-        self.var[phase]["model_metrics"]["agg_accuracy"][r] = agg_accuracy
+    def update_agg_model_metrics(self, num_round: int, fed_phase: FedPhase, agg_loss: float, agg_accuracy: float):
+        phase = fed_phase.value
+        self.var[phase]["model_metrics"]["agg_loss"][num_round] = agg_loss
+        self.var[phase]["model_metrics"]["agg_accuracy"][num_round] = agg_accuracy
 
-    def update_sim_data(self, r: int, phase: str, dev_index: int, computation_time: float, communication_time: float,
-                        local_iterations: float, network_consumption: float, energy_consumption: float, accuracy: float,
-                        loss: float):
-        self.var[phase]["times"]["computation"][r, dev_index] = computation_time
-        self.var[phase]["times"]["communication"][r, dev_index] = communication_time
-        self.var[phase]["consumption"]["resources"][r, dev_index] = local_iterations
-        self.var[phase]["consumption"]["network"][r, dev_index] = network_consumption
-        self.var[phase]["consumption"]["energy"][r, dev_index] = energy_consumption
-        self.var[phase]["model_metrics"]["accuracy"][r, dev_index] = accuracy
-        self.var[phase]["model_metrics"]["loss"][r, dev_index] = loss
+    def update_sim_data(self, num_round: int, fed_phase: FedPhase, dev_index: int, computation_time: float,
+                        communication_time: float, local_iterations: float, network_consumption: float,
+                        energy_consumption: float, accuracy: float, loss: float):
+        phase = fed_phase.value
+        self.var[phase]["times"]["computation"][num_round, dev_index] = computation_time
+        self.var[phase]["times"]["communication"][num_round, dev_index] = communication_time
+        self.var[phase]["consumption"]["resources"][num_round, dev_index] = local_iterations
+        self.var[phase]["consumption"]["network"][num_round, dev_index] = network_consumption
+        self.var[phase]["consumption"]["energy"][num_round, dev_index] = energy_consumption
+        self.var[phase]["model_metrics"]["accuracy"][num_round, dev_index] = accuracy
+        self.var[phase]["model_metrics"]["loss"][num_round, dev_index] = loss
 
 
     @staticmethod

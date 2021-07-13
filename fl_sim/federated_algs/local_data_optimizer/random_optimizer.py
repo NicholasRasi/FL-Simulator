@@ -4,7 +4,7 @@ from fl_sim.dataset.model_loader import DatasetModelLoader
 
 class RandomOptimizer(LocalDataOptimizer):
 
-    def optimize(self, r: int, dev_index: int, num_examples: int, data) -> tuple:
+    def optimize(self, num_round: int, dev_index: int, num_examples: int, data) -> tuple:
         x, y = data
         # get randomly num_examples examples among the available ones
         num_examples = min(x.shape[0], num_examples)
