@@ -24,9 +24,3 @@ The output of the simulation will be saved in the ```output``` folder by default
 The **Analyzer** can be started with ```python analyze.py -f <list of files to analyze>```. The files are read from the 
 ```output``` folder and the resulting plots are saved to the ```graphs``` folder by default.
 
-## FL phases
-The model is trained during the **fit** phase and evaluated during the **eval** phase.
-During the fit phase the model is trained locally, the resulting weights are aggregated and the global model is updated.
-During the eval phase the model is evaluated locally, the resulting losses and accuracies are aggregated to compute how
-well the model is performing.
-
