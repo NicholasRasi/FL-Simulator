@@ -519,7 +519,7 @@ class SimAnalyzer:
                 self.logger.info("\tenergy [mAh], mean: {:.2f} | std: {:.2f}".format(status["con"]["devs"]["energy"].mean(), status["con"]["devs"]["energy"].std()))
                 self.logger.info("\tnet speed [params/s], mean: {:.2f} | std: {:.2f}".format(status["con"]["devs"]["net_speed"].mean(), status["con"]["devs"]["net_speed"].std()))
                 self.logger.info("\tlocal data size [examples], mean {:.2f} | std: {:.2f}".format(status["con"]["devs"]["local_data_sizes"].mean(), status["con"]["devs"]["local_data_sizes"].std()))
-                self.logger.info('\tmodel params: {}, trainable: {}, non-trainable: {}'.format(status["con"]["model"]["tot_weights"], status["con"]["model"]["trainable_weights"], status["con"]["model"]["non_trainable_weights"]))
+                self.logger.info('\tmodel params: {}'.format(status["con"]["model"]["tot_weights"]))
                 self.logger.info("-- VARIABLE DATA")
                 self.logger.info("- SELECTION")
 
