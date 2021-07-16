@@ -1,4 +1,4 @@
-figure.figsize: 15, 15
+figure.figsize: 15, 5
 lines.linewidth: 4
 lines.markersize: 10
 font.family: 'Times Roman'
