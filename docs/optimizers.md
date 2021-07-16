@@ -3,7 +3,7 @@ The simulator is designed to test different optimizers in a real FL scenario. Op
 are executed during the FL protocol 
 
 The execution of the optimizers is sketched in the following image:
-![](./imgs/optimizers.png)
+![](imgs/optimizers.png)
 
 Starting from the original ***FedAvg*** protocol, it is possible to control the training process
 with the following optimizers:

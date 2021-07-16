@@ -31,7 +31,7 @@ The number of processes is defined by ```num_processes``` in the configuration f
 The communication between processes is realized by ```multiprocessing.Queue``` using the
 consumer/producer pattern.
 
-![](../imgs/FL-parallelization.png)
+![](imgs/FL-parallelization.png)
 
 A ```FedJob``` object is pushed into a the ```FedJobQueue``` every time a new computation
 needs to be performed.  The processes perform the fit of the models and return the results

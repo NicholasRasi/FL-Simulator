@@ -9,3 +9,5 @@
 [Federated Algorithm](./federated_algorithm.md)
 
 [Datasets](./datasets_models.md)
+
+[Analyzer](./analyzer.md)
