@@ -5,21 +5,28 @@ from json_tricks import load
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.ticker import PercentFormatter
-from pylab import rcParams
+from matplotlib.ticker import PercentFormatter, MaxNLocator
 import statistics as stats
+from mdutils import MdUtils
 
 
 class SimAnalyzer:
 
-    def __init__(self, simulations: list, input_dir: str, output_dir: str, logger, extension="pdf", show_plot=False, show_data=False):
+    def __init__(self,
+                 simulations: list,
+                 input_dir: str,
+                 output_dir: str,
+                 logger,
+                 extension="pdf",
+                 show_plot=False,
+                 show_data=False):
         # read file
         self.sims = []
         for sim_name, file in simulations:
             with open(input_dir + "/" + file, 'r') as fp:
                 self.sims.append((sim_name, load(fp)))
 
-        self.output_dir = output_dir
+        self.output_dir = os.path.join(output_dir, '')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -31,161 +38,121 @@ class SimAnalyzer:
         matplotlib_logger = logging.getLogger('matplotlib')
         matplotlib_logger.setLevel(logging.ERROR)
 
+        self.output_report = MdUtils(file_name=output_dir + '/report', title='Simulation Report')
+
     def plot_agg_accuracy_loss(self, phase="eval"):
+        """
+        Plot the aggregated accuracy and loss.
+        If there are multiple repetitions (simulations) the values are averaged
+        and the standard deviation is reported in the graph.
+        :param phase:
+        :return:
+        """
         fig, ax = plt.subplots(2)
 
-        # plot accuracy
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                ys.append(status["var"][phase]["model_metrics"]["agg_accuracy"])
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean)+1)
-            ax[0].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+        def plot(subplot, title, color, ylabel, legend_loc, metrics):
+            for name, sim in self.sims:
+                ys = []
+                for status in sim["status"]:
+                    ys.append(status["var"][phase]["model_metrics"][metrics])
+                y_mean = [np.mean(y) for y in zip(*ys)]
+                y_std = [np.std(y) for y in zip(*ys)]
+                x = range(1, len(y_mean)+1)
+                ax[subplot].errorbar(x, y_mean, fmt='-o', color=color, ecolor=color, yerr=y_std, label=name)
 
-            if self.show_data:
-                self.logger.info("{} - agg accuracy: {}".format(name, y))
-        ax[0].set(title='Accuracy ('+phase+')', xlabel='round', ylabel='accuracy %')
-        ax[0].legend(loc=4)
-        # ax[0].xaxis.set_ticks(x[0::1])
+                if self.show_data:
+                    self.logger.info("{} - agg " + title + ": {}".format(name, ys))
+            ax[subplot].set(title=title + ' ('+phase+')', xlabel='round', ylabel=ylabel)
+            ax[subplot].legend(loc=legend_loc)
+            ax[subplot].xaxis.set_major_locator(MaxNLocator(integer=True))
+            # ax[0].xaxis.set_ticks(x[0::1])
+            ax[subplot].grid()
+
+        plot(0, "Accuracy", "r", "accuracy %", 4, "agg_accuracy")
         ax[0].yaxis.set_major_formatter(PercentFormatter(xmax=1))
-        ax[0].grid()
+        plot(1, "Loss", "b", "loss", 1, "agg_loss")
 
-        # plot loss
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                ys.append(status["var"][phase]["model_metrics"]["agg_loss"])
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[1].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-
-            if self.show_data:
-                self.logger.info("{} - agg loss: {}".format(name, y))
-        ax[1].set(title='Loss ('+phase+')', xlabel='round', ylabel='loss')
-        ax[1].legend(loc=1)
-        # ax[1].xaxis.set_ticks(x[0::1])
-        ax[1].grid()
-
+        output_filename = "agg_accuracy_loss_" + phase + self.ext
         plt.tight_layout()
-        plt.savefig(self.output_dir + "/agg_accuracy_loss_" + phase + self.ext)
+        plt.savefig(os.path.join(self.output_dir, output_filename))
         if self.show_plot:
             plt.show()
         plt.close()
+
+        self.output_report.new_header(level=1, title='Accuracy and Loss')
+        self.output_report.new_paragraph("![](" + output_filename + ")")
 
     def plot_round_times(self, phase="fit"):
         fig, ax = plt.subplots(3)
 
-        # computation
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"][phase]["times"]["computation"]
-                ys.append(np.amax(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[0].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-        ax[0].set(title='Computation Time (' + phase + ')', xlabel='round', ylabel='time [s]')
-        ax[0].legend(loc=1)
-        ax[0].xaxis.set_ticks(x[0::1])
-        ax[0].grid()
+        def plot(subplot, title, color, times):
+            for name, sim in self.sims:
+                ys = []
+                for status in sim["status"]:
+                    val = 0
+                    for time in times:
+                        val += status["var"][phase]["times"][time]
+                    ys.append(np.amax(val, axis=1))
+                y_mean = [np.mean(y) for y in zip(*ys)]
+                y_std = [np.std(y) for y in zip(*ys)]
+                x = range(1, len(y_mean) + 1)
+                ax[subplot].errorbar(x, y_mean, fmt='-o', color=color, ecolor=color, yerr=y_std, label=name)
+            ax[subplot].set(title=title + ' (' + phase + ')', xlabel='round', ylabel='time [s]')
+            ax[subplot].legend(loc=1)
+            ax[subplot].xaxis.set_major_locator(MaxNLocator(integer=True))
+            #ax[subplot].xaxis.set_ticks(x[0::1])
+            ax[subplot].grid()
 
-        # communication
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"][phase]["times"]["communication"]
-                ys.append(np.amax(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[1].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-        ax[1].set(title='Communication Time (' + phase + ')', xlabel='round', ylabel='time [s]')
-        ax[1].legend(loc=1)
-        ax[1].xaxis.set_ticks(x[0::1])
-        ax[1].grid()
+        plot(0, "Computation Time", "b", ["computation"])
+        plot(1, "Communication Time", "g", ["communication"])
+        plot(2, "Total Time", "r", ["computation", "communication"])
 
-        # round time = computation + communication
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"]["fit"]["times"]["computation"] + status["var"]["fit"]["times"]["communication"]
-                ys.append(np.amax(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[2].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-        ax[2].set(title='Total Time (' + phase + ')', xlabel='round', ylabel='time [s]')
-        ax[2].legend(loc=1)
-        ax[2].xaxis.set_ticks(x[0::1])
-        ax[2].grid()
-
+        output_filename = "round_times_" + phase + self.ext
         plt.tight_layout()
-        plt.savefig(self.output_dir + "/round_times_" + phase + self.ext)
+        plt.savefig(os.path.join(self.output_dir, output_filename))
         if self.show_plot:
             plt.show()
         plt.close()
+
+        self.output_report.new_header(level=1, title='Round times')
+        self.output_report.new_paragraph("![](" + output_filename + ")")
 
 
     def plot_round_consumptions(self, phase="fit"):
         fig, ax = plt.subplots(3)
 
-        # resources consumption
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"][phase]["consumption"]["resources"]
-                ys.append(np.sum(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[0].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+        def plot(subplot, title, color, ylabel, consumption):
+            for name, sim in self.sims:
+                ys = []
+                for status in sim["status"]:
+                    val = status["var"][phase]["consumption"][consumption]
+                    ys.append(np.sum(val, axis=1))
+                y_mean = [np.mean(y) for y in zip(*ys)]
+                y_std = [np.std(y) for y in zip(*ys)]
+                x = range(1, len(y_mean) + 1)
+                ax[subplot].errorbar(x, y_mean, fmt='-o', color=color, ecolor=color, yerr=y_std, label=name)
 
-            if self.show_data:
-                self.logger.info("{} - resources consumption: \n{}\nagg: {}".format(name, val, y))
-        ax[0].set(title='Resource Consumption ('+phase+')', xlabel='round', ylabel='iterations')
-        ax[0].legend(loc=1)
-        ax[0].xaxis.set_ticks(x[0::1])
-        ax[0].grid()
+                if self.show_data:
+                    self.logger.info("{} - " + title + ": \n{}\nagg: {}".format(name, val, y_mean))
+            ax[subplot].set(title=title + ' (' + phase + ')', xlabel='round', ylabel=ylabel)
+            ax[subplot].legend(loc=1)
+            ax[subplot].xaxis.set_major_locator(MaxNLocator(integer=True))
+            #ax[subplot].xaxis.set_ticks(x[0::1])
+            ax[subplot].grid()
 
-        # network consumption
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"][phase]["consumption"]["network"]
-                ys.append(np.sum(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[1].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-        ax[1].set(title='Network Consumption ('+phase+')', xlabel='round', ylabel='params')
-        ax[1].legend(loc=1)
-        ax[1].xaxis.set_ticks(x[0::1])
-        ax[1].grid()
-
-        # energy consumption
-        for name, sim in self.sims:
-            ys = []
-            for status in sim["status"]:
-                val = status["var"][phase]["consumption"]["energy"]
-                ys.append(np.sum(val, axis=1))
-            y_mean = [np.mean(y) for y in zip(*ys)]
-            y_std = [np.std(y) for y in zip(*ys)]
-            x = range(1, len(y_mean) + 1)
-            ax[2].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
-        ax[2].set(title='Energy Consumption ('+phase+')', xlabel='round', ylabel='mA')
-        ax[2].legend(loc=1)
-        ax[2].xaxis.set_ticks(x[0::1])
-        ax[2].grid()
+        plot(0, "Resource Consumption", "b", "iterations", "resources")
+        plot(1, "Network Consumption", "g", "params", "network")
+        plot(2, "Energy Consumption", "c", "mA", "energy")
 
         plt.tight_layout()
-        plt.savefig(self.output_dir + "/round_consumptions_" + phase + self.ext)
+        output_filename = "round_consumptions_" + phase + self.ext
+        plt.savefig(os.path.join(self.output_dir, output_filename))
         if self.show_plot:
             plt.show()
         plt.close()
+
+        self.output_report.new_header(level=1, title='Consumptions')
+        self.output_report.new_paragraph("![](" + output_filename + ")")
 
     def plot_round_devices(self, phase="fit"):
         fig, ax = plt.subplots(4)
@@ -199,9 +166,10 @@ class SimAnalyzer:
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)
-            ax[0].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+            ax[0].errorbar(x, y_mean, fmt='-o', color="b", yerr=y_std, label=name)
         ax[0].set(title='Available Devices', xlabel='round', ylabel='devices')
-        ax[0].xaxis.set_ticks(x[0::1])
+        ax[0].xaxis.set_major_locator(MaxNLocator(integer=True))
+        #ax[0].xaxis.set_ticks(x[0::1])
         ax[0].legend(loc=1)
         ax[0].grid()
 
@@ -214,9 +182,10 @@ class SimAnalyzer:
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)
-            ax[1].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+            ax[1].errorbar(x, y_mean, fmt='-o', color="g", yerr=y_std, label=name)
         ax[1].set(title='Selected Devices (' + phase + ')', xlabel='round', ylabel='devices')
-        ax[1].xaxis.set_ticks(x[0::1])
+        ax[1].xaxis.set_major_locator(MaxNLocator(integer=True))
+        #ax[1].xaxis.set_ticks(x[0::1])
         ax[1].legend(loc=1)
         ax[1].grid()
 
@@ -229,9 +198,10 @@ class SimAnalyzer:
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)
-            ax[2].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+            ax[2].errorbar(x, y_mean, fmt='-o', color="c", yerr=y_std, label=name)
         ax[2].set(title='Available & Failed Devices', xlabel='round', ylabel='devices')
-        ax[2].xaxis.set_ticks(x[0::1])
+        ax[2].xaxis.set_major_locator(MaxNLocator(integer=True))
+        #ax[2].xaxis.set_ticks(x[0::1])
         ax[2].legend(loc=1)
         ax[2].grid()
 
@@ -244,68 +214,61 @@ class SimAnalyzer:
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)
-            ax[3].errorbar(x, y_mean, fmt='-o', yerr=y_std, label=name)
+            ax[3].errorbar(x, y_mean, fmt='-o', color="m", yerr=y_std, label=name)
         ax[3].set(title='Selected & Successful Devices (' + phase + ')', xlabel='round', ylabel='devices')
-        ax[3].xaxis.set_ticks(x[0::1])
+        ax[3].xaxis.set_major_locator(MaxNLocator(integer=True))
+        # ax[3].xaxis.set_ticks(x[0::1])
         ax[3].legend(loc=1)
         ax[3].grid()
 
         plt.tight_layout()
-        plt.savefig(self.output_dir + "/round_devices_" + phase + self.ext)
+        output_filename = "round_devices_" + phase + self.ext
+        plt.savefig(os.path.join(self.output_dir, output_filename))
         if self.show_plot:
             plt.show()
         plt.close()
 
+        self.output_report.new_header(level=1, title='Devices')
+        self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_round_configs(self, phase="fit"):
+        self.output_report.new_header(level=1, title='Devices')
+
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(3)
-                # epochs
-                val1 = status["var"][phase]["upd_opt_configs"]["global"]["epochs"]
-                val2 = status["var"][phase]["upd_opt_configs"]["local"]["epochs"]
-                y1 = np.sum(val1, axis=1)
-                y2 = np.sum(val2, axis=1)
-                x = range(1, y1.shape[0] + 1)
-                ax[0].plot(x, y1, '--o', label="$"+name+"_{global}$")
-                ax[0].plot(x, y2, '-o', label="$"+name+"_{local}$")
-                ax[0].set(title='Epochs (' + phase + ')', xlabel='round', ylabel='epochs')
-                ax[0].xaxis.set_ticks(x[0::1])
-                ax[0].legend(loc=4)
-                ax[0].grid()
 
-                # batch size
-                val1 = status["var"][phase]["upd_opt_configs"]["global"]["batch_size"]
-                val2 = status["var"][phase]["upd_opt_configs"]["local"]["batch_size"]
-                y1 = np.sum(val1, axis=1)
-                y2 = np.sum(val2, axis=1)
-                x = range(1, y1.shape[0] + 1)
-                ax[1].plot(x, y1, '--o', label="$" + name + "_{global}$")
-                ax[1].plot(x, y2, '-o', label="$" + name + "_{local}$")
-                ax[1].set(title='Batch size (' + phase + ')', xlabel='round', ylabel='size')
-                ax[1].xaxis.set_ticks(x[0::1])
-                ax[1].legend(loc=4)
-                ax[1].grid()
+                def plot(subplot, title, color, ylabel, config):
+                    val1 = status["var"][phase]["upd_opt_configs"]["global"][config]
+                    val2 = status["var"][phase]["upd_opt_configs"]["local"][config]
+                    y1 = np.sum(val1, axis=1)
+                    y2 = np.sum(val2, axis=1)
+                    x = range(1, y1.shape[0] + 1)
+                    ax[subplot].plot(x, y1, '--o', color=color, label="$" + name + "_{global}$")
+                    ax[subplot].plot(x, y2, '-o', color=color, label="$" + name + "_{local}$")
+                    ax[subplot].set(title=title + ' (' + phase + ')', xlabel='round', ylabel=ylabel)
+                    ax[subplot].xaxis.set_major_locator(MaxNLocator(integer=True))
+                    # ax[subplot].xaxis.set_ticks(x[0::1])
+                    ax[subplot].legend(loc=4)
+                    ax[subplot].grid()
 
-                # num examples
-                val1 = status["var"][phase]["upd_opt_configs"]["global"]["num_examples"]
-                val2 = status["var"][phase]["upd_opt_configs"]["local"]["num_examples"]
-                y1 = np.sum(val1, axis=1)
-                y2 = np.sum(val2, axis=1)
-                x = range(1, y1.shape[0] + 1)
-                ax[2].plot(x, y1, '--o', label="$" + name + "_{global}$")
-                ax[2].plot(x, y2, '-o', label="$" + name + "_{local}$")
-                ax[2].set(title='Num Examples (' + phase + ')', xlabel='round', ylabel='examples')
-                ax[2].xaxis.set_ticks(x[0::1])
-                ax[2].legend(loc=4)
-                ax[2].grid()
+                plot(0, "Epochs", "b", "epochs", "epochs")
+                plot(1, "Batch size", "g", "size", "batch_size")
+                plot(2, "Num Examples", "c", "examples", "num_examples")
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/round_configs_" + name + "_" + str(i) + "_" + phase + self.ext)
+                output_filename = "round_configs_" + name + "_" + str(i) + "_" + phase + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
 
+                self.output_report.new_header(level=2, title=name + " " + str(i) + " " + phase)
+                self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_matrix_devices(self, phase="fit"):
+        self.output_report.new_header(level=1, title='Devices Matrix')
+
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
         cm = LinearSegmentedColormap.from_list("dev_cmap", colors)
         values = [0, 1, 2]
@@ -323,12 +286,18 @@ class SimAnalyzer:
                 plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/matrix_devices_" + name + "_" + str(j) + "_" + phase + self.ext)
+                output_filename = "matrix_devices_" + name + "_" + str(j) + "_" + phase + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
 
+                self.output_report.new_header(level=2, title=name + " " + str(i) + " " + phase)
+                self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_devices_bar(self, phase="fit"):
+        self.output_report.new_header(level=1, title='Devices Bar')
+
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(3)
@@ -341,6 +310,7 @@ class SimAnalyzer:
                 ax[r].bar(x, y, label=name, alpha=1)
                 ax[r].set(title='Availability', xlabel='device', ylabel='density')
                 ax[r].yaxis.set_major_formatter(PercentFormatter(xmax=1))
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
@@ -352,6 +322,7 @@ class SimAnalyzer:
                 ax[r].bar(x, y, label=name, alpha=1)
                 ax[r].set(title='Failures', xlabel='device', ylabel='density')
                 ax[r].yaxis.set_major_formatter(PercentFormatter(xmax=1))
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
@@ -363,16 +334,23 @@ class SimAnalyzer:
                 ax[r].bar(x, y, label=name, alpha=1)
                 ax[r].set(title='Selected', xlabel='device', ylabel='density')
                 ax[r].yaxis.set_major_formatter(PercentFormatter(xmax=1))
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/devs_bar_" + name + "_" + str(i) + "_" + phase + self.ext)
+                output_filename = "devs_bar_" + name + "_" + str(i) + "_" + phase + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
 
+                self.output_report.new_header(level=2, title=name + " " + str(i) + " " + phase)
+                self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_devices_capabilities_bar(self):
+        self.output_report.new_header(level=1, title='Capabilities Bar')
+
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(3)
@@ -383,6 +361,7 @@ class SimAnalyzer:
                 x = range(0, y.shape[0])
                 ax[r].bar(x, y, label=name, alpha=0.5)
                 ax[r].set(title='Computation Speed', xlabel='device', ylabel='IPS')
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
@@ -393,6 +372,7 @@ class SimAnalyzer:
                 x = range(0, y.shape[0])
                 ax[r].bar(x, y, label=name, alpha=0.5)
                 ax[r].set(title='Available Energy', xlabel='device', ylabel='mAh')
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
@@ -403,16 +383,23 @@ class SimAnalyzer:
                 x = range(0, y.shape[0])
                 ax[r].bar(x, y, label=name, alpha=0.5)
                 ax[r].set(title='Network Speed', xlabel='device', ylabel='params/s')
+                ax[r].xaxis.set_major_locator(MaxNLocator(integer=True))
                 ax[r].legend(loc=1)
                 ax[r].grid()
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/devs_capabilities_bar_" + name + "_" + str(i) + self.ext)
+                output_filename = "devs_capabilities_bar_" + name + "_" + str(i) + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
 
+                self.output_report.new_header(level=2, title=name + " " + str(i))
+                self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_devs_data(self):
+        self.output_report.new_header(level=1, title='Devs Data')
+
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(4)
@@ -450,12 +437,18 @@ class SimAnalyzer:
                 ax[3].grid()
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/devs_data_" + name + "_" + str(i) + self.ext)
+                output_filename = "devs_data_" + name + "_" + str(i) + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
 
+                self.output_report.new_header(level=2, title=name + " " + str(i))
+                self.output_report.new_paragraph("![](" + output_filename + ")")
+
     def plot_devs_local_data(self):
+        self.output_report.new_header(level=1, title='Devs Local Data')
+
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(1)
@@ -472,10 +465,14 @@ class SimAnalyzer:
                 ax.set(title='Data Distribution', xlabel='#', ylabel='device')
 
                 plt.tight_layout()
-                plt.savefig(self.output_dir + "/devs_local_data_" + name + "_" + str(i) + self.ext)
+                output_filename = "devs_local_data_" + name + "_" + str(i) + self.ext
+                plt.savefig(os.path.join(self.output_dir, output_filename))
                 if self.show_plot:
                     plt.show()
                 plt.close()
+
+                self.output_report.new_header(level=2, title=name + " " + str(i))
+                self.output_report.new_paragraph("![](" + output_filename + ")")
 
     def print_data(self):
         np.set_printoptions(precision=2)
@@ -565,3 +562,7 @@ class SimAnalyzer:
             self.logger.info("\ttraining time [s], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_tts), stats.mean(mean_rts)))
             self.logger.info("\tresources [iters], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_rcs), stats.mean(mean_rcs)))
             self.logger.info("\tenergy [mAh], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_ecs), stats.mean(mean_ecs)))
+
+
+    def close(self):
+        self.output_report.create_md_file()

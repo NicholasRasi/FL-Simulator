@@ -16,11 +16,10 @@ pip install -r requirements.txt
 ```
 
 #### Simulator
-Set the simulation parameters (described below) in the ```config.py``` file or with environment variables 
-and start the simulation, e.g., ```export FL_OUT_FILE="base.json" && export FL_SEL_F="random" && python simulate.py```.
-The output of the simulation will be saved in the ```output``` folder by default.
+Set the simulation parameters (described in the docs) with the ```config.py``` file and start the simulation with
+```python simulate.py```.  The output of the simulation will be saved in the ```output``` folder by default.
 
 #### Analyzer
 The **Analyzer** can be started with ```python analyze.py -f <list of files to analyze>```. The files are read from the 
-```output``` folder and the resulting plots are saved to the ```graphs``` folder by default.
-
+```output``` folder and the resulting plots along with a report file with all the graphs
+are saved into the ```graphs``` folder by default.

@@ -7,3 +7,4 @@ matplotlib
 tqdm
 PyYAML
 autopep8
+mdutils

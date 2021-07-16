@@ -1,6 +1,6 @@
 import logging
 import coloredlogs
-from fl_sim.analyzer import SimAnalyzer
+from fl_anlz.sim_analyzer import SimAnalyzer
 import argparse
 
 # init log
@@ -31,3 +31,4 @@ analyzer.plot_devs_local_data()
 analyzer.print_metrics()
 # analyzer.print_data()
 
+analyzer.close()
