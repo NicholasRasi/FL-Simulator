@@ -45,7 +45,7 @@ class DatasetModelLoader:
             return training_data, training_targets, testing_data, testing_targets
 
     def get_compiled_model(self, optimizer: str):
-        if self.model == "mnist":
+        if self.model == "mnist":  # https://www.tensorflow.org/tutorials/quickstart/beginner
             # build and compile Keras model
             tf_model = tf.keras.models.Sequential(
                 [
