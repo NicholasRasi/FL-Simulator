@@ -2,8 +2,8 @@ import time
 from fl_sim import Status
 from fl_sim.configuration import Config
 from fl_sim.federated_algs.fedalg import FedAlg
-from fl_sim.federated_algs.aggregation_strategy import FedAvgAgg
 from fl_sim.federated_algs.clients_selector import ClientsSelectorFactory
+from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory import AggregationStrategyFactory
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
 from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
 from fl_sim.utils import FedJob, FedPhase
@@ -15,6 +15,7 @@ class FedAvg(FedAlg):
         super().__init__(status, data, config, logger)
 
         self.clients_selector = None
+        self.aggregator = None
         self.global_update_optimizer = None
         self.local_data_optimizer = None
 
@@ -45,6 +46,10 @@ class FedAvg(FedAlg):
                                                            self.logger),
             "eval": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["data"], self.status,
                                                             self.logger),
+        }
+        self.aggregator = {
+            "fit": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config.algorithms["fit"]["data"], self.config, self.logger),
+            "eval": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["eval"]["aggregation"], self.status, self.config.algorithms["eval"]["data"], self.config, self.logger)
         }
 
     def select_devs(self, num_round: int, fed_phase: FedPhase):
@@ -93,9 +98,9 @@ class FedAvg(FedAlg):
             accuracies = [(r[0], r[3]) for r in local_fits]
 
             # aggregate local results
-            aggregated_weights = FedAvgAgg.aggregate_fit(weights)
-            aggregated_loss = FedAvgAgg.aggregate_losses(losses)
-            aggregated_accuracy = FedAvgAgg.aggregate_accuracies(accuracies)
+            aggregated_weights = self.aggregator["fit"].aggregate_fit(weights)
+            aggregated_loss = self.aggregator["fit"].aggregate_losses(losses)
+            aggregated_accuracy = self.aggregator["fit"].aggregate_accuracies(accuracies)
 
             # update global model and model metrics
             self.status.global_model_weights = aggregated_weights
@@ -140,8 +145,8 @@ class FedAvg(FedAlg):
             accuracies = [(r[0], r[2]) for r in local_evals]
 
             # aggregate local results
-            aggregated_loss = FedAvgAgg.aggregate_losses(losses)
-            aggregated_accuracy = FedAvgAgg.aggregate_accuracies(accuracies)
+            aggregated_loss = self.aggregator["eval"].aggregate_losses(losses)
+            aggregated_accuracy = self.aggregator["eval"].aggregate_accuracies(accuracies)
 
             # update model metrics
             self.status.update_agg_model_metrics(num_round, FedPhase.EVAL, aggregated_loss, aggregated_accuracy)
