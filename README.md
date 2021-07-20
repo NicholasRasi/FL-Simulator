@@ -21,7 +21,7 @@ Set the simulation parameters (described in the docs) with the ```config.py``` f
 ```python simulate.py```.  The output of the simulation will be saved in the ```output``` folder by default.
 
 #### Analyzer
-The **Analyzer** can be started with ```python analyze.py -f <list of files to analyze> -d -p -r```. The files are
+The **Analyzer** can be started with ```python analyze.py -f <list of files to analyze> -d -p```. The files are
 read from the ```output``` folder and the resulting plots along with a report file with all the graphs are saved into
 the ```graphs``` folder by default. The flags allow to: ```-d```: print the simulation data, ```-p``` export the
-plot, ```-r``` generate the report file.
+plot.

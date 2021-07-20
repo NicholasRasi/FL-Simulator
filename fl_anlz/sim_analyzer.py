@@ -8,6 +8,10 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import PercentFormatter, MaxNLocator
 import statistics as stats
 from mdutils import MdUtils
+from rich.table import Table, Column
+from rich.console import Console
+from rich import box
+import pandas as pd
 
 
 class SimAnalyzer:
@@ -18,10 +22,8 @@ class SimAnalyzer:
                  output_dir: str,
                  logger,
                  extension="pdf",
-                 do_report=False,
                  show_plot=False,
                  show_data=False):
-        # read file
         self.sims = []
         for sim_name, file in simulations:
             with open(input_dir + "/" + file, 'r') as fp:
@@ -31,23 +33,26 @@ class SimAnalyzer:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        if do_report:
-            self.ext = ".png"
-        else:
-            self.ext = "." + extension
+        self.add_img_to_report = extension == ".png"
         self.show_plot = show_plot
         self.show_data = show_data
         self.logger = logger
+        self.console = Console(record=True)
+        self.output_list = []
 
         matplotlib_logger = logging.getLogger('matplotlib')
         matplotlib_logger.setLevel(logging.ERROR)
 
         self.output_report = MdUtils(file_name=output_dir + '/report', title='Simulation Report')
 
-
     def _add_img_to_report(self, title, img_filename, level=1):
+        if self.add_img_to_report:
+            self.output_report.new_header(level=level, title=title)
+            self.output_report.new_paragraph("![](" + img_filename + ")")
+
+    def _add_text_to_report(self, title, text, level=1):
         self.output_report.new_header(level=level, title=title)
-        self.output_report.new_paragraph("![](" + img_filename + ")")
+        self.output_report.new_paragraph(text)
 
     def _save_show_plot(self, output_filename):
         plt.tight_layout()
@@ -259,7 +264,7 @@ class SimAnalyzer:
         for name, sim in self.sims:
             ys = []
             for status in sim["status"]:
-                val = status["var"][phase]["devs"]["selected"] -\
+                val = status["var"][phase]["devs"]["selected"] - \
                       (status["var"][phase]["devs"]["selected"] & status["con"]["devs"]["failures"])
                 ys.append(np.sum(val, axis=1))
             y_mean = [np.mean(y) for y in zip(*ys)]
@@ -456,7 +461,7 @@ class SimAnalyzer:
 
                 # energy
                 val = np.mean(status["con"]["devs"]["energy"], axis=1)
-                ax.hist(val, color=color,  label=name, density=False, alpha=1)
+                ax.hist(val, color=color, label=name, density=False, alpha=1)
                 ax.set(title=title, xlabel='mAh', ylabel='density')
                 ax.legend(loc=1)
                 ax.grid(True)
@@ -507,112 +512,293 @@ class SimAnalyzer:
                 self._save_show_plot(output_filename)
                 self._add_img_to_report(str(i), output_filename, level=2)
 
-    def print_data(self):
-        np.set_printoptions(precision=2)
-        np.set_printoptions(suppress=True)
+    def _init_console_table(self, title, min_max=True,
+                            column_names=("mean", "std", "min", "max"),
+                            column_styles=("magenta", "cyan", "blue", "bright_magenta", "bright_cyan")):
+
+        columns = [Column(header="name", style="green"), Column(header="rep", style="italic yellow")]
+        for i, (name, style) in enumerate(zip(column_names, column_styles)):
+            if i >= 2 and not min_max:
+                break
+            columns.append(Column(header=name, style=style))
+        return Table(*columns, title=title, box=box.SQUARE)
+
+    def print_availability(self):
+        table = self._init_console_table(title="AVAILABILITY", min_max=False)
         for name, sim in self.sims:
-            self.logger.info("---- DATA SIMULATION {} ----".format(name))
+            means_avail = []
+            stds_avail = []
+            for i, status in enumerate(sim["status"]):
+                availability = status["con"]["devs"]["availability"]
+                mean_avail = availability.mean()
+                std_avail = availability.std()
+                means_avail.append(mean_avail)
+                stds_avail.append(std_avail)
+                table.add_row(name, str(i + 1), f"{mean_avail * 100:.2f}%", f"{std_avail:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_avail) * 100:.2f}%",
+                          f"{stats.mean(stds_avail):.2f}")
+            self.output_list.append({"type": "availability", "name": name, "rep": "all",
+                                     "mean": stats.mean(means_avail), "std": stats.mean(stds_avail)})
+        self.console.print(table)
 
-            for phase in ["fit", "eval"]:
-                self.logger.info("--- {} ---".format(phase))
-                for key in sim["status"]["var"][phase]:
-                    self.logger.info("-- {} --".format(key))
-                    for consumption in sim["status"]["var"][phase][key]:
-                        self.logger.info("- {} -".format(consumption))
-                        val = sim["status"]["var"][phase][key][consumption]
+    def print_failures(self):
+        table = self._init_console_table(title="FAILURES", min_max=False)
+        for name, sim in self.sims:
+            means_failures = []
+            stds_failures = []
+            for i, status in enumerate(sim["status"]):
+                failures = status["con"]["devs"]["failures"]
+                mean_failures = failures.mean()
+                std_failures = failures.std()
+                means_failures.append(mean_failures)
+                stds_failures.append(std_failures)
+                table.add_row(name, str(i + 1), f"{mean_failures * 100:.2f}%", f"{std_failures:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_failures) * 100:.2f}%",
+                          f"{stats.mean(stds_failures):.2f}")
+            self.output_list.append({"type": "failures", "name": name, "rep": "all",
+                                     "mean": stats.mean(means_failures), "std": stats.mean(stds_failures)})
+        self.console.print(table)
 
-                        self.logger.info("\n{}".format(val))
-                        if len(val.shape) > 1:
-                            self.logger.info("aggregated: {}".format(np.sum(val, axis=1)))
-                        else:
-                            self.logger.info("aggregated: {}".format(np.sum(val)))
+    def print_ips(self):
+        table = self._init_console_table(title="IPS \[iters/s]")
+        for name, sim in self.sims:
+            means_ips = []
+            stds_ips = []
+            for i, status in enumerate(sim["status"]):
+                ips = status["con"]["devs"]["ips"]
+                mean_ips = ips.mean()
+                std_ips = ips.std()
+                means_ips.append(mean_ips)
+                stds_ips.append(std_ips)
+                table.add_row(name, str(i + 1), f"{mean_ips:.2f}", f"{std_ips:.2f}",
+                              f"{ips.min():.2f}", f"{ips.max():.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_ips):.2f}", f"{stats.mean(stds_ips):.2f}",
+                          f"{min(means_ips):.2f}", f"{max(means_ips):.2f}")
+            self.output_list.append({"type": "ips", "name": name, "rep": "all", "mean": stats.mean(means_ips),
+                                     "std": stats.mean(stds_ips), "min": min(means_ips),
+                                     "max": max(means_ips)})
+        self.console.print(table)
 
-    def print_metrics(self):
+    def print_energy(self):
+        table = self._init_console_table(title="ENERGY \[mAh]")
+        for name, sim in self.sims:
+            means_energy = []
+            stds_energy = []
+            for i, status in enumerate(sim["status"]):
+                energy = status["con"]["devs"]["energy"]
+                mean_energy = energy.mean()
+                std_energy = energy.std()
+                means_energy.append(mean_energy)
+                stds_energy.append(std_energy)
+                table.add_row(name, str(i + 1), f"{mean_energy:.2f}", f"{std_energy:.2f}",
+                              f"{energy.min():.2f}", f"{energy.max():.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_energy):.2f}",
+                          f"{stats.mean(stds_energy):.2f}", f"{min(means_energy):.2f}", f"{max(means_energy):.2f}")
+            self.output_list.append({"type": "energy", "name": name, "rep": "all", "mean": stats.mean(means_energy),
+                                     "std": stats.mean(stds_energy), "min": min(means_energy),
+                                     "max": max(means_energy)})
+        self.console.print(table)
+
+    def print_net_speed(self):
+        table = self._init_console_table(title="NET SPEED \[params/s]")
+        for name, sim in self.sims:
+            means_net_speed = []
+            stds_net_speed = []
+            for i, status in enumerate(sim["status"]):
+                net_speed = status["con"]["devs"]["net_speed"]
+                mean_net_speed = net_speed.mean()
+                std_net_speed = net_speed.std()
+                means_net_speed.append(mean_net_speed)
+                stds_net_speed.append(std_net_speed)
+                table.add_row(name, str(i + 1), f"{mean_net_speed:.2f}", f"{std_net_speed:.2f}",
+                              f"{net_speed.min():.2f}", f"{net_speed.max():.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_net_speed):.2f}",
+                          f"{stats.mean(stds_net_speed):.2f}", f"{min(means_net_speed):.2f}",
+                          f"{max(means_net_speed):.2f}")
+            self.output_list.append({"type": "net_speed", "name": name, "rep": "all", "mean": stats.mean(means_net_speed),
+                                     "std": stats.mean(stds_net_speed), "min": min(means_net_speed),
+                                     "max": max(means_net_speed)})
+        self.console.print(table)
+
+    def print_local_data_size(self):
+        table = self._init_console_table(title="LOCAL DATA SIZE \[samples]")
+        for name, sim in self.sims:
+            means_local_data_size = []
+            stds_local_data_size = []
+            for i, status in enumerate(sim["status"]):
+                local_data_size = status["con"]["devs"]["local_data_sizes"]
+                mean_local_data_size = local_data_size.mean()
+                std_local_data_size = local_data_size.std()
+                means_local_data_size.append(mean_local_data_size)
+                stds_local_data_size.append(std_local_data_size)
+                table.add_row(name, str(i + 1), f"{mean_local_data_size:.2f}", f"{std_local_data_size:.2f}",
+                              f"{local_data_size.min():.2f}", f"{local_data_size.max():.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_local_data_size):.2f}",
+                          f"{stats.mean(stds_local_data_size):.2f}", f"{min(means_local_data_size):.2f}",
+                          f"{max(means_local_data_size):.2f}")
+            self.output_list.append({"type": "local_data_size", "name": name, "rep": "all",
+                                     "mean": stats.mean(means_local_data_size), "std": stats.mean(stds_local_data_size),
+                                     "min": min(means_local_data_size), "max": max(means_local_data_size)})
+        self.console.print(table)
+
+    def print_model_params(self):
+        table = self._init_console_table(column_names=["params"], title="MODEL PARAMS")
+        for name, sim in self.sims:
+            for i, status in enumerate(sim["status"]):
+                table.add_row(name, str(i + 1), str(status["con"]["model"]["tot_weights"]))
+        self.console.print(table)
+
+    def print_selection(self, phase="fit"):
+        table = self._init_console_table(column_names=["mean", "mean succ. devs\n(among selected ones)"],
+                                         title=f"SELECTION ({phase})")
+        for name, sim in self.sims:
+            means_selected = []
+            successful_devs_ratios = []
+            for i, status in enumerate(sim["status"]):
+                selected = status["var"][phase]["devs"]["selected"]
+                successful_devs = status["var"][phase]["devs"]["selected"] - \
+                                  (status["var"][phase]["devs"]["selected"] & status["con"]["devs"]["failures"])
+                successful_devs_ratio = successful_devs.sum() / status["var"][phase]["devs"]["selected"].sum()
+                means_selected.append(selected.mean())
+                successful_devs_ratios.append(successful_devs_ratio)
+                table.add_row(name, str(i + 1), f"{selected.mean() * 100:.2f}%", f"{successful_devs_ratio * 100:.2f}%")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_selected) * 100:.2f}%",
+                          f"{stats.mean(successful_devs_ratios) * 100:.2f}%")
+            self.output_list.append({"type": "selection", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(means_selected),
+                                     "mean succ": stats.mean(successful_devs_ratios)})
+        self.console.print(table)
+
+    def print_total_time(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "min", "max"],
+                                         title=f"TOTAL TIME \[s] ({phase})")
         for name, sim in self.sims:
             tot_tts = []
             mean_rts = []
-            tot_rcs = []
-            mean_rcs = []
-            tot_ecs = []
-            mean_ecs = []
-            last_accs = []
-            last_losses = []
-
-            self.logger.info("\n---- SIMULATION {}".format(name))
+            std_rts = []
             for i, status in enumerate(sim["status"]):
-                self.logger.info("--- REP {}".format(i))
-                self.logger.info("-- CONSTANT DATA")
-                self.logger.info(
-                    "\tdev availability: {:.2f} %".format(status["con"]["devs"]["availability"].mean() * 100))
-                self.logger.info("\tdev failures: {:.2f} %".format(status["con"]["devs"]["failures"].mean() * 100))
-                self.logger.info("\tips [IPS], mean: {:.2f} | std: {:.2f} ".format(status["con"]["devs"]["ips"].mean(),
-                                                                                   status["con"]["devs"]["ips"].std()))
-                self.logger.info(
-                    "\tenergy [mAh], mean: {:.2f} | std: {:.2f}".format(status["con"]["devs"]["energy"].mean(),
-                                                                        status["con"]["devs"]["energy"].std()))
-                self.logger.info("\tnet speed [params/s], mean: {:.2f} | std: {:.2f}".format(
-                    status["con"]["devs"]["net_speed"].mean(), status["con"]["devs"]["net_speed"].std()))
-                self.logger.info("\tlocal data size [examples], mean {:.2f} | std: {:.2f}".format(
-                    status["con"]["devs"]["local_data_sizes"].mean(), status["con"]["devs"]["local_data_sizes"].std()))
-                self.logger.info('\tmodel params: {}'.format(status["con"]["model"]["tot_weights"]))
-                self.logger.info("-- VARIABLE DATA")
-                self.logger.info("- SELECTION")
-
-                rt = status["var"]["fit"]["times"]["computation"] + status["var"]["fit"]["times"]["communication"]
-                tot_tt = np.sum(np.amax(rt, axis=1))
-                mean_rt = np.mean(np.amax(rt, axis=1))
-                rc = status["var"]["fit"]["consumption"]["resources"]
-                tot_rc = np.sum(rc)
-                mean_rc = np.mean(np.sum(rc, axis=1))
-                ec = status["var"]["fit"]["consumption"]["energy"]
-                tot_ec = np.sum(ec)
-                mean_ec = np.mean(np.sum(ec, axis=1))
-                last_acc = status["var"]["eval"]["model_metrics"]["agg_accuracy"][-1]
-                last_loss = status["var"]["eval"]["model_metrics"]["agg_loss"][-1]
-
+                rt = status["var"][phase]["times"]["computation"] + status["var"][phase]["times"]["communication"]
+                max_round = np.amax(rt, axis=1)
+                tot_tt = np.sum(max_round)
+                mean_rt = np.mean(max_round)
+                std_rt = np.std(max_round)
+                min_rt = np.min(max_round)
+                max_rt = np.max(max_round)
                 tot_tts.append(tot_tt)
                 mean_rts.append(mean_rt)
+                std_rts.append(std_rt)
+                table.add_row(name, str(i + 1), f"{tot_tt:.2f}", f"{mean_rt:.2f}", f"{std_rt:.2f}",
+                              f"{min_rt:.2f}", f"{max_rt:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_tts):.2f}", f"{stats.mean(mean_rts):.2f}",
+                          f"{stats.mean(std_rts):.2f}", f"{min(tot_tts):.2f}", f"{max(tot_tts):.2f}")
+            self.output_list.append({"type": "times", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(tot_tts), "mean_round": stats.mean(mean_rts),
+                                     "std_round": stats.mean(std_rts), "min": min(tot_tts), "max": max(tot_tts)})
+        self.console.print(table)
+
+    def print_resources_consumption(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round"],
+                                         title=f"RESOURCES CONSUMPTION \[iters] ({phase})")
+        for name, sim in self.sims:
+            tot_rcs = []
+            mean_rcs = []
+            std_rcs = []
+            for i, status in enumerate(sim["status"]):
+                rc = status["var"][phase]["consumption"]["resources"]
+                tot_rc = np.sum(rc)
+                mean_rc = np.mean(np.sum(rc, axis=1))
+                std_rc = np.std(np.sum(rc, axis=1))
                 tot_rcs.append(tot_rc)
                 mean_rcs.append(mean_rc)
+                std_rcs.append(std_rc)
+                table.add_row(name, str(i + 1), f"{tot_rc:.2f}", f"{mean_rc:.2f}", f"{std_rc:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_rcs):.2f}", f"{stats.mean(mean_rcs):.2f}",
+                          f"{stats.mean(std_rcs):.2f}")
+            self.output_list.append({"type": "resources_consumption", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(tot_rcs), "mean_round": stats.mean(mean_rcs),
+                                     "std_round ": stats.mean(std_rcs)})
+        self.console.print(table)
+
+    def print_energy_consumption(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round"],
+                                         title=f"ENERGY CONSUMPTION \[mAh] ({phase})")
+        for name, sim in self.sims:
+            tot_ecs = []
+            mean_ecs = []
+            std_ecs = []
+            for i, status in enumerate(sim["status"]):
+                ec = status["var"][phase]["consumption"]["energy"]
+                tot_ec = np.sum(ec)
+                mean_ec = np.mean(np.sum(ec, axis=1))
+                std_ec = np.std(np.sum(ec, axis=1))
                 tot_ecs.append(tot_ec)
                 mean_ecs.append(mean_ec)
-                last_accs.append(last_acc)
-                last_losses.append(last_loss)
+                std_ecs.append(std_ec)
+                table.add_row(name, str(i + 1), f"{tot_ec:.2e}", f"{mean_ec:.2e}", f"{std_ec:.2e}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_ecs):.2e}", f"{stats.mean(mean_ecs):.2e}",
+                          f"{stats.mean(std_ecs):.2e}")
+            self.output_list.append({"type": "energy_consumption", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(tot_ecs), "mean_round": stats.mean(mean_ecs),
+                                     "std_round ": stats.mean(std_ecs)})
+        self.console.print(table)
 
-                self.logger.info("\tmean failed devices (among all devices): {:.2f} %".format(
-                    status["con"]["devs"]["failures"].mean() * 100))
-                self.logger.info("\tmean available devices (among all devices): {:.2f} %".format(
-                    status["con"]["devs"]["availability"].mean() * 100))
-                self.logger.info(
-                    "\tmean selected devices: {:.2f} %".format(status["var"]["fit"]["devs"]["selected"].mean() * 100))
-                successful_devs = status["var"]["fit"]["devs"]["selected"] - (
-                        status["var"]["fit"]["devs"]["selected"] & status["con"]["devs"]["failures"])
-                self.logger.info("\tmean successful devices (among selected ones): {:.2f} %".format(
-                    successful_devs.sum() / status["var"]["fit"]["devs"]["selected"].sum() * 100))
-                self.logger.info("\tmean successful devices (among selected ones): {:.2f} %".format(
-                    successful_devs.sum() / status["var"]["fit"]["devs"]["selected"].sum() * 100))
-                self.logger.info("- TIMES")
-                self.logger.info("\ttraining time [s], tot: {:.2f} | avg round: {:.2f}".format(tot_tt, mean_rt))
-                self.logger.info("- CONSUMPTIONS")
-                self.logger.info("\tresources [iters], tot: {:.2f} | avg round: {:.2f}".format(tot_rc, mean_rc))
-                self.logger.info("\tenergy [mAh], tot: {:.2f} | avg round: {:.2f}".format(tot_ec, mean_ec))
-                self.logger.info("- ACCURACY")
-                self.logger.info("\taccuracy [%], last: {:.2f}".format(last_acc))
-                self.logger.info("\tloss [%], last: {:.2f}".format(last_loss))
+    def print_network_consumption(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round"],
+                                         title=f"NETWORK CONSUMPTION \[params] ({phase})")
+        for name, sim in self.sims:
+            tot_ncs = []
+            mean_ncs = []
+            std_ncs = []
+            for i, status in enumerate(sim["status"]):
+                nc = status["var"][phase]["consumption"]["network"]
+                tot_nc = np.sum(nc)
+                mean_nc = np.mean(np.sum(nc, axis=1))
+                std_nc = np.std(np.sum(nc, axis=1))
+                tot_ncs.append(tot_nc)
+                mean_ncs.append(mean_nc)
+                std_ncs.append(std_nc)
+                table.add_row(name, str(i + 1), f"{tot_nc:.2e}", f"{mean_nc:.2e}", f"{std_nc:.2e}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_ncs):.2e}", f"{stats.mean(mean_ncs):.2e}",
+                          f"{stats.mean(std_ncs):.2e}")
+            self.output_list.append({"type": "network_consumption", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(tot_ncs), "mean_round": stats.mean(mean_ncs),
+                                     "std_round": stats.mean(std_ncs)})
+        self.console.print(table)
 
-            self.logger.info("- AGGREGATED")
-            self.logger.info("\taccuracy [%], last mean: {:.2f} | std: {:.2f}".format(stats.mean(last_accs),
-                                                                                      stats.stdev(last_accs) if len(
-                                                                                          last_accs) > 1 else 0))
-            self.logger.info("\tloss, last mean: {:.2f} | std: {:.2f}".format(stats.mean(last_losses),
-                                                                              stats.stdev(last_losses) if len(
-                                                                                  last_losses) > 1 else 0))
-            self.logger.info("\ttraining time [s], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_tts),
-                                                                                           stats.mean(mean_rts)))
-            self.logger.info("\tresources [iters], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_rcs),
-                                                                                           stats.mean(mean_rcs)))
-            self.logger.info(
-                "\tenergy [mAh], tot: {:.2f} | avg round: {:.2f}".format(stats.mean(tot_ecs), stats.mean(mean_ecs)))
+    def print_accuracy(self, phase="fit"):
+        table = self._init_console_table(column_names=["latest", "num rounds"], title=f"ACCURACY [%] ({phase})")
+        for name, sim in self.sims:
+            latest_accs = []
+            rounds = []
+            for i, status in enumerate(sim["status"]):
+                latest_acc = status["var"][phase]["model_metrics"]["agg_accuracy"][-1]
+                round_acc = status["var"][phase]["model_metrics"]["agg_accuracy"].shape[0]
+                latest_accs.append(latest_acc)
+                rounds.append(round_acc)
+                table.add_row(name, str(i + 1), f"{latest_acc:.2f}", f"{round_acc}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(latest_accs):.2f}", f"{stats.mean(rounds):.2f}")
+            self.output_list.append({"type": "accuracy", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(latest_accs), "num_rounds": stats.mean(rounds)})
+        self.console.print(table)
+
+    def print_loss(self, phase="fit"):
+        table = self._init_console_table(column_names=["latest", "num rounds"], title=f"LOSS ({phase})")
+        for name, sim in self.sims:
+            latest_losses = []
+            rounds = []
+            for i, status in enumerate(sim["status"]):
+                latest_loss = status["var"][phase]["model_metrics"]["agg_loss"][-1]
+                round_acc = status["var"][phase]["model_metrics"]["agg_loss"].shape[0]
+                latest_losses.append(latest_loss)
+                rounds.append(round_acc)
+                table.add_row(name, str(i + 1), f"{latest_loss:.2f}", f"{round_acc}")
+            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(latest_losses):.2f}", f"{stats.mean(rounds):.2f}")
+            self.output_list.append({"type": "loss", "phase": phase, "name": name, "rep": "all",
+                                     "mean": stats.mean(latest_losses), "num_rounds": stats.mean(rounds)})
+        self.console.print(table)
+
 
     def close(self):
+        self.console.save_html(os.path.join(self.output_dir, 'data.html'), clear=True)
+        pd.DataFrame(self.output_list).to_csv(os.path.join(self.output_dir, 'dataset.csv'))
         self.output_report.create_md_file()

@@ -13,14 +13,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f", nargs='+', dest='files', type=str, help="Input files", required=True)
 parser.add_argument("-p", dest="do_plot", help="Plot graphs", action='store_true')
 parser.add_argument("-d", dest="show_data", help="Show simulation data", action='store_true')
-parser.add_argument("-r", dest="do_report", help="Export report file", action='store_true')
 args = parser.parse_args()
 
 fl = [(file[:file.rfind('.')], file) for file in args.files]
 logger.info("reading: {}".format(fl))
 
-analyzer = SimAnalyzer(fl, "output", "graphs", logger, extension="png",
-                       do_report=args.do_report, show_plot=False, show_data=False)
+analyzer = SimAnalyzer(fl, "output", "graphs", logger, extension="png", show_plot=False, show_data=False)
 
 if args.do_plot:
     analyzer.plot_accuracy(phase="eval", color="k")
@@ -49,7 +47,26 @@ if args.do_plot:
     analyzer.plot_devices_data_distribution()
 
 if args.show_data:
-    analyzer.print_metrics()
-    # analyzer.print_data()
+    analyzer.print_availability()
+    analyzer.print_failures()
+    analyzer.print_ips()
+    analyzer.print_energy()
+    analyzer.print_net_speed()
+    analyzer.print_local_data_size()
+    analyzer.print_model_params()
+    analyzer.print_selection(phase="fit")
+    analyzer.print_selection(phase="eval")
+    analyzer.print_total_time(phase="fit")
+    analyzer.print_total_time(phase="eval")
+    analyzer.print_resources_consumption(phase="fit")
+    analyzer.print_resources_consumption(phase="eval")
+    analyzer.print_energy_consumption(phase="fit")
+    analyzer.print_energy_consumption(phase="eval")
+    analyzer.print_network_consumption(phase="fit")
+    analyzer.print_network_consumption(phase="eval")
+    analyzer.print_accuracy(phase="fit")
+    analyzer.print_accuracy(phase="eval")
+    analyzer.print_loss(phase="fit")
+    analyzer.print_loss(phase="eval")
 
 analyzer.close()

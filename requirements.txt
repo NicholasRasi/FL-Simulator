@@ -8,3 +8,5 @@ tqdm
 PyYAML
 autopep8
 mdutils
+rich
+pandas

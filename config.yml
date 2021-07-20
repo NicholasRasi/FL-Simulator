@@ -1,6 +1,6 @@
 simulation:
   # number or repetitions
-  repetitions: 1
+  repetitions: 2
   # simulation output folder
   output_folder: "output"
   # simulation output file
@@ -8,7 +8,7 @@ simulation:
   # model
   model_name: "mnist"
   # maximum number of rounds
-  num_rounds: 4
+  num_rounds: 20
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -59,11 +59,11 @@ algorithms:
 
 devices:
   # total number of devices (D)
-  num: 50
+  num: 10
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round
-  p_fail: 0
+  p_fail: 0.05
 
 computation:
   # mean and variance of number of computed iterations/second per device (among devices) [iter/s]
@@ -73,7 +73,7 @@ computation:
 energy:
   # mean and variance of energy available at each device [mWh]
   avail_mean: 3000
-  avail_var: 0
+  avail_var: 100
   # power consumption for 1 second of computation [mW/s]
   pow_comp_s: 100
   # power consumption for 1 second of network used [mW/s]
@@ -81,12 +81,12 @@ energy:
 
 network:
   # mean and variance of network speed available at each device [params/s]
-  speed_mean: 1000000
-  speed_var: 0
+  speed_mean: 100000
+  speed_var: 1000
 
 data:
   # mean and variance of number of examples available at each device
   num_examples_mean: 100
-  num_examples_var: 0
+  num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0
