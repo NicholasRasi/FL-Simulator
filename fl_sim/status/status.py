@@ -152,6 +152,6 @@ class Status:
 
     def to_dict(self):
         self.con["devs"]["local_data"] = None
-        self.con["devs"]["local_models"] = None
+        self.con["devs"]["local_models_weights"] = None
         return {"con": self.con,
                 "var": self.var}
