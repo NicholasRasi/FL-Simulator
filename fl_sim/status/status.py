@@ -143,6 +143,27 @@ class Status:
         self.var[phase]["model_metrics"]["loss"][num_round, dev_index] = loss
 
 
+    def resize_status(self, num_rounds):
+        self.con["devs"]["availability"] = self.con["devs"]["availability"][:num_rounds, :]
+        self.con["devs"]["failures"] = self.con["devs"]["failures"][:num_rounds, :]
+        self.con["devs"]["energy"] = self.con["devs"]["energy"][:num_rounds, :]
+        self.con["devs"]["net_speed"] = self.con["devs"]["net_speed"][:num_rounds, :]
+
+        for phase in ["fit", "eval"]:
+            self.var[phase]["devs"]["selected"] = self.var[phase]["devs"]["selected"][:num_rounds, :]
+            for loc in ["global", "local"]:
+                for config in ["epochs", "batch_size", "num_examples"]:
+                    self.var[phase]["upd_opt_configs"][loc][config] = self.var[phase]["upd_opt_configs"][loc][config][:num_rounds, :]
+            for time in ["computation", "communication"]:
+                self.var[phase]["times"][time] = self.var[phase]["times"][time][:num_rounds, :]
+            for consumption in ["resources", "network", "energy"]:
+                self.var[phase]["consumption"][consumption] = self.var[phase]["consumption"][consumption][:num_rounds, :]
+            for metric in ["accuracy", "loss"]:
+                self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds, :]
+            for metric in ["agg_accuracy", "agg_loss"]:
+                self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds]
+
+
     @staticmethod
     def randint(mean: int, var: int, size, dtype):
         if var == 0:

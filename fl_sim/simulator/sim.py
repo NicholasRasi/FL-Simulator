@@ -58,9 +58,12 @@ class Simulator:
                 # check if the stopping conditions are met
                 if status.var["eval"]["model_metrics"]["agg_accuracy"][r] >= self.config.simulation["stop_conds"]["accuracy"]:
                     self.logger.info("stopping condition (accuracy) met. %.4f acc reached" % status.var["eval"]["model_metrics"]["agg_accuracy"][r])
+                    # resize the status
+                    status.resize_status(r+1)
                     break
                 if status.var["eval"]["model_metrics"]["agg_loss"][r] <= self.config.simulation["stop_conds"]["loss"]:
                     self.logger.info("stopping condition (loss) met. %.4f loss reached" % status.var["eval"]["model_metrics"]["agg_loss"][r])
+                    status.resize_status(r+1)
                     break
             self.fed_alg.terminate()
             duration = time.time() - start_ts
