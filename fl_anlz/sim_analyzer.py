@@ -39,6 +39,7 @@ class SimAnalyzer:
         self.logger = logger
         self.console = Console(record=True)
         self.output_list = []
+        self.ext = "." + extension
 
         matplotlib_logger = logging.getLogger('matplotlib')
         matplotlib_logger.setLevel(logging.ERROR)
