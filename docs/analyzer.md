@@ -2,8 +2,7 @@
 The analyzer allows to:
 - plot graphs
 - export a report file (Markdown) with all the graphs
-- get information about the execution
-
+- get information about the execution on the console and in a html file.
 
 ### Available graphs
 When the simulation is repeated multiple times, the standard deviation is plotted with a vertical line, for every round.
@@ -80,3 +79,34 @@ The available graphs are:
   
 - ```plot_devices_data_distribution()```: it shows the data distribution of classes on the devices
 ![](imgs/example_graphs/devs_local_data_fedavg_0.png)
+  
+
+### Available print functions
+
+- ```print_availability()```
+
+- ```print_failures()```
+  
+- ```print_ips()```
+    
+- ```print_energy()```
+    
+- ```print_net_speed()```
+    
+- ```print_local_data_size()```
+    
+- ```print_model_params()```
+    
+- ```print_selection(phase)```
+     
+- ```print_total_time(phase)```
+     
+- ```print_resources_consumption(phase)```
+     
+- ```print_energy_consumption(phase)```
+     
+- ```print_network_consumption(phase)```
+     
+- ```print_accuracy(phase)```
+     
+- ```print_loss(phase)```
