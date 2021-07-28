@@ -1,12 +1,24 @@
+#   Human activity recognition for healthcare
+#
+#   Given data collected by sensors embedded in wearable devices,
+#   we need to recognize the type of activity perfomed between:
+#   WALKING, WALKING-UPSTAIRS, WALKING-DOWNSTAIRS, SITTING, STANDING and LAYING.
+#
+#   - the selected dataset is the keras dataset "boston_housing" since the structure and the target
+#     are similar to the ones of the healthcare problem (further improvement with UCI Smartphone data)
+#   - highly heterogeneous dataset, since it depends on the habits and activities of each individual
+#   - privacy is fundamental
+#
+
 simulation:
   # number or repetitions
   repetitions: 2
   # simulation output folder
-  output_folder: "output"
+  output_folder: "activity_recognition"
   # simulation output file
   output_file: "output.json"
   # model
-  model_name: "mnist"
+  model_name: "boston_housing"
   # maximum number of rounds
   num_rounds: 20
   # list of stopping conditions (OR) for ending the simulation
@@ -88,7 +100,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 100
+  num_examples_mean: 10
   num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0

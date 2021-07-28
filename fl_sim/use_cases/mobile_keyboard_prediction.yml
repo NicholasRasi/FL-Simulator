@@ -1,0 +1,21 @@
+#   Mobile keyboard prediction
+#
+#   Next-word predictions can predict the most probable next word or phrase
+#   depending on a small amount of user-generated preceding text.
+#
+#   - highly heterogeneous dataset, since it depends on the geographic area
+#   - personalization needed in order to apply a different model depending on the area
+#   - presence of malicious devices, wrong prediction given by the fact that people misspell words or use abbreviations
+#   - devices requirements: at least N GB of memory available, are charging, connected to unmetered network, in idle
+#
+
+adversary_num: ? # define the expected number of malicious devices
+
+non_iid_partitions: ? # to express the hetereogenity of devices
+
+algorithms:
+  fit:
+    selection: ? # to detect malicious devices and remove their local model from aggregation
+
+simulation:
+    model_name: ? # define an appropriate dataset

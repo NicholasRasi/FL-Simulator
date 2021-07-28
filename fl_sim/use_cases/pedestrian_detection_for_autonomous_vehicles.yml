@@ -1,0 +1,21 @@
+#   Pedestrian detection for autonomous vehicles
+#
+#   Given a dataset of images, we need to detect pedestrians.
+#
+#   - the selected dataset is ? which is appropriate for object detection (further improvement with UCI Smartphone data)
+#   - highly heterogeneous dataset, since it depends on the individual routine, habits, level of traffic
+#   - robustness is fundamental: a form of intelligence that can overcome faults and failures quickly is needed,
+#     thereby ensuring system resilience and service continuity
+#   - The selection of devices must be performed depending on the quality of images, for example non-blurred images are preferred
+#
+
+simulation:
+  model_name: ?
+
+algorithms:
+  fit:
+    aggregation: ?
+    selection: ?
+
+non_iid_partitions: ?
+

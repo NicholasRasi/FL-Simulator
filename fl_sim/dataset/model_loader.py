@@ -26,6 +26,10 @@ class DatasetModelLoader:
             train_images, test_images = train_images / 255.0, test_images / 255.0
 
             return train_images, train_labels, test_images, test_labels
+        elif self.model == "boston_housing":  # https://keras.io/api/datasets/boston_housing
+            (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.boston_housing.load_data()
+
+            return training_data, training_targets, testing_data, testing_targets
         elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
             (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.imdb.load_data(num_words=10000)
 
@@ -83,6 +87,15 @@ class DatasetModelLoader:
             tf_model.compile(optimizer=optimizer,
                              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                              metrics=['accuracy'])
+            return tf_model
+        elif self.model == "boston_housing":  # https://www.tensorflow.org/tutorials/keras/regression
+            tf_model = tf.keras.models.Sequential()
+            tf_model.add(tf.keras.layers.Dense(64, activation='relu', input_shape=(13,)))
+            tf_model.add(tf.keras.layers.Dense(64, activation='relu'))
+            tf_model.add(tf.keras.layers.Dense(1))
+
+            tf_model.compile(optimizer=optimizer, loss='mse', metrics=['mae'])
+
             return tf_model
         elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
             # Input - Layer
