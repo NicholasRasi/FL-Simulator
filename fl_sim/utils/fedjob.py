@@ -19,7 +19,7 @@ class FedJob:
 
         self.num_examples = 0
         if job_type == FedPhase.FIT:
-            self.mean_acc = None
+            self.mean_metric = None
             self.mean_loss = None
         elif job_type == FedPhase.EVAL:
             self.acc = None

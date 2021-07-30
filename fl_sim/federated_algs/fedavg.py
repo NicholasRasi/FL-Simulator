@@ -100,11 +100,11 @@ class FedAvg(FedAlg):
             # aggregate local results
             aggregated_weights = self.aggregator["fit"].aggregate_fit(weights)
             aggregated_loss = self.aggregator["fit"].aggregate_losses(losses)
-            aggregated_accuracy = self.aggregator["fit"].aggregate_accuracies(accuracies)
+            aggregated_metrics = self.aggregator["fit"].aggregate_accuracies(accuracies)
 
             # update global model and model metrics
             self.status.global_model_weights = aggregated_weights
-            self.status.update_agg_model_metrics(num_round, FedPhase.FIT, aggregated_loss, aggregated_accuracy)
+            self.status.update_agg_model_metrics(num_round, FedPhase.FIT, aggregated_loss, aggregated_metrics)
         else:
             self.logger.error("round failed")
 
@@ -225,10 +225,10 @@ class FedAvg(FedAlg):
                                         local_iterations=local_iterations,
                                         network_consumption=network_consumption,
                                         energy_consumption=energy_consumption,
-                                        accuracy=fedres.mean_acc,
+                                        metric=fedres.mean_metric,
                                         loss=fedres.mean_loss)
 
-            fit_results.append((fedres.num_examples, fedres.model_weights, fedres.mean_loss, fedres.mean_acc))
+            fit_results.append((fedres.num_examples, fedres.model_weights, fedres.mean_loss, fedres.mean_metric))
         return fit_results
 
     def get_eval_results(self, created_jobs):
@@ -256,7 +256,7 @@ class FedAvg(FedAlg):
                                         local_iterations=local_iterations,
                                         network_consumption=network_consumption,
                                         energy_consumption=energy_consumption,
-                                        accuracy=fedres.acc,
+                                        metric=fedres.metric,
                                         loss=fedres.loss)
-            eval_results.append((fedres.num_examples, fedres.loss, fedres.acc))
+            eval_results.append((fedres.num_examples, fedres.loss, fedres.metric))
         return eval_results

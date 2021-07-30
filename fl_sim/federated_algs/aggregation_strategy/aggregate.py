@@ -39,5 +39,6 @@ class Aggregate(AggregationStrategy):
         num_total_evaluation_examples = sum(
             [num_examples for num_examples, _ in samples_accuracies]
         )
+
         weighted_accuracies = [num_examples * acc for num_examples, acc in samples_accuracies]
         return sum(weighted_accuracies) / num_total_evaluation_examples

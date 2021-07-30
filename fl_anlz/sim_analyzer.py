@@ -81,12 +81,12 @@ class SimAnalyzer:
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.grid(True)
 
-    def plot_accuracy(self, phase="eval", color="r"):
-        title = f"Accuracy ({phase})"
+    def plot_metric(self, phase="eval", color="r"):
+        title = f"Metric ({phase})"
         self._plot_acc_loss(phase=phase, color=color, title=title,
-                            ylabel="accuracy %", legend_loc=4, key="agg_accuracy")
+                            ylabel="metric %", legend_loc=4, key="agg_metric")
 
-        output_filename = "agg_accuracy_" + phase + self.ext
+        output_filename = "agg_metric_" + phase + self.ext
         self._save_show_plot(output_filename)
         self._add_img_to_report(title, output_filename)
 
@@ -766,14 +766,14 @@ class SimAnalyzer:
                                      "std_round": stats.mean(std_ncs)})
         self.console.print(table)
 
-    def print_accuracy(self, phase="fit"):
+    def print_metric(self, phase="fit"):
         table = self._init_console_table(column_names=["latest", "num rounds"], title=f"ACCURACY [%] ({phase})")
         for name, sim in self.sims:
             latest_accs = []
             rounds = []
             for i, status in enumerate(sim["status"]):
-                latest_acc = status["var"][phase]["model_metrics"]["agg_accuracy"][-1]
-                round_acc = status["var"][phase]["model_metrics"]["agg_accuracy"].shape[0]
+                latest_acc = status["var"][phase]["model_metrics"]["agg_metric"][-1]
+                round_acc = status["var"][phase]["model_metrics"]["agg_metric"].shape[0]
                 latest_accs.append(latest_acc)
                 rounds.append(round_acc)
                 table.add_row(name, str(i + 1), f"{latest_acc:.2f}", f"{round_acc}")

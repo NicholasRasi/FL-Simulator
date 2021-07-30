@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from keras.layers import BatchNormalization
 
 
 class DatasetModelLoader:
@@ -28,6 +29,13 @@ class DatasetModelLoader:
             return train_images, train_labels, test_images, test_labels
         elif self.model == "boston_housing":  # https://keras.io/api/datasets/boston_housing
             (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.boston_housing.load_data()
+            mean = training_data.mean(axis=0)
+            training_data -= mean
+            std = training_data.std(axis=0)
+            training_data /= std
+
+            testing_data -= mean
+            testing_data /= std
 
             return training_data, training_targets, testing_data, testing_targets
         elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
@@ -48,7 +56,7 @@ class DatasetModelLoader:
 
             return training_data, training_targets, testing_data, testing_targets
 
-    def get_compiled_model(self, optimizer: str):
+    def get_compiled_model(self, optimizer: str, metric: str):
         if self.model == "mnist":  # https://www.tensorflow.org/tutorials/quickstart/beginner
             # build and compile Keras model
             tf_model = tf.keras.models.Sequential(
@@ -60,7 +68,7 @@ class DatasetModelLoader:
                 ]
             )
             tf_model.compile(
-                optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+                optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[metric]
             )
             return tf_model
         elif self.model == "fashion_mnist":  # https://www.tensorflow.org/tutorials/keras/classification
@@ -71,7 +79,7 @@ class DatasetModelLoader:
             ])
             tf_model.compile(optimizer=optimizer,
                              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                             metrics=['accuracy'])
+                             metrics=[metric])
             return tf_model
         elif self.model == "cifar10":  # https://www.tensorflow.org/tutorials/images/cnn
             tf_model = tf.keras.models.Sequential()
@@ -86,7 +94,7 @@ class DatasetModelLoader:
 
             tf_model.compile(optimizer=optimizer,
                              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                             metrics=['accuracy'])
+                             metrics=[metric])
             return tf_model
         elif self.model == "boston_housing":  # https://www.tensorflow.org/tutorials/keras/regression
             tf_model = tf.keras.models.Sequential()
@@ -94,7 +102,7 @@ class DatasetModelLoader:
             tf_model.add(tf.keras.layers.Dense(64, activation='relu'))
             tf_model.add(tf.keras.layers.Dense(1))
 
-            tf_model.compile(optimizer=optimizer, loss='mse', metrics=['mae'])
+            tf_model.compile(optimizer=optimizer, loss='mse', metrics=[metric])
 
             return tf_model
         elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
@@ -112,12 +120,13 @@ class DatasetModelLoader:
             tf_model.compile(
                 optimizer=optimizer,
                 loss="binary_crossentropy",
-                metrics=["accuracy"]
+                metrics=[metric]
             )
 
             return tf_model
         else:
             return None
+
 
     @staticmethod
     def select_random_samples(y, num_clients, nk):

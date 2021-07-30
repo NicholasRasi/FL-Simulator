@@ -21,7 +21,7 @@ logger.info("reading: {}".format(fl))
 analyzer = SimAnalyzer(fl, "output", "graphs", logger, extension="png", show_plot=False, show_data=False)
 
 if args.do_plot:
-    analyzer.plot_accuracy(phase="eval", color="k")
+    analyzer.plot_metric(phase="eval", color="k")
     analyzer.plot_loss(phase="eval", color="k")
     analyzer.plot_computation_time(phase="fit", color="k")
     analyzer.plot_communication_time(phase="fit", color="k")
@@ -45,6 +45,8 @@ if args.do_plot:
     analyzer.plot_devices_available_energy()
     analyzer.plot_devices_network_speed()
     analyzer.plot_devices_data_distribution()
+else:
+    print("ramo else")
 
 if args.show_data:
     analyzer.print_availability()
@@ -64,8 +66,8 @@ if args.show_data:
     analyzer.print_energy_consumption(phase="eval")
     analyzer.print_network_consumption(phase="fit")
     analyzer.print_network_consumption(phase="eval")
-    analyzer.print_accuracy(phase="fit")
-    analyzer.print_accuracy(phase="eval")
+    analyzer.print_metric(phase="fit")
+    analyzer.print_metric(phase="eval")
     analyzer.print_loss(phase="fit")
     analyzer.print_loss(phase="eval")
 

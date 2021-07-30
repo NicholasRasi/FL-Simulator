@@ -41,7 +41,7 @@ class FedAlg(ABC):
 
     def queue_consumer(self, fedjob_queue, fedres_queue):
         model = DatasetModelLoader(self.config.simulation["model_name"]) \
-            .get_compiled_model(optimizer=self.config.algorithms["optimizer"])
+            .get_compiled_model(optimizer=self.config.algorithms["optimizer"], metric=self.config.simulation["metric"])
 
         while True:
             fedjob: FedJob = fedjob_queue.get()
@@ -56,16 +56,17 @@ class FedAlg(ABC):
                 # fit model
                 history = model.fit(x_data, y_data,
                                     epochs=fedjob.config["epochs"],
-                                    batch_size=fedjob.config["batch_size"],
-                                    verbose=fedjob.config["tf_verbosity"])
-                fedjob.mean_acc = stats.mean(history.history['accuracy'])
+                                    batch_size=fedjob.config["batch_size"],verbose=fedjob.config["tf_verbosity"])
+
+                fedjob.mean_metric = stats.mean(history.history[self.config.simulation["metric"]])
                 fedjob.mean_loss = stats.mean(history.history['loss'])
                 fedjob.model_weights = model.get_weights()
 
             elif fedjob.job_type == FedPhase.EVAL:
                 # evaluate model
-                loss, accuracy = model.evaluate(x_data, y_data, verbose=fedjob.config["tf_verbosity"])
-                fedjob.acc = accuracy
+
+                loss, metric = model.evaluate(x_data, y_data, verbose=fedjob.config["tf_verbosity"])
+                fedjob.metric = metric
                 fedjob.loss = loss
 
             fedres_queue.put(fedjob)

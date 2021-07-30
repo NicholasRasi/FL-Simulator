@@ -51,13 +51,14 @@ class Simulator:
                 # evaluate model
                 self.fed_alg.model_eval(r)
 
-                self.logger.info("eval accuracy: %.4f | loss: %.4f" %
-                                 (status.var["eval"]["model_metrics"]["agg_accuracy"][r],
+                self.logger.info("eval %s: %.4f | loss: %.4f" %
+                                 (self.config.simulation["metric"],
+                                  status.var["eval"]["model_metrics"]["agg_metric"][r],
                                   status.var["eval"]["model_metrics"]["agg_loss"][r]))
 
                 # check if the stopping conditions are met
-                if status.var["eval"]["model_metrics"]["agg_accuracy"][r] >= self.config.simulation["stop_conds"]["accuracy"]:
-                    self.logger.info("stopping condition (accuracy) met. %.4f acc reached" % status.var["eval"]["model_metrics"]["agg_accuracy"][r])
+                if status.var["eval"]["model_metrics"]["agg_metric"][r] >= self.config.simulation["stop_conds"]["metric"]:
+                    self.logger.info("stopping condition (metric) met. %.4f acc reached" % status.var["eval"]["model_metrics"]["agg_metric"][r])
                     # resize the status
                     status.resize_status(r+1)
                     break

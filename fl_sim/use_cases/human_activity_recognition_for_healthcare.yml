@@ -14,17 +14,19 @@ simulation:
   # number or repetitions
   repetitions: 2
   # simulation output folder
-  output_folder: "activity_recognition"
+  output_folder: "output"
   # simulation output file
-  output_file: "output.json"
+  output_file: "human_activity.json"
   # model
   model_name: "boston_housing"
+  # metric
+  metric: "mae"
   # maximum number of rounds
   num_rounds: 20
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
-    accuracy: 1
+    metric: 1000000
     # global model loss (during evaluation)
     loss: 0
   # initialization policy
@@ -67,7 +69,7 @@ algorithms:
       batch_size: 32
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
-  optimizer: "sgd"
+  optimizer: "rmsprop"
 
 devices:
   # total number of devices (D)

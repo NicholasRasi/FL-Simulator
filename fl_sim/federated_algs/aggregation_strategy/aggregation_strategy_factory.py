@@ -10,5 +10,4 @@ class AggregationStrategyFactory:
     def get_aggregation_strategy(selector: str, status: Status, data, config: Config, logger):
         if selector == "fedavg":
             return FedAvgAgg(status, data, config, logger)
-        else:
-            print("aia")
+

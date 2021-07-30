@@ -108,11 +108,11 @@ class Status:
                                            dtype=float)
                     },
                     "model_metrics": {
-                        "accuracy": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "metric": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
                                              dtype=float),
                         "loss": np.full(shape=(config.simulation["num_rounds"], config.devices["num"]),
                                         fill_value=sys.float_info.max, dtype=float),
-                        "agg_accuracy": np.zeros(shape=config.simulation["num_rounds"], dtype=float),
+                        "agg_metric": np.zeros(shape=config.simulation["num_rounds"], dtype=float),
                         "agg_loss": np.full(shape=config.simulation["num_rounds"],
                                             fill_value=sys.float_info.max, dtype=float)
                     }}
@@ -125,21 +125,21 @@ class Status:
         self.var[phase]["upd_opt_configs"][location]["batch_size"][num_round, dev_index] = config["batch_size"]
         self.var[phase]["upd_opt_configs"][location]["num_examples"][num_round, dev_index] = config["num_examples"]
 
-    def update_agg_model_metrics(self, num_round: int, fed_phase: FedPhase, agg_loss: float, agg_accuracy: float):
+    def update_agg_model_metrics(self, num_round: int, fed_phase: FedPhase, agg_loss: float, agg_metric: float):
         phase = fed_phase.value
         self.var[phase]["model_metrics"]["agg_loss"][num_round] = agg_loss
-        self.var[phase]["model_metrics"]["agg_accuracy"][num_round] = agg_accuracy
+        self.var[phase]["model_metrics"]["agg_metric"][num_round] = agg_metric
 
     def update_sim_data(self, num_round: int, fed_phase: FedPhase, dev_index: int, computation_time: float,
                         communication_time: float, local_iterations: float, network_consumption: float,
-                        energy_consumption: float, accuracy: float, loss: float):
+                        energy_consumption: float, metric: float, loss: float):
         phase = fed_phase.value
         self.var[phase]["times"]["computation"][num_round, dev_index] = computation_time
         self.var[phase]["times"]["communication"][num_round, dev_index] = communication_time
         self.var[phase]["consumption"]["resources"][num_round, dev_index] = local_iterations
         self.var[phase]["consumption"]["network"][num_round, dev_index] = network_consumption
         self.var[phase]["consumption"]["energy"][num_round, dev_index] = energy_consumption
-        self.var[phase]["model_metrics"]["accuracy"][num_round, dev_index] = accuracy
+        self.var[phase]["model_metrics"]["metric"][num_round, dev_index] = metric
         self.var[phase]["model_metrics"]["loss"][num_round, dev_index] = loss
 
 
@@ -158,9 +158,9 @@ class Status:
                 self.var[phase]["times"][time] = self.var[phase]["times"][time][:num_rounds, :]
             for consumption in ["resources", "network", "energy"]:
                 self.var[phase]["consumption"][consumption] = self.var[phase]["consumption"][consumption][:num_rounds, :]
-            for metric in ["accuracy", "loss"]:
+            for metric in ["metric", "loss"]:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds, :]
-            for metric in ["agg_accuracy", "agg_loss"]:
+            for metric in ["agg_metric", "agg_loss"]:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds]
 
 
