@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import PercentFormatter, MaxNLocator
-import statistics as stats
 from mdutils import MdUtils
 from rich.table import Table, Column
 from rich.console import Console
@@ -536,10 +535,10 @@ class SimAnalyzer:
                 means_avail.append(mean_avail)
                 stds_avail.append(std_avail)
                 table.add_row(name, str(i + 1), f"{mean_avail * 100:.2f}%", f"{std_avail:.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_avail) * 100:.2f}%",
-                          f"{stats.mean(stds_avail):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_avail) * 100:.2f}%",
+                          f"{np.mean(stds_avail):.2f}")
             self.output_list.append({"type": "availability", "name": name, "rep": "all",
-                                     "mean": stats.mean(means_avail), "std": stats.mean(stds_avail)})
+                                     "mean": np.mean(means_avail), "std": np.mean(stds_avail)})
         self.console.print(table)
 
     def print_failures(self):
@@ -554,10 +553,10 @@ class SimAnalyzer:
                 means_failures.append(mean_failures)
                 stds_failures.append(std_failures)
                 table.add_row(name, str(i + 1), f"{mean_failures * 100:.2f}%", f"{std_failures:.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_failures) * 100:.2f}%",
-                          f"{stats.mean(stds_failures):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_failures) * 100:.2f}%",
+                          f"{np.mean(stds_failures):.2f}")
             self.output_list.append({"type": "failures", "name": name, "rep": "all",
-                                     "mean": stats.mean(means_failures), "std": stats.mean(stds_failures)})
+                                     "mean": np.mean(means_failures), "std": np.mean(stds_failures)})
         self.console.print(table)
 
     def print_ips(self):
@@ -573,11 +572,11 @@ class SimAnalyzer:
                 stds_ips.append(std_ips)
                 table.add_row(name, str(i + 1), f"{mean_ips:.2f}", f"{std_ips:.2f}",
                               f"{ips.min():.2f}", f"{ips.max():.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_ips):.2f}", f"{stats.mean(stds_ips):.2f}",
-                          f"{min(means_ips):.2f}", f"{max(means_ips):.2f}")
-            self.output_list.append({"type": "ips", "name": name, "rep": "all", "mean": stats.mean(means_ips),
-                                     "std": stats.mean(stds_ips), "min": min(means_ips),
-                                     "max": max(means_ips)})
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_ips):.2f}", f"{np.mean(stds_ips):.2f}",
+                          f"{np.min(means_ips):.2f}", f"{np.max(means_ips):.2f}")
+            self.output_list.append({"type": "ips", "name": name, "rep": "all", "mean": np.mean(means_ips),
+                                     "std": np.mean(stds_ips), "min": np.min(means_ips),
+                                     "max": np.max(means_ips)})
         self.console.print(table)
 
     def print_energy(self):
@@ -593,11 +592,11 @@ class SimAnalyzer:
                 stds_energy.append(std_energy)
                 table.add_row(name, str(i + 1), f"{mean_energy:.2f}", f"{std_energy:.2f}",
                               f"{energy.min():.2f}", f"{energy.max():.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_energy):.2f}",
-                          f"{stats.mean(stds_energy):.2f}", f"{min(means_energy):.2f}", f"{max(means_energy):.2f}")
-            self.output_list.append({"type": "energy", "name": name, "rep": "all", "mean": stats.mean(means_energy),
-                                     "std": stats.mean(stds_energy), "min": min(means_energy),
-                                     "max": max(means_energy)})
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_energy):.2f}",
+                          f"{np.mean(stds_energy):.2f}", f"{np.min(means_energy):.2f}", f"{np.max(means_energy):.2f}")
+            self.output_list.append({"type": "energy", "name": name, "rep": "all", "mean": np.mean(means_energy),
+                                     "std": np.mean(stds_energy), "min": np.min(means_energy),
+                                     "max": np.max(means_energy)})
         self.console.print(table)
 
     def print_net_speed(self):
@@ -613,12 +612,12 @@ class SimAnalyzer:
                 stds_net_speed.append(std_net_speed)
                 table.add_row(name, str(i + 1), f"{mean_net_speed:.2f}", f"{std_net_speed:.2f}",
                               f"{net_speed.min():.2f}", f"{net_speed.max():.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_net_speed):.2f}",
-                          f"{stats.mean(stds_net_speed):.2f}", f"{min(means_net_speed):.2f}",
-                          f"{max(means_net_speed):.2f}")
-            self.output_list.append({"type": "net_speed", "name": name, "rep": "all", "mean": stats.mean(means_net_speed),
-                                     "std": stats.mean(stds_net_speed), "min": min(means_net_speed),
-                                     "max": max(means_net_speed)})
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_net_speed):.2f}",
+                          f"{np.mean(stds_net_speed):.2f}", f"{np.min(means_net_speed):.2f}",
+                          f"{np.max(means_net_speed):.2f}")
+            self.output_list.append({"type": "net_speed", "name": name, "rep": "all", "mean": np.mean(means_net_speed),
+                                     "std": np.mean(stds_net_speed), "min": np.min(means_net_speed),
+                                     "max": np.max(means_net_speed)})
         self.console.print(table)
 
     def print_local_data_size(self):
@@ -634,12 +633,12 @@ class SimAnalyzer:
                 stds_local_data_size.append(std_local_data_size)
                 table.add_row(name, str(i + 1), f"{mean_local_data_size:.2f}", f"{std_local_data_size:.2f}",
                               f"{local_data_size.min():.2f}", f"{local_data_size.max():.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_local_data_size):.2f}",
-                          f"{stats.mean(stds_local_data_size):.2f}", f"{min(means_local_data_size):.2f}",
-                          f"{max(means_local_data_size):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_local_data_size):.2f}",
+                          f"{np.mean(stds_local_data_size):.2f}", f"{np.min(means_local_data_size):.2f}",
+                          f"{np.max(means_local_data_size):.2f}")
             self.output_list.append({"type": "local_data_size", "name": name, "rep": "all",
-                                     "mean": stats.mean(means_local_data_size), "std": stats.mean(stds_local_data_size),
-                                     "min": min(means_local_data_size), "max": max(means_local_data_size)})
+                                     "mean": np.mean(means_local_data_size), "std": np.mean(stds_local_data_size),
+                                     "min": np.min(means_local_data_size), "max": np.max(means_local_data_size)})
         self.console.print(table)
 
     def print_model_params(self):
@@ -663,11 +662,11 @@ class SimAnalyzer:
                 means_selected.append(selected.mean())
                 successful_devs_ratios.append(successful_devs_ratio)
                 table.add_row(name, str(i + 1), f"{selected.mean() * 100:.2f}%", f"{successful_devs_ratio * 100:.2f}%")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(means_selected) * 100:.2f}%",
-                          f"{stats.mean(successful_devs_ratios) * 100:.2f}%")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(means_selected) * 100:.2f}%",
+                          f"{np.mean(successful_devs_ratios) * 100:.2f}%")
             self.output_list.append({"type": "selection", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(means_selected),
-                                     "mean succ": stats.mean(successful_devs_ratios)})
+                                     "mean": np.mean(means_selected),
+                                     "mean succ": np.mean(successful_devs_ratios)})
         self.console.print(table)
 
     def print_total_time(self, phase="fit"):
@@ -690,11 +689,11 @@ class SimAnalyzer:
                 std_rts.append(std_rt)
                 table.add_row(name, str(i + 1), f"{tot_tt:.2f}", f"{mean_rt:.2f}", f"{std_rt:.2f}",
                               f"{min_rt:.2f}", f"{max_rt:.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_tts):.2f}", f"{stats.mean(mean_rts):.2f}",
-                          f"{stats.mean(std_rts):.2f}", f"{min(tot_tts):.2f}", f"{max(tot_tts):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_tts):.2f}", f"{np.mean(mean_rts):.2f}",
+                          f"{np.mean(std_rts):.2f}", f"{np.min(tot_tts):.2f}", f"{np.max(tot_tts):.2f}")
             self.output_list.append({"type": "times", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(tot_tts), "mean_round": stats.mean(mean_rts),
-                                     "std_round": stats.mean(std_rts), "min": min(tot_tts), "max": max(tot_tts)})
+                                     "mean": np.mean(tot_tts), "mean_round": np.mean(mean_rts),
+                                     "std_round": np.mean(std_rts), "min": np.min(tot_tts), "max": np.max(tot_tts)})
         self.console.print(table)
 
     def print_resources_consumption(self, phase="fit"):
@@ -713,11 +712,11 @@ class SimAnalyzer:
                 mean_rcs.append(mean_rc)
                 std_rcs.append(std_rc)
                 table.add_row(name, str(i + 1), f"{tot_rc:.2f}", f"{mean_rc:.2f}", f"{std_rc:.2f}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_rcs):.2f}", f"{stats.mean(mean_rcs):.2f}",
-                          f"{stats.mean(std_rcs):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_rcs):.2f}", f"{np.mean(mean_rcs):.2f}",
+                          f"{np.mean(std_rcs):.2f}")
             self.output_list.append({"type": "resources_consumption", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(tot_rcs), "mean_round": stats.mean(mean_rcs),
-                                     "std_round ": stats.mean(std_rcs)})
+                                     "mean": np.mean(tot_rcs), "mean_round": np.mean(mean_rcs),
+                                     "std_round ": np.mean(std_rcs)})
         self.console.print(table)
 
     def print_energy_consumption(self, phase="fit"):
@@ -736,11 +735,11 @@ class SimAnalyzer:
                 mean_ecs.append(mean_ec)
                 std_ecs.append(std_ec)
                 table.add_row(name, str(i + 1), f"{tot_ec:.2e}", f"{mean_ec:.2e}", f"{std_ec:.2e}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_ecs):.2e}", f"{stats.mean(mean_ecs):.2e}",
-                          f"{stats.mean(std_ecs):.2e}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_ecs):.2e}", f"{np.mean(mean_ecs):.2e}",
+                          f"{np.mean(std_ecs):.2e}")
             self.output_list.append({"type": "energy_consumption", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(tot_ecs), "mean_round": stats.mean(mean_ecs),
-                                     "std_round ": stats.mean(std_ecs)})
+                                     "mean": np.mean(tot_ecs), "mean_round": np.mean(mean_ecs),
+                                     "std_round ": np.mean(std_ecs)})
         self.console.print(table)
 
     def print_network_consumption(self, phase="fit"):
@@ -759,14 +758,14 @@ class SimAnalyzer:
                 mean_ncs.append(mean_nc)
                 std_ncs.append(std_nc)
                 table.add_row(name, str(i + 1), f"{tot_nc:.2e}", f"{mean_nc:.2e}", f"{std_nc:.2e}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(tot_ncs):.2e}", f"{stats.mean(mean_ncs):.2e}",
-                          f"{stats.mean(std_ncs):.2e}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_ncs):.2e}", f"{np.mean(mean_ncs):.2e}",
+                          f"{np.mean(std_ncs):.2e}")
             self.output_list.append({"type": "network_consumption", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(tot_ncs), "mean_round": stats.mean(mean_ncs),
-                                     "std_round": stats.mean(std_ncs)})
+                                     "mean": np.mean(tot_ncs), "mean_round": np.mean(mean_ncs),
+                                     "std_round": np.mean(std_ncs)})
         self.console.print(table)
 
-    def print_metric(self, phase="fit"):
+    def print_metric(self, phase="eval"):
         table = self._init_console_table(column_names=["latest", "num rounds"], title=f"ACCURACY [%] ({phase})")
         for name, sim in self.sims:
             latest_accs = []
@@ -777,12 +776,12 @@ class SimAnalyzer:
                 latest_accs.append(latest_acc)
                 rounds.append(round_acc)
                 table.add_row(name, str(i + 1), f"{latest_acc:.2f}", f"{round_acc}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(latest_accs):.2f}", f"{stats.mean(rounds):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(latest_accs):.2f}", f"{np.mean(rounds):.2f}")
             self.output_list.append({"type": "accuracy", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(latest_accs), "num_rounds": stats.mean(rounds)})
+                                     "mean": np.mean(latest_accs), "num_rounds": np.mean(rounds)})
         self.console.print(table)
 
-    def print_loss(self, phase="fit"):
+    def print_loss(self, phase="eval"):
         table = self._init_console_table(column_names=["latest", "num rounds"], title=f"LOSS ({phase})")
         for name, sim in self.sims:
             latest_losses = []
@@ -793,11 +792,10 @@ class SimAnalyzer:
                 latest_losses.append(latest_loss)
                 rounds.append(round_acc)
                 table.add_row(name, str(i + 1), f"{latest_loss:.2f}", f"{round_acc}")
-            table.add_row(f"[red]{name}[/]", "all", f"{stats.mean(latest_losses):.2f}", f"{stats.mean(rounds):.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(latest_losses):.2f}", f"{np.mean(rounds):.2f}")
             self.output_list.append({"type": "loss", "phase": phase, "name": name, "rep": "all",
-                                     "mean": stats.mean(latest_losses), "num_rounds": stats.mean(rounds)})
+                                     "mean": np.mean(latest_losses), "num_rounds": np.mean(rounds)})
         self.console.print(table)
-
 
     def close(self):
         self.console.save_html(os.path.join(self.output_dir, 'data.html'), clear=True)
