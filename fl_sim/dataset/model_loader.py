@@ -8,8 +8,26 @@ class DatasetModelLoader:
     def __init__(self, model: str):
         self.model = model
 
+    def get_dataset(self, mislabelling_percentage=0):
+        x_train, y_train, x_test, y_test = self._get_dataset()
 
-    def get_dataset(self):
+        if mislabelling_percentage > 0:
+            # mislabelling: shuffle a percentage of labels
+            # shuffle size
+            print(y_train.shape[0])
+            shuffle_size = int(mislabelling_percentage * y_train.shape[0])
+            # take the indexes to shuffle
+            shuffle_indexes = np.random.choice(y_train.shape[0], size=shuffle_size, replace=False)
+            # take data at indexes
+            shuffled = y_train[shuffle_indexes]
+            # shuffle data
+            np.random.shuffle(shuffled)
+            # replace
+            y_train[shuffle_indexes] = shuffled
+
+        return x_train, y_train, x_test, y_test
+
+    def _get_dataset(self):
         if self.model == "mnist":
             # load MNIST data
             (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()

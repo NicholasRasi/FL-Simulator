@@ -3,7 +3,6 @@ from fl_sim.status import Status
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader import DatasetModelLoader
 from json_tricks import dump
-from tqdm import trange
 import os
 from fl_sim.federated_algs.fedavg import FedAvg
 
@@ -16,7 +15,8 @@ class Simulator:
 
         self.run_data = []
         self.output_dir = self.config.simulation["output_folder"]
-        self.data = DatasetModelLoader(config.simulation["model_name"]).get_dataset()
+        self.data = DatasetModelLoader(config.simulation["model_name"])\
+            .get_dataset(config.data["mislabelling_percentage"])
 
         self.fed_alg = None
 
