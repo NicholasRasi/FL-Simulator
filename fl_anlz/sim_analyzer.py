@@ -797,6 +797,28 @@ class SimAnalyzer:
                                      "mean": np.mean(latest_losses), "num_rounds": np.mean(rounds)})
         self.console.print(table)
 
+    def print_fairness(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "min sel", "max sel"], title=f"FAIRNESS ({phase})")
+        for name, sim in self.sims:
+            tot_fairs = []
+            min_sels = []
+            max_sels = []
+            for i, status in enumerate(sim["status"]):
+                sel_by_dev = np.sum(status["var"][phase]["devs"]["selected"], axis=0)
+                fairness = np.std(sel_by_dev)
+                min_sel = np.min(sel_by_dev)
+                max_sel = np.max(sel_by_dev)
+                tot_fairs.append(fairness)
+                min_sels.append(min_sel)
+                max_sels.append(max_sel)
+                table.add_row(name, str(i + 1), f"{fairness:.2f}", f"{min_sel:d}", f"{max_sel:d}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_fairs):.2f}",
+                          f"{np.mean(min_sels):.2f}",  f"{np.mean(max_sels):.2f}")
+            self.output_list.append({"type": "fairness", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_fairs), "min": np.mean(min_sels),
+                                     "max": np.mean(max_sels)})
+        self.console.print(table)
+
     def close(self):
         self.console.save_html(os.path.join(self.output_dir, 'data.html'), clear=True)
         pd.DataFrame(self.output_list).to_csv(os.path.join(self.output_dir, 'dataset.csv'))

@@ -45,8 +45,6 @@ if args.do_plot:
     analyzer.plot_devices_available_energy()
     analyzer.plot_devices_network_speed()
     analyzer.plot_devices_data_distribution()
-else:
-    print("ramo else")
 
 if args.show_data:
     analyzer.print_availability()
@@ -70,5 +68,6 @@ if args.show_data:
     analyzer.print_metric(phase="eval")
     analyzer.print_loss(phase="fit")
     analyzer.print_loss(phase="eval")
+    analyzer.print_fairness(phase="fit")
 
 analyzer.close()
