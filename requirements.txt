@@ -10,3 +10,4 @@ autopep8
 mdutils
 rich
 pandas
+scipy
