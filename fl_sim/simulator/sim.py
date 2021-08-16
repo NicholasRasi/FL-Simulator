@@ -43,12 +43,14 @@ class Simulator:
             self.logger.info("starting training...")
             start_ts = time.time()
             for r in range(self.config.simulation["num_rounds"]):
-                self.logger.info("* running round %d *" % (r+1))
+                self.logger.info("* ROUND %d *" % (r+1))
 
                 # fit model
+                self.logger.info("< FIT >")
                 self.fed_alg.model_fit(r)
 
                 # evaluate model
+                self.logger.info("< EVAL >")
                 self.fed_alg.model_eval(r)
 
                 self.logger.info("eval %s: %.4f | loss: %.4f" %

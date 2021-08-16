@@ -67,6 +67,7 @@ class FedAvg(FedAlg):
 
         # start local fit execution
         created_jobs = 0
+        failed_jobs = 0
         failing_devs_indexes = self.get_failed_devs(num_round)
         for dev_index in dev_indexes:
             # run update optimizer
@@ -80,12 +81,13 @@ class FedAvg(FedAlg):
             if dev_index in failing_devs_indexes:
                 pass
                 # self.logger.error("dev fails: {}".format(dev_index))
+                failed_jobs += 1
             else:
                 # run client fit
                 self.put_client_job_fit(num_round, dev_index, global_config)
                 created_jobs += 1
 
-        self.logger.debug("total created fit jobs %d" % created_jobs)
+        self.logger.info("jobs successful: %d | failed: %d" % (created_jobs, failed_jobs))
 
         # wait until all the results are available
         while self.fedres_queue.qsize() < created_jobs:
@@ -115,6 +117,7 @@ class FedAvg(FedAlg):
 
         # start local eval execution
         created_jobs = 0
+        failed_jobs = 0
         failing_devs_indexes = self.get_failed_devs(num_round)
         for dev_index in dev_indexes:
             # run global update optimizer
@@ -128,12 +131,13 @@ class FedAvg(FedAlg):
             if dev_index in failing_devs_indexes:
                 pass
                 # self.logger.error("dev fails: {}".format(dev_index))
+                failed_jobs += 1
             else:
                 # run client eval
                 self.put_client_job_eval(num_round, dev_index, global_config)
                 created_jobs += 1
 
-        self.logger.debug("total created eval jobs %d" % created_jobs)
+        self.logger.info("jobs successful: %d | failed: %d" % (created_jobs, failed_jobs))
 
         # wait until all the results are available
         while self.fedres_queue.qsize() < created_jobs:
@@ -209,7 +213,7 @@ class FedAvg(FedAlg):
             local_iterations = fedres.config["epochs"] * fedres.num_examples / fedres.config["batch_size"]
             computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.dev_index]
             network_consumption = 2 * self.status.con["model"]["tot_weights"]
-            communication_time = 2 * self.status.con["model"]["tot_weights"] /\
+            communication_time = network_consumption /\
                                  self.status.con["devs"]["net_speed"][fedres.num_round, fedres.dev_index]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time +\
                                  self.config.energy["pow_net_s"] * communication_time
@@ -240,8 +244,8 @@ class FedAvg(FedAlg):
             local_iterations = fedres.num_examples / fedres.config["batch_size"]
             computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.dev_index]
             network_consumption = self.status.con["model"]["tot_weights"]
-            communication_time = self.status.con["model"]["tot_weights"] / self.status.con["devs"]["net_speed"][
-                fedres.num_round, fedres.dev_index]
+            communication_time = network_consumption /\
+                                 self.status.con["devs"]["net_speed"][fedres.num_round, fedres.dev_index]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time + self.config.energy[
                 "pow_net_s"] * communication_time
 
