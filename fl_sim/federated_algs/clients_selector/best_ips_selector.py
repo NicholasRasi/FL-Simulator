@@ -10,7 +10,11 @@ class BestIPSSelector(ClientsSelector):
         num_devs = int(self.config.algorithms["fit"]["params"]["k"] * avail_indexes.shape[0])
 
         # sort devices based on IPS
-        sorted_devs_ips = np.argsort(self.status.con["devs"]["ips"])[::-1]
+        return BestIPSSelector.select_best_ips(self.status.con["devs"]["ips"], avail_indexes, num_devs)
+
+    @staticmethod
+    def select_best_ips(devs_ips, avail_indexes, num_devs):
+        sorted_devs_ips = np.argsort(devs_ips)[::-1]
         dev_indexes = []
         for d in sorted_devs_ips:
             if d in avail_indexes:
