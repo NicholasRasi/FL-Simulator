@@ -7,10 +7,11 @@ import numpy as np
 
 class ClientsSelector(ABC):
 
-    def __init__(self, config: Config, status: Status, logger):
+    def __init__(self, config: Config, status: Status, logger, params=None):
         self.config = config
         self.status = status
         self.logger = logger
+        self.params = params
 
     @abstractmethod
     def select_devices(self, num_round: int) -> List:

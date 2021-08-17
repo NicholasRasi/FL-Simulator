@@ -65,6 +65,9 @@ during the fit and evaluation phases.
     - defined for: fit, eval
     - available values:
         - ```random```
+        - ```best_ips```
+        - ```best_net_speed```
+        - ```best_energy```
 - **update**:
     - type: str
     - desc: the algorithm used for the global update optimizer

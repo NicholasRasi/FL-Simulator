@@ -19,7 +19,10 @@ def select_devices(self, num_round: int) -> List
 ```
 
 ##### Random Selector
-The **Random Selector** randomly select devices among the available ones. 
+The **Random Selector** randomly select devices among the available ones.
+
+##### Best Selector
+The **Best Selector** select devices with the highest values of IPS, network speed or energy, among the available ones. 
 
 ### Global Update Optimizer
 The **Global Update Optimizer** computes ```epochs``` (E), ```batch_size``` (B) and ```num_examples``` (N) so the

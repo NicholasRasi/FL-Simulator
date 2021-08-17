@@ -1,6 +1,6 @@
 from fl_sim import Status
 from fl_sim.configuration import Config
-from .best_ips_selector import BestIPSSelector
+from .best_selector import BestSelector
 from .random_selector import RandomSelector
 
 
@@ -11,4 +11,8 @@ class ClientsSelectorFactory:
         if selector == "random":
             return RandomSelector(config, status, logger)
         elif selector == "best_ips":
-            return BestIPSSelector(config, status, logger)
+            return BestSelector(config, status, logger, params={"sortBy": "ips"})
+        elif selector == "best_net_speed":
+            return BestSelector(config, status, logger, params={"sortBy": "net_speed"})
+        elif selector == "best_energy":
+            return BestSelector(config, status, logger, params={"sortBy": "energy"})
