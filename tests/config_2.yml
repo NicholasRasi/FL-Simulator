@@ -1,0 +1,14 @@
+simulation:
+  repetitions: 2
+  output_folder: "output"
+  output_file: "best_net_speed.json"
+  model_name: "mnist"
+  metric: "accuracy"
+  num_rounds: 20
+  stop_conds:
+    metric: 1
+    loss: 0
+  initializer: "default"
+  seed: none
+  tf_verbosity: 0
+  num_processes: 2

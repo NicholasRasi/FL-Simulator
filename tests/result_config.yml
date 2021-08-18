@@ -1,0 +1,63 @@
+simulation:
+  repetitions: 10
+  output_folder: "output"
+  output_file: "best_net_speed.json"
+  model_name: "mnist"
+  metric: "accuracy"
+  num_rounds: 20
+  stop_conds:
+    metric: 0.5
+    loss: 0
+  initializer: "default"
+  seed: none # 19680801
+  tf_verbosity: 0
+  num_processes: 2
+
+algorithms:
+  fit:
+    aggregation: "fedavg"
+    selection: "best_net_speed"
+    update: "static"
+    data: "random"
+    params:
+      k: 0.5
+      epochs: 10
+      batch_size: 32
+      num_examples: 100
+  eval:
+    aggregation: "fedavg"
+    selection: "random"
+    update: "static"
+    data: "random"
+    params:
+      k: 0.8
+      epochs: 10
+      batch_size: 32
+      num_examples: 100
+  optimizer: "sgd"
+
+devices:
+  num: 10
+  p_available: 0.8
+  p_fail: 0.05
+  adversary_num: 0
+
+computation:
+  ips_mean: 100
+  ips_var: 50
+
+energy:
+  avail_mean: 3000
+  avail_var: 100
+  pow_comp_s: 100
+  pow_net_s: 200
+
+network:
+  speed_mean: 100000
+  speed_var: 1000
+
+data:
+  num_examples_mean: 100
+  num_examples_var: 10
+  non_iid_partitions: 0
+  mislabelling_percentage: 0
