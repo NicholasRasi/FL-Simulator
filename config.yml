@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "output.json"
+  output_file: "best_net_speed.json"
   # model
   model_name: "mnist"
   # metric
@@ -31,7 +31,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "best_net_speed"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -52,7 +52,7 @@ algorithms:
     update: "static"
     data: "random"
     params:
-      k: 0.5
+      k: 0.8
       epochs: 10
       batch_size: 32
       num_examples: 100
