@@ -11,3 +11,5 @@
 [Datasets](./datasets_models.md)
 
 [Analyzer](./analyzer.md)
+
+[Configuration](./configuration.md)
