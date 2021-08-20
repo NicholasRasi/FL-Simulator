@@ -1,27 +1,40 @@
 # Federated Learning Simulator
-A [Federated Learning](https://arxiv.org/abs/1602.05629) simulator with device availability, failures, computation,
-network, local data and energy heterogeneity simulation.
+**FL-Simulator** is a highly configurable [Federated Learning](https://arxiv.org/abs/1602.05629) simulator designed for
+Federated Learning experiments.
 
-The goal of this simulator is to execute an FL algorithm, such as FedAvg, in a real FL scenario, i.e., many
-heterogeneous devices, with different computation, network, energy capabilities and local data availability.
-The simulator aims to allow the developer to test and analyze custom optimizers.
-Optimizers are logic blocks that can be plugged in the simulator and can control the
-FL algorithm during its execution.
+## FL characteristics
+- the devices taking part to the FL network may be available only for a small amount of time. They may fail during the
+  execution of a training job
+- the computation capability made available by each device may be (very) different
+- the available network speed on each device may be different and variable
+- the training is performed with non-IID data available on devices
+- the devices may be battery powered, or have a fixed amount of total available energy
 
-The simulator provides an **Analyzer** component that allows to plot and visualize the simulation data.
+## Goals
+- the simulator aims to facilitate the development, test, comparison and analysis of custom algorithms (e.g. FedAvg)
+- the execution requires only a single machine and not a real and expensive FL network
+- the results do not depend on the hardware where the experiment was executed
+- the experiment is easily reproducible
+- optimizers (logic blocks defining the strategy applied at different stages of the FL protocol, e.g. client
+  selection) can be plugged in the simulator
+- the simulator allows to analyze, plot and visualize the resulting data
 
+## Getting Started
 ### Setup
 ```
 virtualenv env
 pip install -r requirements.txt
 ```
 
-#### Simulator
-Set the simulation parameters (described in the docs) with the ```config.py``` file and start the simulation with
-```python simulate.py```.  The output of the simulation will be saved in the ```output``` folder by default.
+### Start a Simulation
+1. the simulation parameters are defined in the ```config.py``` file
+2. the simulation can be started with ```python simulate.py```
+3. the output of the simulation will be saved in the ```output``` folder by default
 
-#### Analyzer
-The **Analyzer** can be started with ```python analyze.py -f <list of files to analyze> -d -p```. The files are
-read from the ```output``` folder and the resulting plots along with a report file with all the graphs are saved into
-the ```graphs``` folder by default. The flags allow to: ```-d```: print the simulation data, ```-p``` export the
-plot.
+### Analyze the Simulation data
+1. the *Analyzer* can be started with ```python analyze.py -f <list of files> -d -p```
+2. the files are read from the ```output``` folder. The flags allow to: ```-d``` print the simulation data, ```-p```
+   export the plots
+
+## Documentation
+More information about parameters, optimizers and the analyzer are available [here](./docs)
