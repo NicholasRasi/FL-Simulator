@@ -106,3 +106,5 @@ data:
   num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0
+  # percentage of mislabelled data
+  mislabelling_percentage: 0

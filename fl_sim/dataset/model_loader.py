@@ -1,15 +1,16 @@
-import tensorflow as tf
 import numpy as np
-from keras.layers import BatchNormalization
+from abc import abstractmethod, ABC
 
 
-class DatasetModelLoader:
+class DatasetModelLoader(ABC):
 
-    def __init__(self, model: str):
-        self.model = model
+    def __init__(self, num_devices: int):
+        self.num_devices = num_devices
 
+    @abstractmethod
     def get_dataset(self, mislabelling_percentage=0):
-        x_train, y_train, x_test, y_test = self._get_dataset()
+        """ x_train, y_train, x_test, y_test = self._get_dataset()
+
 
         if mislabelling_percentage > 0:
             # mislabelling: shuffle a percentage of labels
@@ -25,125 +26,15 @@ class DatasetModelLoader:
             # replace
             y_train[shuffle_indexes] = shuffled
 
-        return x_train, y_train, x_test, y_test
+        return x_train, y_train, x_test, y_test """
 
+    """
     def _get_dataset(self):
-        if self.model == "mnist":
-            # load MNIST data
-            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-            x_train, x_test = x_train / 255.0, x_test / 255.0
+        return self.model.get_dataset() """
 
-            return x_train, y_train, x_test, y_test
-        elif self.model == "fashion_mnist":  # https://www.tensorflow.org/tutorials/keras/classification
-            (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
-            train_images = train_images / 255.0
-            test_images = test_images / 255.0
-
-            return train_images, train_labels, test_images, test_labels
-        elif self.model == "cifar10":  # https://www.tensorflow.org/tutorials/images/cnn
-            (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.cifar10.load_data()
-            train_images, test_images = train_images / 255.0, test_images / 255.0
-
-            return train_images, train_labels, test_images, test_labels
-        elif self.model == "boston_housing":  # https://keras.io/api/datasets/boston_housing
-            (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.boston_housing.load_data()
-            mean = training_data.mean(axis=0)
-            training_data -= mean
-            std = training_data.std(axis=0)
-            training_data /= std
-
-            testing_data -= mean
-            testing_data /= std
-
-            return training_data, training_targets, testing_data, testing_targets
-        elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
-            (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.imdb.load_data(num_words=10000)
-
-            # prepare data
-            def vectorize(sequences, dimension=10000):
-                results = np.zeros((len(sequences), dimension))
-
-                for i, sequence in enumerate(sequences):
-                    results[i, sequence] = 1
-                return results
-
-            training_data = vectorize(training_data)
-            testing_data = vectorize(testing_data)
-            training_targets = np.array(training_targets).astype("float32")
-            testing_targets = np.array(testing_targets).astype("float32")
-
-            return training_data, training_targets, testing_data, testing_targets
-
+    @abstractmethod
     def get_compiled_model(self, optimizer: str, metric: str):
-        if self.model == "mnist":  # https://www.tensorflow.org/tutorials/quickstart/beginner
-            # build and compile Keras model
-            tf_model = tf.keras.models.Sequential(
-                [
-                    tf.keras.layers.Flatten(input_shape=(28, 28)),
-                    tf.keras.layers.Dense(128, activation="relu"),
-                    tf.keras.layers.Dropout(0.2),
-                    tf.keras.layers.Dense(10, activation="softmax"),
-                ]
-            )
-            tf_model.compile(
-                optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[metric]
-            )
-            return tf_model
-        elif self.model == "fashion_mnist":  # https://www.tensorflow.org/tutorials/keras/classification
-            tf_model = tf.keras.Sequential([
-                tf.keras.layers.Flatten(input_shape=(28, 28)),
-                tf.keras.layers.Dense(128, activation='relu'),
-                tf.keras.layers.Dense(10)
-            ])
-            tf_model.compile(optimizer=optimizer,
-                             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                             metrics=[metric])
-            return tf_model
-        elif self.model == "cifar10":  # https://www.tensorflow.org/tutorials/images/cnn
-            tf_model = tf.keras.models.Sequential()
-            tf_model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
-            tf_model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-            tf_model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
-            tf_model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-            tf_model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
-            tf_model.add(tf.keras.layers.Flatten())
-            tf_model.add(tf.keras.layers.Dense(64, activation='relu'))
-            tf_model.add(tf.keras.layers.Dense(10))
-
-            tf_model.compile(optimizer=optimizer,
-                             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                             metrics=[metric])
-            return tf_model
-        elif self.model == "boston_housing":  # https://www.tensorflow.org/tutorials/keras/regression
-            tf_model = tf.keras.models.Sequential()
-            tf_model.add(tf.keras.layers.Dense(64, activation='relu', input_shape=(13,)))
-            tf_model.add(tf.keras.layers.Dense(64, activation='relu'))
-            tf_model.add(tf.keras.layers.Dense(1))
-
-            tf_model.compile(optimizer=optimizer, loss='mse', metrics=[metric])
-
-            return tf_model
-        elif self.model == "imdb_reviews":  # https://builtin.com/data-science/how-build-neural-network-keras
-            # Input - Layer
-            tf_model = tf.keras.models.Sequential()
-            tf_model.add(tf.keras.layers.Dense(50, activation="relu", input_shape=(10000,)))
-            # Hidden - Layers
-            tf_model.add(tf.keras.layers.Dropout(0.3, noise_shape=None, seed=None))
-            tf_model.add(tf.keras.layers.Dense(50, activation="relu"))
-            tf_model.add(tf.keras.layers.Dropout(0.2, noise_shape=None, seed=None))
-            tf_model.add(tf.keras.layers.Dense(50, activation="relu"))
-            # Output- Layer
-            tf_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
-
-            tf_model.compile(
-                optimizer=optimizer,
-                loss="binary_crossentropy",
-                metrics=[metric]
-            )
-
-            return tf_model
-        else:
-            return None
+        """ return self.model.get_compiled_model(optimizer, metric) """
 
 
     @staticmethod
@@ -162,8 +53,7 @@ class DatasetModelLoader:
     def get_classes(y):
         return np.unique(y)
 
-    @staticmethod
-    def select_non_iid_samples(y, num_clients, nk, alpha):
+    def select_non_iid_samples(self, y, num_clients, nk, alpha):
         # compute unique labels
         classes = DatasetModelLoader.get_num_classes(y)
 

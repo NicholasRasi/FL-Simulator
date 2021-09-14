@@ -1,13 +1,13 @@
 from .local_data_optimizer import LocalDataOptimizer
-from fl_sim.dataset.model_loader import DatasetModelLoader
+from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 
 
 class RandomOptimizer(LocalDataOptimizer):
 
-    def optimize(self, num_round: int, dev_index: int, num_examples: int, data) -> tuple:
+    def optimize(self, num_round: int, dev_index: int, num_examples: int, model_name, num: int, data) -> tuple:
         x, y = data
         # get randomly num_examples examples among the available ones
         num_examples = min(x.shape[0], num_examples)
-        sub_indexes = DatasetModelLoader.select_random_samples(y, 1, [num_examples])[0]
+        sub_indexes = DatasetModelLoaderFactory.get_model_loader(model_name, num).select_random_samples(y, 1, [num_examples])[0]
 
         return x[sub_indexes], y[sub_indexes]

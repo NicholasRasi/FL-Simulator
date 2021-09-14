@@ -7,7 +7,9 @@ from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory imp
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
 from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
 from fl_sim.utils import FedJob, FedPhase
-
+import threading
+import subprocess
+import psutil
 
 class FedAvg(FedAlg):
 
@@ -164,6 +166,8 @@ class FedAvg(FedAlg):
         # run local data optimizer
         x_train_sub, y_train_sub = self.local_data_optimizer["fit"].optimize(num_round, dev_index,
                                                                              job_config["num_examples"],
+                                                                             self.config.simulation["model_name"],
+                                                                             self.config.devices["num"],
                                                                              (x_train, y_train))
         job_config["num_examples"] = x_train_sub.shape[0]
 
@@ -186,6 +190,8 @@ class FedAvg(FedAlg):
         # run local data optimizer
         x_test_sub, y_test_sub = self.local_data_optimizer["eval"].optimize(num_round, dev_index,
                                                                             job_config["num_examples"],
+                                                                            self.config.simulation["model_name"],
+                                                                            self.config.devices["num"],
                                                                             (x_test, y_test))
         job_config["num_examples"] = x_test_sub.shape[0]
 

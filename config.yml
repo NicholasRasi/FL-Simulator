@@ -6,7 +6,7 @@ simulation:
   # simulation output file
   output_file: "best_net_speed.json"
   # model
-  model_name: "mnist"
+  model_name: "tff_emnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
@@ -22,9 +22,9 @@ simulation:
   # fixing random state for reproducibility
   seed: none # 19680801
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
-  tf_verbosity: 0
+  tf_verbosity: 1
   # number of concurrent processes
-  num_processes: 2
+  num_processes: 3
 
 algorithms:
   fit:
@@ -90,8 +90,8 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 100
-  num_examples_var: 10
+  num_examples_mean: 90
+  num_examples_var: 0
   # use non-i.d.d data
   non_iid_partitions: 0
   # percentage of mislabelled data

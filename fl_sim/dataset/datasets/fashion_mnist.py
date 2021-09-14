@@ -1,0 +1,23 @@
+import tensorflow as tf
+from tensorflow.keras.layers import BatchNormalization
+from ..model_loader import DatasetModelLoader
+
+
+class FashionMnist(DatasetModelLoader):
+
+    def get_dataset(self, mislabelling_percentage=0):
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+        x_train = x_train / 255.0
+        x_test = x_test / 255.0
+        return x_train, y_train, x_test, y_test
+
+    def get_compiled_model(self, optimizer: str, metric: str):
+        tf_model = tf.keras.Sequential([
+            tf.keras.layers.Flatten(input_shape=(28, 28)),
+            tf.keras.layers.Dense(128, activation='relu'),
+            tf.keras.layers.Dense(10)
+        ])
+        tf_model.compile(optimizer=optimizer,
+                         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                         metrics=[metric])
+        return tf_model

@@ -3,9 +3,10 @@ import numpy as np
 from abc import ABC
 from fl_sim import Status
 from fl_sim.configuration import Config
-from fl_sim.dataset import DatasetModelLoader
+from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.utils import FedJob, FedPhase
 import statistics as stats
+import tensorflow as tf
 
 
 class FedAlg(ABC):
@@ -40,7 +41,8 @@ class FedAlg(ABC):
         return x_data, y_data
 
     def queue_consumer(self, fedjob_queue, fedres_queue):
-        model = DatasetModelLoader(self.config.simulation["model_name"]) \
+
+        model = DatasetModelLoaderFactory.get_model_loader(self.config.simulation["model_name"], self.config.devices["num"]) \
             .get_compiled_model(optimizer=self.config.algorithms["optimizer"], metric=self.config.simulation["metric"])
 
         while True:
@@ -56,7 +58,7 @@ class FedAlg(ABC):
                 # fit model
                 history = model.fit(x_data, y_data,
                                     epochs=fedjob.config["epochs"],
-                                    batch_size=fedjob.config["batch_size"],verbose=fedjob.config["tf_verbosity"])
+                                    batch_size=fedjob.config["batch_size"], verbose=fedjob.config["tf_verbosity"])
 
                 fedjob.mean_metric = stats.mean(history.history[self.config.simulation["metric"]])
                 fedjob.mean_loss = stats.mean(history.history['loss'])
