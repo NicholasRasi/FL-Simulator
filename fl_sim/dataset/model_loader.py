@@ -40,9 +40,10 @@ class DatasetModelLoader(ABC):
     @staticmethod
     def select_random_samples(y, num_clients, nk):
         clients_data_indexes = []
-        for client in range(num_clients):
-            indices = np.random.choice(y.shape[0], nk[client], replace=False)
-            clients_data_indexes.append(indices)
+        if y is not None:
+            for client in range(num_clients):
+                indices = np.random.choice(y.shape[0], nk[client], replace=False)
+                clients_data_indexes.append(indices)
         return clients_data_indexes
 
     @staticmethod
@@ -158,9 +159,10 @@ class DatasetModelLoader(ABC):
     def record_data_stats(y_train, local_data_indexes):
         classes = DatasetModelLoader.get_classes(y_train)
         stats = []
-        for indexes in local_data_indexes:
-            count = []
-            for i, cl in enumerate(classes):
-                count.append(np.where(y_train[indexes] == cl)[0].shape[0])
-            stats.append(count)
+        if y_train is not None:
+            for indexes in local_data_indexes:
+                count = []
+                for i, cl in enumerate(classes):
+                    count.append(np.where(y_train[indexes] == cl)[0].shape[0])
+                stats.append(count)
         return stats

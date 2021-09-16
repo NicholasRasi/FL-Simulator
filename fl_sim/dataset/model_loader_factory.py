@@ -7,6 +7,7 @@ from .datasets.tff_cifar100 import Cifar100_tff
 from .datasets.tff_emnist import Emnist_tff
 from .datasets.boston_housing import BostonHousing
 from .datasets.imdb_reviews import ImdbReviews
+from .datasets.shakespeare import Shakespeare
 
 
 class DatasetModelLoaderFactory:
@@ -29,5 +30,7 @@ class DatasetModelLoaderFactory:
             return BostonHousing(num_devices)
         elif model_name == "imdb_reviews": # https://builtin.com/data-science/how-build-neural-network-keras
             return ImdbReviews(num_devices)
+        elif model_name == "shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
+            return Shakespeare(num_devices)
         else:
             return None
