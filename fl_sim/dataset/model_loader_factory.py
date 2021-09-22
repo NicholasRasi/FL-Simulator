@@ -8,6 +8,7 @@ from .datasets.tff_emnist import Emnist_tff
 from .datasets.boston_housing import BostonHousing
 from .datasets.imdb_reviews import ImdbReviews
 from .datasets.shakespeare import Shakespeare
+from .datasets.tff_shakespeare import Shakespeare_tff
 
 
 class DatasetModelLoaderFactory:
@@ -32,5 +33,7 @@ class DatasetModelLoaderFactory:
             return ImdbReviews(num_devices)
         elif model_name == "shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
             return Shakespeare(num_devices)
+        elif model_name == "tff_shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
+            return Shakespeare_tff(num_devices)
         else:
             return None

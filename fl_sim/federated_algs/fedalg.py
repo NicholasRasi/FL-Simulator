@@ -58,7 +58,8 @@ class FedAlg(ABC):
                 # fit model
                 history = model.fit(x_data, y_data,
                                     epochs=fedjob.config["epochs"],
-                                    batch_size=fedjob.config["batch_size"], verbose=fedjob.config["tf_verbosity"])
+                                    #batch_size=fedjob.config["batch_size"],
+                                    verbose=fedjob.config["tf_verbosity"])
 
                 fedjob.mean_metric = stats.mean(history.history[self.config.simulation["metric"]])
                 fedjob.mean_loss = stats.mean(history.history['loss'])
