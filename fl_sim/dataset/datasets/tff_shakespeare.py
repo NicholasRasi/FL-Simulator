@@ -71,7 +71,7 @@ class Shakespeare_tff(DatasetModelLoader):
 
     def get_dataset(self, mislabelling_percentage=0):
         # download dataset and load samples of clients
-        train_data, test_data = tff.simulation.datasets.shakespeare.load_data()
+        train_data, test_data = tff.simulation.datasets.shakespeare.load_data(cache_dir="./datasets")
         sample_clients_train = train_data.client_ids[0:self.num_devices]
         sample_clients_test = test_data.client_ids[0:self.num_devices]
         federated_train_data = [(train_data.create_tf_dataset_for_client(x)) for x in sample_clients_train]

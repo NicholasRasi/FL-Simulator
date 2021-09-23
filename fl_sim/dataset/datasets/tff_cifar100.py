@@ -7,7 +7,7 @@ from ..model_loader import DatasetModelLoader
 class Cifar100_tff(DatasetModelLoader):
 
     def get_dataset(self, mislabelling_percentage=0):
-        (cifar100_train), (cifar100_test) = tff.simulation.datasets.cifar100.load_data()
+        (cifar100_train), (cifar100_test) = tff.simulation.datasets.cifar100.load_data(cache_dir="./datasets")
 
         sample_clients_train = cifar100_train.client_ids[0:self.num_devices]
         sample_clients_test = cifar100_test.client_ids[0:self.num_devices]
