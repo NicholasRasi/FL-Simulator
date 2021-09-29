@@ -1,4 +1,3 @@
-import numpy as np
 from .datasets.mnist import Mnist
 from .datasets.fashion_mnist import FashionMnist
 from .datasets.cifar10 import Cifar10
@@ -9,6 +8,7 @@ from .datasets.boston_housing import BostonHousing
 from .datasets.imdb_reviews import ImdbReviews
 from .datasets.shakespeare import Shakespeare
 from .datasets.tff_shakespeare import Shakespeare_tff
+from .datasets.sentiment140 import Sentiment140
 
 
 class DatasetModelLoaderFactory:
@@ -35,5 +35,7 @@ class DatasetModelLoaderFactory:
             return Shakespeare(num_devices)
         elif model_name == "tff_shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
             return Shakespeare_tff(num_devices)
+        elif model_name == "sentiment140": # https://www.tensorflow.org/text/tutorials/text_classification_rnn
+            return Sentiment140(num_devices)
         else:
             return None

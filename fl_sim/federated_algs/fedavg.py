@@ -7,9 +7,7 @@ from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory imp
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
 from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
 from fl_sim.utils import FedJob, FedPhase
-import threading
-import subprocess
-import psutil
+
 
 class FedAvg(FedAlg):
 

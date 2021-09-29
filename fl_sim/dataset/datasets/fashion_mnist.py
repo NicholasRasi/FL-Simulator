@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.layers import BatchNormalization
 from ..model_loader import DatasetModelLoader
 
 
@@ -11,7 +10,7 @@ class FashionMnist(DatasetModelLoader):
         x_test = x_test / 255.0
         return x_train, y_train, x_test, y_test
 
-    def get_compiled_model(self, optimizer: str, metric: str):
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):
         tf_model = tf.keras.Sequential([
             tf.keras.layers.Flatten(input_shape=(28, 28)),
             tf.keras.layers.Dense(128, activation='relu'),

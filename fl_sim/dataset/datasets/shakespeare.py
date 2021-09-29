@@ -66,7 +66,7 @@ class Shakespeare(DatasetModelLoader):
 
         return x_train, y_train, None, None
 
-    def get_compiled_model(self, optimizer: str, metric: str):  # https://www.tensorflow.org/tutorials/quickstart/beginner
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
         # Length of the vocabulary in chars
         vocab_size = 65
 

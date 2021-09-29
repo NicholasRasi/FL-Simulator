@@ -33,7 +33,7 @@ class DatasetModelLoader(ABC):
         return self.model.get_dataset() """
 
     @abstractmethod
-    def get_compiled_model(self, optimizer: str, metric: str):
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):
         """ return self.model.get_compiled_model(optimizer, metric) """
 
 

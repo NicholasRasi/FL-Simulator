@@ -20,7 +20,7 @@ class Emnist_tff(DatasetModelLoader):
 
         return images_train, labels_train, images_test, labels_test
 
-    def get_compiled_model(self, optimizer: str, metric: str):  # https://www.tensorflow.org/tutorials/quickstart/beginner
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
         # build and compile Keras model
 
         tf_model = tf.keras.models.Sequential(

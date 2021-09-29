@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.layers import BatchNormalization
 from ..model_loader import DatasetModelLoader
 
 
@@ -16,7 +15,7 @@ class BostonHousing(DatasetModelLoader):
         testing_data /= std
         return training_data, training_targets, testing_data, testing_targets
 
-    def get_compiled_model(optimizer: str, metric: str):
+    def get_compiled_model(optimizer: str, metric: str, train_data):
         tf_model = tf.keras.models.Sequential()
         tf_model.add(tf.keras.layers.Dense(64, activation='relu', input_shape=(13,)))
         tf_model.add(tf.keras.layers.Dense(64, activation='relu'))

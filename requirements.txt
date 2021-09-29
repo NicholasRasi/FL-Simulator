@@ -7,4 +7,6 @@ scipy
 mdutils
 PyYAML
 rich
+tensorflow
+numpy
 tensorflow_federated

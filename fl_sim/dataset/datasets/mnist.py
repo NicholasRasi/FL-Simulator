@@ -1,7 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.layers import BatchNormalization
 from ..model_loader import DatasetModelLoader
-import tensorflow_federated as tff
 import numpy as np
 
 
@@ -10,6 +8,7 @@ class Mnist(DatasetModelLoader):
     def get_dataset(self, mislabelling_percentage=0):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
         x_train, x_test = x_train / 255.0, x_test / 255.0
+
         return x_train, y_train, x_test, y_test
 
     @staticmethod
@@ -24,7 +23,7 @@ class Mnist(DatasetModelLoader):
 
         return np.array(images_numpy), np.array(labels_numpy)
 
-    def get_compiled_model(self, optimizer: str, metric: str): # https://www.tensorflow.org/tutorials/quickstart/beginner
+    def get_compiled_model(self, optimizer: str, metric: str, train_data): # https://www.tensorflow.org/tutorials/quickstart/beginner
         # build and compile Keras model
         tf_model = tf.keras.models.Sequential(
             [

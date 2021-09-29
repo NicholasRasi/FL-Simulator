@@ -1,12 +1,12 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import BatchNormalization
 from ..model_loader import DatasetModelLoader
 
 
 class ImdbReviews(DatasetModelLoader):
 
     def get_dataset(self, mislabelling_percentage=0):
+
         (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.imdb.load_data(
             num_words=10000)
 
@@ -25,7 +25,8 @@ class ImdbReviews(DatasetModelLoader):
 
         return training_data, training_targets, testing_data, testing_targets
 
-    def get_compiled_model(self, optimizer: str, metric: str):
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):
+
         # Input - Layer
         tf_model = tf.keras.models.Sequential()
         tf_model.add(tf.keras.layers.Dense(50, activation="relu", input_shape=(10000,)))

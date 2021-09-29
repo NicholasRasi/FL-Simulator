@@ -1,4 +1,6 @@
 import multiprocessing
+import threading
+
 import numpy as np
 from abc import ABC
 from fl_sim import Status
@@ -6,7 +8,6 @@ from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.utils import FedJob, FedPhase
 import statistics as stats
-import tensorflow as tf
 
 
 class FedAlg(ABC):
@@ -16,7 +17,7 @@ class FedAlg(ABC):
         self.x_train, self.y_train, self.x_test, self.y_test = data
         self.config = config
         self.logger = logger
-
+        self.lock = threading.Lock()
         self.fedjob_queue = multiprocessing.Queue()
         self.fedres_queue = multiprocessing.Queue()
         self.queue_consumer_ps = []
@@ -42,14 +43,17 @@ class FedAlg(ABC):
 
     def queue_consumer(self, fedjob_queue, fedres_queue):
 
-        model = DatasetModelLoaderFactory.get_model_loader(self.config.simulation["model_name"], self.config.devices["num"]) \
-            .get_compiled_model(optimizer=self.config.algorithms["optimizer"], metric=self.config.simulation["metric"])
-
         while True:
             fedjob: FedJob = fedjob_queue.get()
 
             x_data, y_data = fedjob.data
             fedjob.num_examples = x_data.shape[0]
+
+            model_factory = DatasetModelLoaderFactory.get_model_loader(self.config.simulation["model_name"],
+                                                                       self.config.devices["num"])
+            model = model_factory.get_compiled_model(optimizer=self.config.algorithms["optimizer"],
+                                                     metric=self.config.simulation["metric"],
+                                                     train_data=fedjob.data)
 
             if fedjob.model_weights is not None:
                 model.set_weights(fedjob.model_weights)
@@ -58,7 +62,7 @@ class FedAlg(ABC):
                 # fit model
                 history = model.fit(x_data, y_data,
                                     epochs=fedjob.config["epochs"],
-                                    #batch_size=fedjob.config["batch_size"],
+                                    batch_size=fedjob.config["batch_size"],
                                     verbose=fedjob.config["tf_verbosity"])
 
                 fedjob.mean_metric = stats.mean(history.history[self.config.simulation["metric"]])
