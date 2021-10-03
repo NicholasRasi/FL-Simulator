@@ -33,7 +33,11 @@ class Mnist(DatasetModelLoader):
                 tf.keras.layers.Dense(10, activation="softmax"),
             ]
         )
+
         tf_model.compile(
             optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[metric]
         )
         return tf_model
+
+    def get_loss_function(self):
+        return "sparse_categorical_crossentropy"

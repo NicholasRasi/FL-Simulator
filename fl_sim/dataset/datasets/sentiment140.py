@@ -107,6 +107,10 @@ class Sentiment140(DatasetModelLoader):
                       metrics=[metric])
         return model
 
+    def get_loss_function(self):
+        return tf.keras.losses.BinaryCrossentropy(from_logits=True)
+
+
     # dictionary containing all emojis.
     emojis = {':)': 'smile', ':-)': 'smile', ';d': 'wink', ':-E': 'vampire', ':(': 'sad',
               ':-(': 'sad', ':-<': 'sad', ':P': 'raspberry', ':O': 'surprised',

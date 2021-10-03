@@ -9,13 +9,15 @@ class FedJob:
                  dev_index,
                  data,
                  config,
-                 model_weights):
+                 model_weights,
+                 custom_loss):
         self.job_type = job_type
         self.num_round = num_round
         self.dev_index = dev_index
         self.data = data
         self.config = config
         self.model_weights = model_weights
+        self.custom_loss = custom_loss
 
         self.num_examples = 0
         if job_type == FedPhase.FIT:

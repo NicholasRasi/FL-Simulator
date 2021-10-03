@@ -1,13 +1,18 @@
+import math
 import multiprocessing
 import threading
-
+import tensorflow as tf
 import numpy as np
 from abc import ABC
+import torch
+from tensorflow import float32
+
 from fl_sim import Status
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.utils import FedJob, FedPhase
 import statistics as stats
+from tensorflow.python.framework.ops import disable_eager_execution
 
 
 class FedAlg(ABC):
@@ -54,6 +59,13 @@ class FedAlg(ABC):
             model = model_factory.get_compiled_model(optimizer=self.config.algorithms["optimizer"],
                                                      metric=self.config.simulation["metric"],
                                                      train_data=fedjob.data)
+
+            loss_func = model_factory.get_loss_function()
+            global_weights = fedjob.model_weights
+            if fedjob.custom_loss is not None:
+                loss_func = fedjob.custom_loss(model_factory.get_loss_function(), model, global_weights)
+
+            model.compile(optimizer=tf.keras.optimizers.get(self.config.algorithms["optimizer"]), run_eagerly=True, metrics=self.config.simulation["metric"], loss=loss_func)
 
             if fedjob.model_weights is not None:
                 model.set_weights(fedjob.model_weights)

@@ -45,3 +45,7 @@ class ImdbReviews(DatasetModelLoader):
         )
 
         return tf_model
+
+    def get_loss_function(self):
+        return "binary_crossentropy"
+

@@ -108,3 +108,7 @@ class Shakespeare(DatasetModelLoader):
 
         tf_model.compile(optimizer=optimizer, loss=loss)
         return tf_model
+
+    def get_loss_function(self):
+        return tf.losses.SparseCategoricalCrossentropy(from_logits=True)
+

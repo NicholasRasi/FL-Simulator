@@ -34,8 +34,11 @@ class DatasetModelLoader(ABC):
 
     @abstractmethod
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
-        """ return self.model.get_compiled_model(optimizer, metric) """
+        """ return self.model.get_model(optimizer, metric) """
 
+    @abstractmethod
+    def get_loss_function(self):
+        """ return None"""
 
     @staticmethod
     def select_random_samples(y, num_clients, nk):

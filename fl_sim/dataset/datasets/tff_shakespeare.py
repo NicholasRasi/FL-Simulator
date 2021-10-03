@@ -149,6 +149,9 @@ class Shakespeare_tff(DatasetModelLoader):
 
         return tf_model
 
+    def get_loss_function(self):
+        return tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+
     def select_non_iid_samples(self, y, num_clients, nk, alpha):
         # download dataset and load samples of clients
         train_data, test_data = tff.simulation.datasets.shakespeare.load_data()

@@ -4,7 +4,8 @@ from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from json_tricks import dump
 import os
-from fl_sim.federated_algs.fedavg import FedAvg
+from fl_sim.federated_algs.algorithms.federated_algorithm_factory import FederatedAlgorithmFactory
+from fl_sim.federated_algs.algorithms.fedavg import FedAvg
 
 
 class Simulator:
@@ -38,7 +39,8 @@ class Simulator:
             status = Status(config=self.config, logger=self.logger)
 
             self.logger.info("init federated algorithm")
-            self.fed_alg = FedAvg(status, self.data, self.config, self.logger)
+            self.fed_alg = FederatedAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"] ,status, self.data, self.config, self.logger)
+            #self.fed_alg = FedAvg(status, self.data, self.config, self.logger)
 
             self.logger.info("starting training...")
             start_ts = time.time()

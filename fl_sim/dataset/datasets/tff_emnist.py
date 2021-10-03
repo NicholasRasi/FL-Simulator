@@ -36,6 +36,10 @@ class Emnist_tff(DatasetModelLoader):
         )
         return tf_model
 
+    def get_loss_function(self):
+        return tf.keras.losses.SparseCategoricalCrossentropy()
+
+
     @staticmethod
     def get_images_and_labels(federated_data):
         images_numpy = []

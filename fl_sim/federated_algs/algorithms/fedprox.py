@@ -7,9 +7,9 @@ from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory imp
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
 from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
 from fl_sim.utils import FedJob, FedPhase
+from ..loss_functions.fed_prox_loss import fed_prox_loss
 
-
-class FedAvg(FedAlg):
+class FedProx(FedAlg):
 
     def __init__(self, status: Status, data, config: Config, logger):
         super().__init__(status, data, config, logger)
@@ -61,6 +61,7 @@ class FedAvg(FedAlg):
         return dev_indexes
 
     def model_fit(self, num_round: int):
+
         # local fit
         # select devices
         dev_indexes = self.select_devs(num_round, FedPhase.FIT)
@@ -158,6 +159,7 @@ class FedAvg(FedAlg):
             self.logger.error("round failed")
 
     def put_client_job_fit(self, num_round: int, dev_index: int, job_config: dict):
+
         # load training data
         x_train, y_train = self.load_local_data(FedPhase.FIT, dev_index)
 
@@ -178,7 +180,7 @@ class FedAvg(FedAlg):
 
         # create fit FedJob
         fedjob = FedJob(job_type=FedPhase.FIT, num_round=num_round, dev_index=dev_index,
-                        data=(x_train_sub, y_train_sub), config=job_config, model_weights=model_weights)
+                        data=(x_train_sub, y_train_sub), config=job_config, model_weights=model_weights, custom_loss=fed_prox_loss)
         self.fedjob_queue.put(fedjob)
 
     def put_client_job_eval(self, num_round: int, dev_index: int, job_config: dict):
@@ -198,7 +200,7 @@ class FedAvg(FedAlg):
 
         # evaluate model
         fedjob = FedJob(job_type=FedPhase.EVAL, num_round=num_round, dev_index=dev_index,
-                        data=(x_test_sub, y_test_sub), config=job_config, model_weights=model_weights)
+                        data=(x_test_sub, y_test_sub), config=job_config, model_weights=model_weights, custom_loss=fed_prox_loss)
         self.fedjob_queue.put(fedjob)
 
     def get_fit_results(self, created_jobs):

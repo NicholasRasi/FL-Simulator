@@ -24,3 +24,6 @@ class BostonHousing(DatasetModelLoader):
         tf_model.compile(optimizer=optimizer, loss='mse', metrics=[metric])
 
         return tf_model
+
+    def get_loss_function(self):
+        return "mse"

@@ -24,3 +24,6 @@ class Cifar10(DatasetModelLoader):
                          loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                          metrics=[metric])
         return tf_model
+
+    def get_loss_function(self):
+        return tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
