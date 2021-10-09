@@ -1,25 +1,19 @@
-import math
 import multiprocessing
 import threading
 import tensorflow as tf
 import numpy as np
 from abc import ABC
-import torch
-from tensorflow import float32
-
-from fl_sim import Status
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
+from fl_sim.status.orchestrator_status import OrchestratorStatus
 from fl_sim.utils import FedJob, FedPhase
 import statistics as stats
-from tensorflow.python.framework.ops import disable_eager_execution
 
 
 class FedAlg(ABC):
 
-    def __init__(self, status: Status, data, config: Config, logger):
+    def __init__(self, status: OrchestratorStatus, config: Config, logger):
         self.status = status
-        self.x_train, self.y_train, self.x_test, self.y_test = data
         self.config = config
         self.logger = logger
         self.lock = threading.Lock()

@@ -1,13 +1,13 @@
-from fl_sim import Status
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
 from .random_selector import RandomSelector
+from ...status.orchestrator_status import OrchestratorStatus
 
 
 class ClientsSelectorFactory:
 
     @staticmethod
-    def get_clients_selector(selector: str, config: Config, status: Status, logger):
+    def get_clients_selector(selector: str, config: Config, status: OrchestratorStatus, logger):
         if selector == "random":
             return RandomSelector(config, status, logger)
         elif selector == "best_ips":

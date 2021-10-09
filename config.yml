@@ -20,14 +20,14 @@ simulation:
   # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
-  seed: none # 19680801
+  seed: 1234
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
   # number of concurrent processes
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedprox"
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -92,7 +92,7 @@ network:
 data:
   # mean and variance of number of examples available at each device
   num_examples_mean: 30
-  num_examples_var: 0
+  num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0
   # percentage of mislabelled data

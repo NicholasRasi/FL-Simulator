@@ -1,13 +1,12 @@
-from fl_sim import Status
 from fl_sim.configuration import Config
 from .fedavg_agg import FedAvgAgg
-from .aggregation_strategy import AggregationStrategy
+from ...status.orchestrator_status import OrchestratorStatus
 
 
 class AggregationStrategyFactory:
 
     @staticmethod
-    def get_aggregation_strategy(selector: str, status: Status, data, config: Config, logger):
+    def get_aggregation_strategy(selector: str, status: OrchestratorStatus, data, config: Config, logger):
         if selector == "fedavg":
             return FedAvgAgg(status, data, config, logger)
 

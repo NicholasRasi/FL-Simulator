@@ -1,10 +1,10 @@
 from abc import abstractmethod, ABC
-from fl_sim import Status
+from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 
 class GlobalUpdateOptimizer(ABC):
 
-    def __init__(self, epochs: int, batch_size: int, num_examples: int, status: Status, logger):
+    def __init__(self, epochs: int, batch_size: int, num_examples: int, status: OrchestratorStatus, logger):
         self.epochs = epochs
         self.batch_size = batch_size
         self.num_examples = num_examples

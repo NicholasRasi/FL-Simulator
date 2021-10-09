@@ -1,13 +1,13 @@
 from abc import abstractmethod, ABC
 from typing import List
 from fl_sim.configuration import Config
-from fl_sim import Status
+from ...status.orchestrator_status import OrchestratorStatus
 import numpy as np
 
 
 class ClientsSelector(ABC):
 
-    def __init__(self, config: Config, status: Status, logger, params=None):
+    def __init__(self, config: Config, status: OrchestratorStatus, logger, params=None):
         self.config = config
         self.status = status
         self.logger = logger

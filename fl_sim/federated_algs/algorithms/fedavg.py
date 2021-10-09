@@ -1,18 +1,21 @@
+import json
 import time
-from fl_sim import Status
+
+import numpy
+
 from fl_sim.configuration import Config
 from fl_sim.federated_algs.fedalg import FedAlg
 from fl_sim.federated_algs.clients_selector import ClientsSelectorFactory
 from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory import AggregationStrategyFactory
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
-from fl_sim.federated_algs.local_data_optimizer import LocalDataOptimizerFactory
+from fl_sim.status.orchestrator_status import OrchestratorStatus
 from fl_sim.utils import FedJob, FedPhase
 
 
 class FedAvg(FedAlg):
 
-    def __init__(self, status: Status, data, config: Config, logger):
-        super().__init__(status, data, config, logger)
+    def __init__(self, status: OrchestratorStatus, config: Config, logger):
+        super().__init__(status, config, logger)
 
         self.clients_selector = None
         self.aggregator = None
@@ -41,12 +44,12 @@ class FedAvg(FedAlg):
                                                                self.config.algorithms["eval"]["params"]["num_examples"],
                                                                self.status, self.logger)
         }
-        self.local_data_optimizer = {
-            "fit": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["fit"]["data"], self.status,
-                                                           self.logger),
-            "eval": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["data"], self.status,
-                                                            self.logger),
-        }
+        #self.local_data_optimizer = {
+        #    "fit": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["fit"]["data"], self.status,
+        #                                                   self.logger),
+        #    "eval": LocalDataOptimizerFactory.get_optimizer(self.config.algorithms["eval"]["data"], self.status,
+        #                                                    self.logger),
+        #}
         self.aggregator = {
             "fit": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config.algorithms["fit"]["data"], self.config, self.logger),
             "eval": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["eval"]["aggregation"], self.status, self.config.algorithms["eval"]["data"], self.config, self.logger)
@@ -59,56 +62,6 @@ class FedAvg(FedAlg):
         # update status
         self.status.var[phase]["devs"]["selected"][num_round, dev_indexes] = 1
         return dev_indexes
-
-    def model_fit(self, num_round: int):
-        # local fit
-        # select devices
-        dev_indexes = self.select_devs(num_round, FedPhase.FIT)
-
-        # start local fit execution
-        created_jobs = 0
-        failed_jobs = 0
-        failing_devs_indexes = self.get_failed_devs(num_round)
-        for dev_index in dev_indexes:
-            # run update optimizer
-            global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
-            global_config["tf_verbosity"] = self.config.simulation["tf_verbosity"]
-
-            # update global configs status
-            self.status.update_optimizer_configs(num_round, dev_index, FedPhase.FIT, "global", global_config)
-
-            # check if device fails
-            if dev_index in failing_devs_indexes:
-                pass
-                # self.logger.error("dev fails: {}".format(dev_index))
-                failed_jobs += 1
-            else:
-                # run client fit
-                self.put_client_job_fit(num_round, dev_index, global_config)
-                created_jobs += 1
-
-        self.logger.info("jobs successful: %d | failed: %d" % (created_jobs, failed_jobs))
-
-        # wait until all the results are available
-        while self.fedres_queue.qsize() < created_jobs:
-            time.sleep(1)
-        local_fits = self.get_fit_results(created_jobs)
-
-        if len(local_fits) > 0:  # at least one successful client
-            weights = [(r[0], r[1]) for r in local_fits]
-            losses = [(r[0], r[2]) for r in local_fits]
-            accuracies = [(r[0], r[3]) for r in local_fits]
-
-            # aggregate local results
-            aggregated_weights = self.aggregator["fit"].aggregate_fit(weights)
-            aggregated_loss = self.aggregator["fit"].aggregate_losses(losses)
-            aggregated_metrics = self.aggregator["fit"].aggregate_accuracies(accuracies)
-
-            # update global model and model metrics
-            self.status.global_model_weights = aggregated_weights
-            self.status.update_agg_model_metrics(num_round, FedPhase.FIT, aggregated_loss, aggregated_metrics)
-        else:
-            self.logger.error("round failed")
 
     def model_eval(self, num_round: int):
         # local evaluation
@@ -201,70 +154,71 @@ class FedAvg(FedAlg):
                         data=(x_test_sub, y_test_sub), config=job_config, model_weights=model_weights, custom_loss=None)
         self.fedjob_queue.put(fedjob)
 
-    def get_fit_results(self, created_jobs):
+    def get_fit_results(self, completed_jobs_queue, created_jobs):
         fit_results = []
         for _ in range(created_jobs):
-            fedres = self.fedres_queue.get()
+            fedres = completed_jobs_queue.get()
 
-            # init the number of params of the model
+            array_model_weights = []
+            for x in fedres["model_weights"]:
+                array_model_weights.append(numpy.array(x))
+
             if self.status.con["model"]["tot_weights"] is None:
-                self.status.con["model"]["tot_weights"] = sum([w_list.size for w_list in fedres.model_weights])
-
+                self.status.con["model"]["tot_weights"] = sum([len(w_list) for w_list in array_model_weights])
             # update model weights with the new computed ones
-            self.status.con["devs"]["local_models_weights"][fedres.dev_index] = fedres.model_weights
+            self.status.con["devs"]["local_models_weights"][fedres.get("dev_index")] = array_model_weights
 
             # compute metrics
-            local_iterations = fedres.config["epochs"] * fedres.num_examples / fedres.config["batch_size"]
-            computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.dev_index]
+            local_iterations = fedres.get("epochs") * fedres.get("num_examples") / fedres.get("batch_size")
+            computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.get("dev_index")]
             network_consumption = 2 * self.status.con["model"]["tot_weights"]
             communication_time = network_consumption /\
-                                 self.status.con["devs"]["net_speed"][fedres.num_round, fedres.dev_index]
+                                 self.status.con["devs"]["net_speed"][fedres.get("num_round"), fedres.get("dev_index")]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time +\
                                  self.config.energy["pow_net_s"] * communication_time
 
             # update global configs status
-            self.status.update_optimizer_configs(fedres.num_round, fedres.dev_index, FedPhase.FIT,
-                                                 "local", fedres.config)
+            self.status.update_optimizer_configs(fedres.get("num_round"), fedres.get("dev_index"), FedPhase.FIT,
+                                                 "local", fedres.get("epochs"), fedres.get("batch_size"), fedres.get("num_examples"))
 
             # update status
-            self.status.update_sim_data(fedres.num_round, FedPhase.FIT, fedres.dev_index,
+            self.status.update_sim_data(fedres.get("num_round"), FedPhase.FIT, fedres.get("dev_index"),
                                         computation_time=computation_time,
                                         communication_time=communication_time,
                                         local_iterations=local_iterations,
                                         network_consumption=network_consumption,
                                         energy_consumption=energy_consumption,
-                                        metric=fedres.mean_metric,
-                                        loss=fedres.mean_loss)
+                                        metric=fedres.get("mean_metric"),
+                                        loss=fedres.get("mean_loss"))
 
-            fit_results.append((fedres.num_examples, fedres.model_weights, fedres.mean_loss, fedres.mean_metric))
+            fit_results.append((fedres.get("num_examples"), array_model_weights, fedres.get("mean_loss"), fedres.get("mean_metric")))
         return fit_results
 
-    def get_eval_results(self, created_jobs):
+    def get_eval_results(self, completed_jobs_queue, created_jobs):
         eval_results = []
         for _ in range(created_jobs):
-            fedres = self.fedres_queue.get()
+            fedres = completed_jobs_queue.get()
 
             # compute metrics
-            local_iterations = fedres.num_examples / fedres.config["batch_size"]
-            computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.dev_index]
+            local_iterations = fedres["num_examples"] / fedres["batch_size"]
+            computation_time = local_iterations / self.status.con["devs"]["ips"][fedres["dev_index"]]
             network_consumption = self.status.con["model"]["tot_weights"]
             communication_time = network_consumption /\
-                                 self.status.con["devs"]["net_speed"][fedres.num_round, fedres.dev_index]
+                                 self.status.con["devs"]["net_speed"][fedres["num_round"], fedres["dev_index"]]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time + self.config.energy[
                 "pow_net_s"] * communication_time
 
             # update global configs status
-            self.status.update_optimizer_configs(fedres.num_round, fedres.dev_index, FedPhase.EVAL,
-                                                 "local", fedres.config)
+            self.status.update_optimizer_configs(fedres["num_round"], fedres["dev_index"], FedPhase.EVAL, "local", fedres.get("epochs"), fedres.get("batch_size"), fedres.get("num_examples"))
 
             # update status
-            self.status.update_sim_data(fedres.num_round, FedPhase.EVAL, fedres.dev_index,
+            self.status.update_sim_data(fedres["num_round"], FedPhase.EVAL, fedres["dev_index"],
                                         computation_time=computation_time,
                                         communication_time=communication_time,
                                         local_iterations=local_iterations,
                                         network_consumption=network_consumption,
                                         energy_consumption=energy_consumption,
-                                        metric=fedres.metric,
-                                        loss=fedres.loss)
-            eval_results.append((fedres.num_examples, fedres.loss, fedres.metric))
+                                        metric=fedres["metric"],
+                                        loss=fedres["loss"])
+            eval_results.append((fedres["num_examples"], fedres["loss"], fedres["metric"]))
         return eval_results

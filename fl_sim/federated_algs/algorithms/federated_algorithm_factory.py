@@ -5,10 +5,10 @@ from .fedprox import FedProx
 class FederatedAlgorithmFactory:
 
     @staticmethod
-    def get_federated_algorithm(algorithm_name: str, status, data, config, logger):
+    def get_federated_algorithm(algorithm_name: str, status, config, logger):
         if algorithm_name == "fedavg":
-            return FedAvg(status, data, config, logger)
+            return FedAvg(status, config, logger)
         elif algorithm_name == "fedprox":
-            return FedProx(status, data, config, logger)
+            return FedProx(status, config, logger)
         else:
             return None

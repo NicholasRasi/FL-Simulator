@@ -1,11 +1,10 @@
 import numpy as np
 import sys
 from fl_sim.configuration import Config
-from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.utils import FedPhase
 
 
-class Status:
+class OrchestratorStatus:
 
     def __init__(self, config: Config, logger):
         self.logger = logger
@@ -15,9 +14,6 @@ class Status:
             np.random.seed(config.simulation["random_seed"])
 
         if config.simulation["initializer"] == "default":
-            # CONSTANT DATA
-            # init dataset
-            x_train, y_train, x_test, y_test = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).get_dataset()
 
             # init constant simulation data
             self.con = {
@@ -45,28 +41,9 @@ class Status:
                     "local_data_sizes": self.randint(mean=config.data["num_examples_mean"],
                                                      var=config.data["num_examples_var"],
                                                      size=config.devices["num"], dtype=int),
-                    "local_data": (),
-                    "local_data_stats": None,
                     "local_models_weights": [None] * config.devices["num"]
                 }
             }
-
-            # init local data
-            if config.data["non_iid_partitions"] > 0:
-                # non-iid partitions
-                train_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_non_iid_samples(y_train, config.devices["num"],
-                                                                          self.con["devs"]["local_data_sizes"],
-                                                                          config.data["non_iid_partitions"])
-                eval_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_test, config.devices["num"],
-                                                                        self.con["devs"]["local_data_sizes"])
-            else:
-                # random sampling
-                train_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_train, config.devices["num"],
-                                                                         self.con["devs"]["local_data_sizes"])
-                eval_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_test, config.devices["num"],
-                                                                        self.con["devs"]["local_data_sizes"])
-            self.con["devs"]["local_data"] = (train_indexes, eval_indexes)
-            self.con["devs"]["local_data_stats"] = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).record_data_stats(y_train, train_indexes)
 
             # init global model
             self.global_model_weights = None
@@ -118,11 +95,11 @@ class Status:
                     }}
                 for phase in ["fit", "eval"]}
 
-    def update_optimizer_configs(self, num_round: int, dev_index: int, fed_phase: FedPhase, location: str, config: dict):
+    def update_optimizer_configs(self, num_round: int, dev_index: int, fed_phase: FedPhase, location: str, epochs: int, batch_size: int, num_examples: int):
         phase = fed_phase.value
-        self.var[phase]["upd_opt_configs"][location]["epochs"][num_round, dev_index] = config["epochs"]
-        self.var[phase]["upd_opt_configs"][location]["batch_size"][num_round, dev_index] = config["batch_size"]
-        self.var[phase]["upd_opt_configs"][location]["num_examples"][num_round, dev_index] = config["num_examples"]
+        self.var[phase]["upd_opt_configs"][location]["epochs"][num_round, dev_index] = epochs
+        self.var[phase]["upd_opt_configs"][location]["batch_size"][num_round, dev_index] = batch_size
+        self.var[phase]["upd_opt_configs"][location]["num_examples"][num_round, dev_index] = num_examples
 
     def update_agg_model_metrics(self, num_round: int, fed_phase: FedPhase, agg_loss: float, agg_metric: float):
         phase = fed_phase.value

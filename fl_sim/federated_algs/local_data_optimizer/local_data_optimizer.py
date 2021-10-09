@@ -4,9 +4,9 @@ from fl_sim import Status
 
 class LocalDataOptimizer(ABC):
 
-    def __init__(self, status: Status, logger):
-        self.status = status
-        self.logger = logger
+    #def __init__(self):
+    #    self.status = status
+    #    self.logger = logger
 
     @abstractmethod
     def optimize(self, num_round: int, dev_index: int, num_examples: int, data) -> tuple:
