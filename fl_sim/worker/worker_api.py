@@ -1,29 +1,40 @@
-from random import randint
-
+import ctypes
+from multiprocessing import Value
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
-import pandas as pd
-import ast
+from flask_restful import Api
+
+
+class EndpointAction(object):
+
+    def __init__(self, action, orchestrator_empty_queue):
+        self.action = action
+        self.orchestrator_empty_queue = orchestrator_empty_queue
+
+    def __call__(self, *args):
+        response = self.action(self.orchestrator_empty_queue)
+        return response
 
 
 class WorkerAPI:
-    def __init__(self, jobs_queue):
-        self.jobs_queue = jobs_queue
+    def __init__(self, port_number, orchestrator_empty_queue):
         self.app = Flask(__name__)
         self.api = Api(self.app)
-        self.api.add_resource(NotifyEmptyQueue, '/notify_empty_queue')
-        self.api.add_resource(NotifyAvailableJobs, '/notify_available_jobs')
+        self.port_number = port_number
+        self.orchestrator_empty_queue = orchestrator_empty_queue
+        self.app.add_url_rule('/notify_empty_queue', 'notify_empty_queue', EndpointAction(notify_empty_queue, self.orchestrator_empty_queue), methods=['GET', 'POST'])
+        self.app.add_url_rule('/notify_available_jobs', 'notify_available_jobs', EndpointAction(notify_available_jobs, self.orchestrator_empty_queue), methods=['GET', 'POST'])
 
-    def start_api_listener(self, orchestrator_empty_queue):
-        self.app.run(host="localhost", port=randint(1000, 65535))
-
-
-class NotifyEmptyQueue(Resource):
-    def get(self):
-        return {'data': "myData"}, 200  # return data and 200 OK code
+    def start_api_listener(self):
+        self.app.run(host='localhost', port=self.port_number)
 
 
-class NotifyAvailableJobs(Resource):
-    def post(self):
-        return {'data': "myData"}, 200  # return data and 200 OK code
+def notify_empty_queue(orchestrator_empty_queue):
+    orchestrator_empty_queue.value = Value(ctypes.c_bool, True)
+    return "", 200
+
+
+def notify_available_jobs(orchestrator_empty_queue):
+    orchestrator_empty_queue.value = not orchestrator_empty_queue.value
+    return "", 200
+
 

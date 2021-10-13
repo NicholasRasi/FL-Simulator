@@ -16,20 +16,11 @@ class FedAlg(ABC):
         self.status = status
         self.config = config
         self.logger = logger
-        self.lock = threading.Lock()
-        self.fedjob_queue = multiprocessing.Queue()
-        self.fedres_queue = multiprocessing.Queue()
-        self.queue_consumer_ps = []
-        num_processes = config.simulation["num_processes"]
-        for _ in range(num_processes):
-            qc_process = multiprocessing.Process(target=self.queue_consumer,
-                                                 args=(self.fedjob_queue, self.fedres_queue))
-            self.queue_consumer_ps.append(qc_process)
-            qc_process.start()
 
     def get_failed_devs(self, num_round: int):
         return np.where(self.status.con["devs"]["failures"][num_round] == 1)[0]
 
+    # WORKER GENERAL
     def load_local_data(self, fed_phase: FedPhase, dev_index: int):
         x_data = y_data = None
         if fed_phase == FedPhase.FIT:
@@ -40,6 +31,7 @@ class FedAlg(ABC):
             y_data = self.y_test[self.status.con["devs"]["local_data"][1][dev_index]]
         return x_data, y_data
 
+    # WORKER GENERAL (?)
     def queue_consumer(self, fedjob_queue, fedres_queue):
 
         while True:
@@ -84,6 +76,3 @@ class FedAlg(ABC):
 
             fedres_queue.put(fedjob)
 
-    def terminate(self):
-        for qc_process in self.queue_consumer_ps:
-            qc_process.terminate()

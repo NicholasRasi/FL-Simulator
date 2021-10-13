@@ -39,8 +39,8 @@ class Sentiment140(DatasetModelLoader):
         processedtext = self.preprocess(text)
 
         # Split dataset in train and validation
-        texts_train = processedtext[0:int(len(processedtext)*0.8)]
-        sentiments_train = df['sentiment'].values[0:int(len(processedtext)*0.8)]
+        texts_train = processedtext[0:int(len(processedtext)*0.4)]
+        sentiments_train = df['sentiment'].values[0:int(len(processedtext)*0.4)]
         texts_test = processedtext[int(len(processedtext)*0.8):]
         sentiments_test = df['sentiment'].values[int(len(processedtext)*0.8):]
 

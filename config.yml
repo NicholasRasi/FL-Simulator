@@ -1,12 +1,12 @@
 simulation:
   # number or repetitions
-  repetitions: 2
+  repetitions: 1
   # simulation output folder
   output_folder: "output"
   # simulation output file
   output_file: "best_net_speed.json"
   # model
-  model_name: "fashion_mnist"
+  model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
@@ -46,7 +46,7 @@ algorithms:
       # batch size used for fit for each round
       batch_size: 32
       # number of examples used for fit for each round
-      num_examples: 100
+      num_examples: 800
   eval:
     aggregation: "fedavg"
     selection: "random"
@@ -56,9 +56,9 @@ algorithms:
       k: 0.8
       epochs: 10
       batch_size: 32
-      num_examples: 100
+      num_examples: 200
   # optimizer used (local iteration) string or optimizer instance
-  optimizer: "sgd"
+  optimizer: "adam"
 
 devices:
   # total number of devices (D)
@@ -91,7 +91,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 30
+  num_examples_mean: 50
   num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0

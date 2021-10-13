@@ -9,6 +9,7 @@ class OrchestratorStatus:
     def __init__(self, config: Config, logger):
         self.logger = logger
         self.devices = {}
+        self.config = config
 
         if "random_seed" in config.simulation:
             np.random.seed(config.simulation["random_seed"])
@@ -139,7 +140,6 @@ class OrchestratorStatus:
             for metric in ["agg_metric", "agg_loss"]:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds]
 
-
     @staticmethod
     def randint(mean: int, var: int, size, dtype):
         if var == 0:
@@ -148,7 +148,6 @@ class OrchestratorStatus:
             return np.random.randint(low=mean-var, high=mean+var, size=size, dtype=dtype)
 
     def to_dict(self):
-        self.con["devs"]["local_data"] = None
         self.con["devs"]["local_models_weights"] = None
         return {"con": self.con,
                 "var": self.var}

@@ -29,6 +29,3 @@ def fed_prox_loss(loss_type, model, global_weights):
         return loss_result
 
     return loss
-
-
-

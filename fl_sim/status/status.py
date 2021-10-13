@@ -141,7 +141,6 @@ class Status:
         self.var[phase]["model_metrics"]["metric"][num_round, dev_index] = metric
         self.var[phase]["model_metrics"]["loss"][num_round, dev_index] = loss
 
-
     def resize_status(self, num_rounds):
         self.con["devs"]["availability"] = self.con["devs"]["availability"][:num_rounds, :]
         self.con["devs"]["failures"] = self.con["devs"]["failures"][:num_rounds, :]
@@ -161,7 +160,6 @@ class Status:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds, :]
             for metric in ["agg_metric", "agg_loss"]:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds]
-
 
     @staticmethod
     def randint(mean: int, var: int, size, dtype):
