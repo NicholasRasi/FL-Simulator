@@ -7,6 +7,9 @@ import re
 from io import BytesIO, TextIOWrapper
 from zipfile import ZipFile
 from ..model_loader import DatasetModelLoader
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from sklearn.model_selection import train_test_split
 
 
 class Sentiment140(DatasetModelLoader):
@@ -38,65 +41,34 @@ class Sentiment140(DatasetModelLoader):
         # Preprocess text
         processedtext = self.preprocess(text)
 
-        # Split dataset in train and validation
-        texts_train = processedtext[0:int(len(processedtext)*0.4)]
-        sentiments_train = df['sentiment'].values[0:int(len(processedtext)*0.4)]
-        texts_test = processedtext[int(len(processedtext)*0.8):]
-        sentiments_test = df['sentiment'].values[int(len(processedtext)*0.8):]
+        x_train, x_test, y_train, y_test = train_test_split(processedtext, sentiment, train_size=0.8, test_size=0.2, random_state=1)
 
-        # Create datasets
-        training_dataset = (
-            tf.data.Dataset.from_tensor_slices(
-                (
-                    tf.cast(texts_train, object),
-                    tf.cast(sentiments_train, tf.int32)
-                )
-            )
-        )
+        tokenizer = Tokenizer(num_words=10000)
+        tokenizer.fit_on_texts(x_train)
 
-        test_dataset = (
-            tf.data.Dataset.from_tensor_slices(
-                (
-                    tf.cast(texts_test, object),
-                    tf.cast(sentiments_test, tf.int32)
-                )
-            )
-        )
+        x_train = tokenizer.texts_to_sequences(x_train)
+        x_test = tokenizer.texts_to_sequences(x_test)
+        y_train = np.array(y_train)
+        y_test = np.array(y_test)
 
-        test_dataset = test_dataset.prefetch(tf.data.AUTOTUNE)
-        training_dataset = training_dataset.prefetch(tf.data.AUTOTUNE)
+        maxlen = 100
 
-        # Create numpy arrays from datasets
-        x_train, y_train = self.get_numpy_array(training_dataset)
-        x_val, y_val = self.get_numpy_array(test_dataset)
+        x_train = pad_sequences(x_train, padding='post', maxlen=maxlen)
+        x_test = pad_sequences(x_test, padding='post', maxlen=maxlen)
 
-        return x_train, y_train, x_val, y_val
+        return x_train, y_train, x_test, y_test
 
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
 
-        x_train, y_train = train_data
+        vocab = 228644 #len(tokenizer.word_index) + 1
+        emb_dim = 100
+        maxlen = 100
 
-        training_dataset = (
-            tf.data.Dataset.from_tensor_slices(
-                (
-                    tf.cast(list(x_train), object),
-                    tf.cast(list(y_train), tf.int32)
-                )
-            )
-        )
-
-        training_dataset = training_dataset.prefetch(tf.data.AUTOTUNE)
-
-        VOCAB_SIZE = 100000
-        encoder = tf.keras.layers.experimental.preprocessing.TextVectorization(max_tokens=VOCAB_SIZE)
-        mapped_training_dataset = training_dataset.map(lambda t, label: t)
-        encoder.adapt(mapped_training_dataset)
         model = tf.keras.Sequential([
-            encoder,
             tf.keras.layers.Embedding(
-                input_dim=len(encoder.get_vocabulary()),
-                output_dim=64,
-                mask_zero=True),
+                input_dim=vocab,
+                output_dim=emb_dim,
+                input_length=maxlen),
             tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
             tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dense(1)

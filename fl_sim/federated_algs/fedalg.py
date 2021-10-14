@@ -41,7 +41,8 @@ class FedAlg(ABC):
             fedjob.num_examples = x_data.shape[0]
 
             model_factory = DatasetModelLoaderFactory.get_model_loader(self.config.simulation["model_name"],
-                                                                       self.config.devices["num"])
+                                                                       self.config.devices["num"],
+                                                                       self.config.simulation["seed"])
             model = model_factory.get_compiled_model(optimizer=self.config.algorithms["optimizer"],
                                                      metric=self.config.simulation["metric"],
                                                      train_data=fedjob.data)

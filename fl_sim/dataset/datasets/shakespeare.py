@@ -1,4 +1,5 @@
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
 from ..model_loader import DatasetModelLoader
 import numpy as np
 from tensorflow.keras.layers.experimental import preprocessing
@@ -64,9 +65,14 @@ class Shakespeare(DatasetModelLoader):
         x_train = np.array(x_train)
         y_train = np.array(y_train)
 
-        return x_train, y_train, None, None
+        x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
 
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
+        return x_train, y_train, x_test, y_test
+
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/text/tutorials/text_generation
+
+        x_train, y_train = train_data
+
         # Length of the vocabulary in chars
         vocab_size = 65
 
@@ -106,7 +112,9 @@ class Shakespeare(DatasetModelLoader):
 
         loss = tf.losses.SparseCategoricalCrossentropy(from_logits=True)
 
-        tf_model.compile(optimizer=optimizer, loss=loss)
+        tf_model.build(input_shape=x_train.shape)
+
+        tf_model.compile(optimizer=optimizer, loss=loss, metrics=[metric])
         return tf_model
 
     def get_loss_function(self):

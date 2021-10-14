@@ -23,8 +23,6 @@ class WorkerStatus:
         self.local_optimizer_fit = None
         self.local_optimizer_eval = None
         self.local_data_stats = None
-        if "random_seed" in config.simulation:
-            np.random.seed(self.config.simulation["random_seed"])
 
     def initialize_global_fields(self, json_fields):
         self.dataset = json_fields["dataset"]
@@ -43,16 +41,8 @@ class WorkerStatus:
 
         self.x_train, self.y_train, self.x_test, self.y_test = self.model_loader.get_dataset(self.config.data["mislabelling_percentage"])
 
-
-        if self.non_iid_partitions > 0:
-            # non-iid partitions
-            self.train_indexes = self.model_loader.select_non_iid_samples(self.y_train, self.dev_num, self.data_sizes, self.non_iid_partitions)
-            self.eval_indexes = self.model_loader.select_random_samples(self.y_test, self.dev_num, self.data_sizes)
-        else:
-            # random sampling
-            self.train_indexes = self.model_loader.select_random_samples(self.y_train, self.dev_num, self.data_sizes)
-            self.eval_indexes = self.model_loader.select_random_samples(self.y_test, self.dev_num, self.data_sizes)
-        self.local_data_stats = self.model_loader.record_data_stats(self.y_train, self.train_indexes)
+        self.train_indexes = json_fields["train_indexes"]
+        self.eval_indexes = json_fields["eval_indexes"]
 
     @staticmethod
     def randint(mean: int, var: int, size, dtype):

@@ -1,12 +1,9 @@
 import logging
-
-import numpy as np
 import tensorflow as tf
 from time import sleep
 import requests
 from json_tricks import dumps, loads
 import statistics as stats
-from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.federated_algs.loss_functions.custom_loss_factory import CustomLossFactory
 from fl_sim.status.worker_status import WorkerStatus
 from fl_sim.utils import FedPhase
@@ -23,12 +20,15 @@ class Worker:
 
     def start_worker(self, orchestrator_empty_queue):
         # register worker
-        response = requests.post(self.orchestrator_address + "/register_worker", json={"ip_address": self.ip_address,'port_number': self.port_number})
-        self.status.initialize_global_fields(response.json())
+        response = requests.post(self.orchestrator_address + "/register_worker", json={"ip_address": self.ip_address, 'port_number': self.port_number})
+        init_conf = loads(response.text)
+        self.status.initialize_global_fields(init_conf)
 
         if response.status_code == 200:
             logging.info("Registration was successful.")
-            logging.info("Init configuration: " + str(response.json()))
+            del init_conf["train_indexes"]
+            del init_conf["eval_indexes"]
+            logging.info("Init configuration: " + str(init_conf))
 
             # handle available jobs
             while True:
@@ -119,24 +119,21 @@ class Worker:
                                                            (x_train, y_train))
 
         # load model
-        model_factory = DatasetModelLoaderFactory.get_model_loader(self.status.dataset, self.status.dev_num)
-        model = model_factory.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric,
-                                                 train_data=(x_data, y_data))
+        model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
 
-        loss_func = model_factory.get_loss_function()
+        loss_func = self.status.model_loader.get_loss_function()
 
         global_weights = job["model_weights"]
         if job["custom_loss"] is not None:
-            loss_func = CustomLossFactory.get_custom_loss(job["custom_loss"])(model_factory.get_loss_function(), model,
+            loss_func = CustomLossFactory.get_custom_loss(job["custom_loss"])(self.status.model_loader.get_loss_function(), model,
                                                                               global_weights)
 
         # compile model
         model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric,
                       loss=loss_func)
 
-        # load weights if not None
-        if job["model_weights"] is not None:
-            model.set_weights(job["model_weights"])
+        # load weights
+        model.set_weights(job["model_weights"])
 
         # evaluate model
         loss, metric = model.evaluate(x_data, y_data, verbose=job["verbosity"])

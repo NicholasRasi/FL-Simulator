@@ -1,4 +1,3 @@
-import json
 import time
 import requests
 from json_tricks import loads, dumps

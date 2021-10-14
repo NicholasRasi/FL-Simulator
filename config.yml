@@ -6,11 +6,11 @@ simulation:
   # simulation output file
   output_file: "best_net_speed.json"
   # model
-  model_name: "mnist"
+  model_name: "tff_shakespeare"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 20
+  num_rounds: 10
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -20,7 +20,7 @@ simulation:
   # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
-  seed: 1234
+  seed: none
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
   # number of concurrent processes
@@ -46,7 +46,7 @@ algorithms:
       # batch size used for fit for each round
       batch_size: 32
       # number of examples used for fit for each round
-      num_examples: 800
+      num_examples: 200
   eval:
     aggregation: "fedavg"
     selection: "random"
@@ -56,7 +56,7 @@ algorithms:
       k: 0.8
       epochs: 10
       batch_size: 32
-      num_examples: 200
+      num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "adam"
 

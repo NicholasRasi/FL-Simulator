@@ -104,6 +104,8 @@ class Shakespeare_tff(DatasetModelLoader):
                 y_pred = tf.reshape(y_pred, [-1, len(vocab), 1])
                 return super().update_state(y_true, y_pred, sample_weight)
 
+        x_train, y_train = train_data
+
         # Length of the vocabulary in chars
         vocab = list('dhlptx@DHLPTX $(,048cgkoswCGKOSW[_#\'/37;?bfjnrvzBFJNRVZ"&*.26:\naeimquyAEIMQUY]!%)-159\r')
         vocab_size = len(vocab)
@@ -142,6 +144,8 @@ class Shakespeare_tff(DatasetModelLoader):
             vocab_size=len(idx2char),
             embedding_dim=embedding_dim,
             rnn_units=rnn_units)
+
+        tf_model.build(input_shape=x_train.shape)
 
         tf_model.compile(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),

@@ -8,7 +8,7 @@ import argparse
 import json
 import coloredlogs
 from fl_sim import Config
-
+from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 if __name__ == '__main__':
 
@@ -31,15 +31,17 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+    status = OrchestratorStatus(config=config, logger=logger)
+
     manager = multiprocessing.Manager()
     workers_queue = manager.list()
     jobs_queue = multiprocessing.Queue()
     completed_jobs_queue = multiprocessing.Queue()
     lock = multiprocessing.Lock()
 
-    orchestrator = multiprocessing.Process(target=Orchestrator(jobs_queue, completed_jobs_queue, lock, workers_queue, config, logger).start_orchestrator, args=())
+    orchestrator = multiprocessing.Process(target=Orchestrator(jobs_queue, completed_jobs_queue, lock, workers_queue, config, logger, status).start_orchestrator, args=())
     orchestrator.start()
-    api = multiprocessing.Process(target=orchestrator_api.start_api_listener, args=(config, jobs_queue, lock, completed_jobs_queue, workers_queue))
+    api = multiprocessing.Process(target=orchestrator_api.start_api_listener, args=(config, status, jobs_queue, lock, completed_jobs_queue, workers_queue))
     api.start()
     orchestrator.join()
     api.join()

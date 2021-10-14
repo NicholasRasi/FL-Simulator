@@ -8,14 +8,14 @@ from fl_sim.utils import FedPhase
 
 
 class Orchestrator:
-    def __init__(self, jobs_queue, completed_jobs_queue, lock, workers_queue, config, logger):
+    def __init__(self, jobs_queue, completed_jobs_queue, lock, workers_queue, config, logger, status):
         self.jobs_queue = jobs_queue
         self.completed_jobs_queue = completed_jobs_queue
         self.workers_queue = workers_queue
         self.config = config
         self.lock = lock
         self.logger = logger
-        self.status = None
+        self.status = status
         print("Initialize orchestrator")
 
     def start_orchestrator(self):
@@ -29,8 +29,6 @@ class Orchestrator:
             self.logger.info("init status...")
             self.logger.info("init federated algorithm")
             self.logger.info("starting training...")
-
-            self.status = OrchestratorStatus(config=self.config, logger=self.logger)
 
             start_ts = time.time()
             for r in range(self.config.simulation["num_rounds"]):
@@ -66,6 +64,8 @@ class Orchestrator:
 
             self.logger.info("saving run data")
             run_data.append(self.status.to_dict())
+
+            self.status = OrchestratorStatus(config=self.config, logger=self.logger)
 
         self.export_data(run_data)
 
