@@ -21,11 +21,11 @@ class Worker:
     def start_worker(self, orchestrator_empty_queue):
         # register worker
         response = requests.post(self.orchestrator_address + "/register_worker", json={"ip_address": self.ip_address, 'port_number': self.port_number})
-        init_conf = loads(response.text)
-        self.status.initialize_global_fields(init_conf)
+        self.status.initialize_global_fields(loads(response.text))
 
         if response.status_code == 200:
             logging.info("Registration was successful.")
+            init_conf = response.json()
             del init_conf["train_indexes"]
             del init_conf["eval_indexes"]
             logging.info("Init configuration: " + str(init_conf))
@@ -70,7 +70,7 @@ class Worker:
                                                                              job["num_examples"],
                                                                              self.status.dataset,
                                                                              self.status.dev_num,
-                                                                             (x_train, y_train))
+                                                                             (x_train, y_train), FedPhase.FIT)
 
         # load model
         model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
@@ -116,7 +116,7 @@ class Worker:
                                                            job["num_examples"],
                                                            self.status.dataset,
                                                            self.status.dev_num,
-                                                           (x_train, y_train))
+                                                           (x_train, y_train), FedPhase.EVAL)
 
         # load model
         model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))

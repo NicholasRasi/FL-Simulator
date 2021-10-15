@@ -6,11 +6,7 @@ simulation:
   # simulation output file
   output_file: "best_net_speed.json"
   # model
-<<<<<<< HEAD
-  model_name: "tff_shakespeare"
-=======
-  model_name: "sentiment140"
->>>>>>> 690aa14e677e26669975f5bcec091dae5bbaae11
+  model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
@@ -95,9 +91,9 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 50
+  num_examples_mean: 30
   num_examples_var: 10
   # use non-i.d.d data
-  non_iid_partitions: 0
+  non_iid_partitions: 0.1
   # percentage of mislabelled data
   mislabelling_percentage: 0

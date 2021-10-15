@@ -1,6 +1,8 @@
 import numpy as np
 from abc import abstractmethod, ABC
 
+from fl_sim.utils import FedPhase
+
 
 class DatasetModelLoader(ABC):
 
@@ -41,7 +43,7 @@ class DatasetModelLoader(ABC):
         """ return None"""
 
     @staticmethod
-    def select_random_samples(y, num_clients, nk):
+    def select_random_samples(y, num_clients, nk, fedphase: FedPhase):
         clients_data_indexes = []
         if y is not None:
             for client in range(num_clients):

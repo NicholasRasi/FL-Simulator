@@ -6,3 +6,10 @@ def auto_str(cls):
         )
     cls.__str__ = __str__
     return cls
+
+
+def print_queue_state(num_jobs: int):
+    str = ''
+    for x in range(num_jobs):
+        str = str + u"\u2588 "
+    print("Queue state: " + str)

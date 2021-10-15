@@ -3,6 +3,7 @@ from ..model_loader import DatasetModelLoader
 import tensorflow_federated as tff
 import numpy as np
 
+
 class Shakespeare_tff(DatasetModelLoader):
 
     def to_ids(self, x):
@@ -58,6 +59,18 @@ class Shakespeare_tff(DatasetModelLoader):
         target_texts = np.array(target_texts)
 
         return input_texts, target_texts
+
+    @staticmethod
+    def get_indexes(federated_data):
+        indexes_list = []
+        i = 0
+        for x in federated_data:
+            client_indexes = []
+            for sample in x:
+                client_indexes.append(i)
+                i = i + 1
+            indexes_list.append(client_indexes)
+        return indexes_list
 
     @staticmethod
     def join_samples(federated_data):
@@ -160,25 +173,9 @@ class Shakespeare_tff(DatasetModelLoader):
         # download dataset and load samples of clients
         train_data, test_data = tff.simulation.datasets.shakespeare.load_data()
         sample_clients_train = train_data.client_ids[0:self.num_devices]
-        sample_clients_test = test_data.client_ids[0:self.num_devices]
         federated_train_data = [(train_data.create_tf_dataset_for_client(x)) for x in sample_clients_train]
-        federated_test_data = [(test_data.create_tf_dataset_for_client(x)) for x in sample_clients_test]
 
-        # preprocess datasets
-        preprocessed_elements = []
+        return self.get_indexes(federated_train_data)
 
-        for client_data in federated_train_data:
-            preprocessed_elements.append(self.preprocess(client_data))
 
-        y = 0
-        all_client_indexes = []
-
-        for client_data in preprocessed_elements:
-            client_indexes = []
-            for input_target_pair in client_data:
-                client_indexes.append(y)
-                y = y + 1
-            all_client_indexes.append(client_indexes)
-
-        return all_client_indexes
 

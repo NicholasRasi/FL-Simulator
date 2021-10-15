@@ -14,7 +14,9 @@ class OrchestratorStatus:
 
         if config.simulation["initializer"] == "default":
 
-            x_train, y_train, x_test, y_test = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).get_dataset()
+            model_loader = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"])
+
+            x_train, y_train, x_test, y_test = model_loader.get_dataset()
 
             # init constant simulation data
             self.con = {
@@ -51,15 +53,15 @@ class OrchestratorStatus:
             # init local data
             if config.data["non_iid_partitions"] > 0:
                 # non-iid partitions
-                train_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_non_iid_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"], config.data["non_iid_partitions"])
-                eval_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"])
+                train_indexes = model_loader.select_non_iid_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"], config.data["non_iid_partitions"])
+                eval_indexes = model_loader.select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
             else:
                 # random sampling
-                train_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"])
-                eval_indexes = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"])
+                train_indexes = model_loader.select_random_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.FIT)
+                eval_indexes = model_loader.select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
 
             self.con["devs"]["local_data"] = (train_indexes, eval_indexes)
-            self.con["devs"]["local_data_stats"] = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"]).record_data_stats(y_train, train_indexes)
+            self.con["devs"]["local_data_stats"] = model_loader.record_data_stats(y_train, train_indexes)
 
             # init global model
             self.global_model_weights = None
