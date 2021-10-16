@@ -47,10 +47,8 @@ class FedAvg(FedAlg):
                                                                self.config.algorithms["eval"]["params"]["num_examples"],
                                                                self.status, self.logger)
         }
-        self.aggregator = {
-            "fit": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config.algorithms["fit"]["data"], self.config, self.logger),
-            "eval": AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["eval"]["aggregation"], self.status, self.config.algorithms["eval"]["data"], self.config, self.logger)
-        }
+        self.aggregator = AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config, self.logger)
+
 
     def select_devs(self, num_round: int, fed_phase: FedPhase):
         phase = fed_phase.value
@@ -97,9 +95,9 @@ class FedAvg(FedAlg):
             accuracies = [(r[0], r[3]) for r in local_fits]
 
             # aggregate local results
-            aggregated_weights = self.aggregator["fit"].aggregate_fit(weights)
-            aggregated_loss = self.aggregator["fit"].aggregate_losses(losses)
-            aggregated_metrics = self.aggregator["fit"].aggregate_accuracies(accuracies)
+            aggregated_weights = self.aggregator.aggregate_fit(weights)
+            aggregated_loss = self.aggregator.aggregate_losses(losses)
+            aggregated_metrics = self.aggregator.aggregate_accuracies(accuracies)
 
             # update global model and model metrics
             self.status.global_model_weights = aggregated_weights
@@ -144,8 +142,8 @@ class FedAvg(FedAlg):
             accuracies = [(r[0], r[2]) for r in local_evals]
 
             # aggregate local results
-            aggregated_loss = self.aggregator["eval"].aggregate_losses(losses)
-            aggregated_accuracy = self.aggregator["eval"].aggregate_accuracies(accuracies)
+            aggregated_loss = self.aggregator.aggregate_losses(losses)
+            aggregated_accuracy = self.aggregator.aggregate_accuracies(accuracies)
 
             # update model metrics
             self.status.update_agg_model_metrics(num_round, FedPhase.EVAL, aggregated_loss, aggregated_accuracy)

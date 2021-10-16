@@ -1,4 +1,5 @@
 from .fedavg import FedAvg
+from .fednova import FedNova
 from .fedprox import FedProx
 
 
@@ -10,5 +11,7 @@ class FederatedAlgorithmFactory:
             return FedAvg(status, config, logger, jobs_queue, completed_jobs_queue, workers_queue, lock)
         elif algorithm_name == "fedprox":
             return FedProx(status, config, logger, jobs_queue, completed_jobs_queue, workers_queue, lock)
+        elif algorithm_name == "fednova":
+            return FedNova(status, config, logger, jobs_queue, completed_jobs_queue, workers_queue, lock)
         else:
             return None

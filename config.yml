@@ -48,7 +48,6 @@ algorithms:
       # number of examples used for fit for each round
       num_examples: 200
   eval:
-    aggregation: "fedavg"
     selection: "random"
     update: "static"
     data: "random"
@@ -91,7 +90,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 30
+  num_examples_mean: 100
   num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0.1
