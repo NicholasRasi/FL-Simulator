@@ -1,20 +1,18 @@
 import time
-from json_tricks import loads, dumps
 import requests
+from json_tricks import loads, dumps
 from fl_sim.configuration import Config
-from fl_sim.federated_algs.fedalg import FedAlg
+from fl_sim.federated_algs.algorithms.orchestrator.fedalg import FedAlg
 from fl_sim.federated_algs.clients_selector import ClientsSelectorFactory
 from fl_sim.federated_algs.aggregation_strategy.aggregation_strategy_factory import AggregationStrategyFactory
 from fl_sim.federated_algs.global_update_optimizer import GlobalUpdateOptimizerFactory
+from fl_sim.status.orchestrator_status import OrchestratorStatus
 from fl_sim.utils import FedPhase
-from ...status.orchestrator_status import OrchestratorStatus
-from ...utils.utils import print_queue_state
 
 
-class FedProx(FedAlg):
+class FedAvg(FedAlg):
 
-    def __init__(self, status: OrchestratorStatus, config: Config, logger, jobs_queue, completed_jobs_queue,
-                 workers_queue, lock):
+    def __init__(self, status: OrchestratorStatus, config: Config, logger, jobs_queue, completed_jobs_queue, workers_queue, lock):
         super().__init__(status, config, logger)
 
         self.clients_selector = None
@@ -48,9 +46,7 @@ class FedProx(FedAlg):
                                                                self.config.algorithms["eval"]["params"]["num_examples"],
                                                                self.status, self.logger)
         }
-        self.aggregator = AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"],
-                                                                       self.status,
-                                                                       self.config, self.logger)
+        self.aggregator = AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config, self.logger)
 
     def select_devs(self, num_round: int, fed_phase: FedPhase):
         phase = fed_phase.value
@@ -73,8 +69,7 @@ class FedProx(FedAlg):
             global_config["tf_verbosity"] = self.config.simulation["tf_verbosity"]
 
             # update global configs status
-            self.status.update_optimizer_configs(num_round, dev_index, FedPhase.FIT, "global", global_config["epochs"],
-                                                 global_config["batch_size"], global_config["num_examples"])
+            self.status.update_optimizer_configs(num_round, dev_index, FedPhase.FIT, "global", global_config["epochs"], global_config["batch_size"], global_config["num_examples"])
 
             # check if device fails
             if dev_index in failing_devs_indexes:
@@ -163,8 +158,7 @@ class FedProx(FedAlg):
                     "model_weights": self.status.global_model_weights,
                     "epochs": global_config["epochs"],
                     "batch_size": global_config["batch_size"],
-                    "num_examples": global_config["num_examples"],
-                    "custom_loss": "fed_prox_loss"}
+                    "num_examples": global_config["num_examples"]}
 
         self.lock.acquire()
         if self.jobs_queue.qsize() == 0:
@@ -182,8 +176,7 @@ class FedProx(FedAlg):
                     "model_weights": self.status.global_model_weights,
                     "epochs": global_config["epochs"],
                     "batch_size": global_config["batch_size"],
-                    "num_examples": global_config["num_examples"],
-                    "custom_loss": "fed_prox_loss"}
+                    "num_examples": global_config["num_examples"]}
 
         self.lock.acquire()
         if self.jobs_queue.qsize() == 0:
@@ -228,7 +221,8 @@ class FedProx(FedAlg):
                                         loss=fedres.get("mean_loss"))
 
             fit_results.append(
-                (fedres.get("num_examples"), fedres.get("model_weights"), fedres.get("mean_loss"), fedres.get("mean_metric")))
+                (fedres.get("num_examples"), fedres.get("model_weights"), fedres.get("mean_loss"),
+                 fedres.get("mean_metric")))
         return fit_results
 
     def get_eval_results(self, completed_jobs_queue, created_jobs):

@@ -27,7 +27,6 @@ class WorkerStatus:
     def initialize_global_fields(self, json_fields):
         self.dataset = json_fields["dataset"]
         self.dev_num = json_fields["dev_num"]
-        self.fedalg = json_fields["fedalg"]
         self.verbosity = json_fields["verbosity"]
         self.optimizer = json_fields["optimizer"]
         self.metric = json_fields["metric"]

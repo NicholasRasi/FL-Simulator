@@ -1,8 +1,6 @@
-from json_tricks import loads, dumps
+from json_tricks import dumps
 import requests
 from flask import Flask, request
-
-from fl_sim.utils.utils import print_queue_state
 
 
 def start_api_listener(config, status, jobs_queue, lock, completed_jobs_queue, workers_queue):

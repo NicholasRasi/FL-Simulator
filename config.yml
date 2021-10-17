@@ -27,7 +27,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedavg"
+  federated_algorithm: "scaffold"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -57,7 +57,7 @@ algorithms:
       batch_size: 32
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
-  optimizer: "adam"
+  optimizer: "sgd"
 
 devices:
   # total number of devices (D)
@@ -90,9 +90,9 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 100
+  num_examples_mean: 200
   num_examples_var: 10
   # use non-i.d.d data
-  non_iid_partitions: 0.1
+  non_iid_partitions: 0
   # percentage of mislabelled data
   mislabelling_percentage: 0

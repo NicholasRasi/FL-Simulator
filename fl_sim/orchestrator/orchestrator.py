@@ -1,10 +1,8 @@
 from json_tricks import dump
 import os
 import time
-import requests
-from fl_sim.federated_algs.algorithms.federated_algorithm_factory import FederatedAlgorithmFactory
+from fl_sim.federated_algs.algorithms.orchestrator.orchestrator_algorithm_factory import OrchestratorAlgorithmFactory
 from fl_sim.status.orchestrator_status import OrchestratorStatus
-from fl_sim.utils import FedPhase
 
 
 class Orchestrator:
@@ -81,11 +79,11 @@ class Orchestrator:
 
     def model_fit(self, num_round):
         # select federated algorithm
-        federated_algorithm = FederatedAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
+        federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
         federated_algorithm.model_fit(num_round)
 
     def model_eval(self, num_round):
         # select federated algorithm
-        federated_algorithm = FederatedAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
+        federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
         federated_algorithm.model_eval(num_round)
 
