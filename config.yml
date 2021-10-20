@@ -27,7 +27,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "scaffold"
+  federated_algorithm: "feddyn"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"

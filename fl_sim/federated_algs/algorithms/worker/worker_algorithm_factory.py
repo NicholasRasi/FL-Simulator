@@ -1,4 +1,5 @@
 from fl_sim.federated_algs.algorithms.worker.fedavg_worker import FedAvgWorker
+from fl_sim.federated_algs.algorithms.worker.feddyn_worker import FedDynWorker
 from fl_sim.federated_algs.algorithms.worker.fedprox_worker import FedProxWorker
 from fl_sim.federated_algs.algorithms.worker.scaffold_worker import SCAFFOLDWorker
 
@@ -15,5 +16,7 @@ class WorkerAlgorithmFactory:
             return FedAvgWorker(ip_address, port_number, config, jobs_queue, init_conf)
         if algorithm_name == "scaffold":
             return SCAFFOLDWorker(ip_address, port_number, config, jobs_queue, init_conf)
+        if algorithm_name == "feddyn":
+            return FedDynWorker(ip_address, port_number, config, jobs_queue, init_conf)
         else:
             return None

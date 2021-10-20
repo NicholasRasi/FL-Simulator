@@ -25,6 +25,14 @@ class Aggregate(AggregationStrategy):
         return weights_prime
 
     @staticmethod
+    def average(results: List[Tuple[NDArrayList]]) -> NDArrayList:
+        averaged_weights: NDArrayList = [
+            reduce(np.add, layer_updates) / len(results)
+            for layer_updates in zip(*results)
+        ]
+        return averaged_weights
+
+    @staticmethod
     def weighted_loss_avg(samples_losses: List[Tuple[int, float]]) -> float:
         """Aggregate evaluation results obtained from multiple clients."""
         num_total_evaluation_examples = sum(
@@ -64,4 +72,7 @@ class Aggregate(AggregationStrategy):
         ]
 
         return weights_prime
+
+
+
 
