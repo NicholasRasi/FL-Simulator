@@ -2,12 +2,9 @@ import tensorflow as tf
 import numpy as np
 
 
-def fed_prox_loss(loss_type, model, global_weights):
+def fed_prox_loss(loss_type, model, global_weights, mu_parameter):
 
     def loss(y_true, y_pred):
-
-        # hyper parameter to be properly tuned
-        mu_parameter = 0.05
 
         # get loss without fedprox regularization term
         loss_function = tf.keras.losses.get(loss_type)

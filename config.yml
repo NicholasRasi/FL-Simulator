@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "best_net_speed.json"
+  output_file: "fedprox_0.5_dyn.json"
   # model
   model_name: "mnist"
   # metric
@@ -27,7 +27,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "feddyn"
+  federated_algorithm: "fedprox"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -93,6 +93,6 @@ data:
   num_examples_mean: 200
   num_examples_var: 10
   # use non-i.d.d data
-  non_iid_partitions: 0
+  non_iid_partitions: 0.5
   # percentage of mislabelled data
   mislabelling_percentage: 0
