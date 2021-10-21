@@ -1,7 +1,4 @@
 from typing import List, Tuple
-
-import numpy as np
-
 from . import FedAvgAgg
 from .aggregate import Aggregate
 from .aggregation_strategy import NDArrayList

@@ -5,7 +5,6 @@ from json_tricks import dumps
 import statistics as stats
 from tensorflow.keras.callbacks import Callback
 from fl_sim.federated_algs.algorithms.worker.fedavg_worker import FedAvgWorker
-from fl_sim.federated_algs.loss_functions.fed_prox_loss import fed_prox_loss
 from fl_sim.federated_algs.loss_functions.feddyn_loss import feddyn_loss
 from fl_sim.utils import FedPhase
 

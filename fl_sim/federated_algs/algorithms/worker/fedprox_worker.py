@@ -2,9 +2,7 @@ import tensorflow as tf
 import requests
 from json_tricks import dumps
 import statistics as stats
-
 from tensorflow.python.keras.callbacks import Callback
-
 from fl_sim.federated_algs.algorithms.worker.fedavg_worker import FedAvgWorker
 from fl_sim.federated_algs.loss_functions.fed_prox_loss import fed_prox_loss
 from fl_sim.utils import FedPhase
@@ -48,6 +46,7 @@ class FedProxWorker(FedAvgWorker):
         model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
 
         global_weights = job["model_weights"]
+        self.mu_parameter = 1
         loss_func = fed_prox_loss(self.status.model_loader.get_loss_function(), model, global_weights, self.mu_parameter)
 
         # compile model

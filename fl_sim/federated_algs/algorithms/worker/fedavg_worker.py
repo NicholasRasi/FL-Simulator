@@ -1,10 +1,7 @@
-import logging
 import tensorflow as tf
-from time import sleep
 import requests
 from json_tricks import dumps, loads
 import statistics as stats
-from fl_sim.federated_algs.loss_functions.custom_loss_factory import CustomLossFactory
 from fl_sim.status.worker_status import WorkerStatus
 from fl_sim.utils import FedPhase
 

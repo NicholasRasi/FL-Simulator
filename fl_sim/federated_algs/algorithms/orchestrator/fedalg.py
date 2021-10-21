@@ -1,13 +1,7 @@
-import multiprocessing
-import threading
-import tensorflow as tf
 import numpy as np
 from abc import ABC
 from fl_sim.configuration import Config
-from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.status.orchestrator_status import OrchestratorStatus
-from fl_sim.utils import FedJob, FedPhase
-import statistics as stats
 
 
 class FedAlg(ABC):
