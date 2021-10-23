@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "fedprox_0.5_dyn.json"
+  output_file: "fedavg_0.5.json"
   # model
   model_name: "mnist"
   # metric
@@ -27,7 +27,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedprox"
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -40,28 +40,28 @@ algorithms:
     # parameters used by the algorithm
     params:
       # fraction of devices used for the computation
-      k: 0.5
+      k: 0.9
       # number of epochs executed for fit for each round
-      epochs: 10
+      epochs: 20
       # batch size used for fit for each round
-      batch_size: 32
+      batch_size: 10
       # number of examples used for fit for each round
-      num_examples: 200
+      num_examples: 55
   eval:
     selection: "random"
     update: "static"
     data: "random"
     params:
-      k: 0.8
-      epochs: 10
-      batch_size: 32
-      num_examples: 100
+      k: 0.9
+      epochs: 20
+      batch_size: 10
+      num_examples: 10
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 10
+  num: 1000
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round
@@ -90,7 +90,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 200
+  num_examples_mean: 69
   num_examples_var: 10
   # use non-i.d.d data
   non_iid_partitions: 0.5
