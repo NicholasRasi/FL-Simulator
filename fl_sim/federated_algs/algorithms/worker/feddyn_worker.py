@@ -1,3 +1,4 @@
+import types
 import numpy as np
 import tensorflow as tf
 import requests
@@ -19,10 +20,9 @@ class FedDynWorker(FedAvgWorker):
 
     class GradientsUpdateCallback(Callback):
 
-        def __init__(self, outer_worker, model, prev_gradients, global_weights, alfa_parameter):
+        def __init__(self, outer_worker, prev_gradients, global_weights, alfa_parameter):
             super().__init__()
             self.outer_worker = outer_worker
-            self.model = model
             self.global_weights = global_weights
             self.gradients = 0
             self.alfa_parameter = alfa_parameter
@@ -58,13 +58,13 @@ class FedDynWorker(FedAvgWorker):
 
         # compile model
         model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric, loss=loss_func)
-
         # load weights if not None
         if job["model_weights"] is not None:
             model.set_weights(job["model_weights"])
 
+
         # fit model
-        gradients_update = self.GradientsUpdateCallback(self, model, self.feddyn_gradients, global_weights, job["alfa_parameter"])
+        gradients_update = self.GradientsUpdateCallback(self, self.feddyn_gradients, global_weights, job["alfa_parameter"])
         history = model.fit(x_data, y_data, epochs=job["epochs"], batch_size=job["batch_size"], verbose=job["verbosity"], callbacks=[gradients_update])
 
         mean_metric = stats.mean(history.history[self.status.metric])
@@ -110,7 +110,7 @@ class FedDynWorker(FedAvgWorker):
         model.set_weights(job["model_weights"])
 
         # evaluate model
-        gradients_update = self.GradientsUpdateCallback(self, model, self.feddyn_gradients, global_weights, job["alfa_parameter"])
+        gradients_update = self.GradientsUpdateCallback(self, self.feddyn_gradients, global_weights, job["alfa_parameter"])
         loss, metric = model.evaluate(x_data, y_data, verbose=job["verbosity"], callbacks=gradients_update)
 
         job_completed = {"metric": metric,

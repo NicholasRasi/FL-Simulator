@@ -52,7 +52,7 @@ class Aggregate(AggregationStrategy):
         return sum(weighted_accuracies) / num_total_evaluation_examples
 
     @staticmethod
-    def federated_normalized_averaging(results: List[Tuple[int, NDArrayList, int]]) -> NDArrayList:
+    def federated_normalized_averaging2(results: List[Tuple[int, NDArrayList, int]]) -> NDArrayList:
 
         # Calculate the total number of examples used during training
         num_examples_total = sum([num_examples for num_examples, w, l in results])
@@ -66,8 +66,41 @@ class Aggregate(AggregationStrategy):
             [(layer * num_examples)/local_iterations for layer in weights] for num_examples, weights, local_iterations in results
         ]
 
+        # Create a list of weights, each multiplied by the related number of examples
+        weighted_weights = [
+            [layer * num_examples for layer in weights] for num_examples, weights in results
+        ]
+
+        # Compute average weights of each layer
         weights_prime: NDArrayList = [
-            (reduce(np.add, layer_updates) * local_iterations_scale_sum) / num_examples_total
+            reduce(np.add, layer_updates) / num_examples_total
+            for layer_updates in zip(*weighted_weights)
+        ]
+
+        return weights_prime
+
+    @staticmethod
+    def federated_normalized_averaging(global_weights, results: List[Tuple[int, NDArrayList, int]]) -> NDArrayList:
+        # Calculate the total number of examples used during training
+        num_examples_total = sum([num_examples for num_examples, w, l in results])
+
+        tau_eff = sum([(num_examples * local_iterations / num_examples_total) for
+                                  num_examples, deltas, local_iterations in results])
+
+        weighted_deltas = [
+            [layer * tau_eff / local_it for layer in delta] for num_examples, delta, local_it in results
+        ]
+
+        local_weights = [np.subtract(global_weights, scaled_delta) for scaled_delta in weighted_deltas]
+
+        # Create a list of weights, each multiplied by the related number of examples
+        weighted_weights = [
+            [layer * result[0] for layer in weights] for result, weights in zip(results, local_weights)
+        ]
+
+        # Compute average weights of each layer
+        weights_prime: NDArrayList = [
+            reduce(np.add, layer_updates) / num_examples_total
             for layer_updates in zip(*weighted_weights)
         ]
 

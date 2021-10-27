@@ -28,7 +28,7 @@ class Shakespeare(DatasetModelLoader):
         ids_dataset = tf.data.Dataset.from_tensor_slices(all_ids)
 
         # Define the length of each sequence
-        seq_length = 100
+        seq_length = 25
 
         # Divide into batches
         sequences = ids_dataset.batch(seq_length + 1, drop_remainder=True)

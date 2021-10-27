@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import tensorflow
 from fl_sim.configuration import Config
 from fl_sim.dataset.model_loader_factory import DatasetModelLoaderFactory
 from fl_sim.utils import FedPhase
@@ -12,59 +13,65 @@ class OrchestratorStatus:
         self.devices = {}
         self.config = config
 
-        if config.simulation["initializer"] == "default":
+        self.model_loader = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"],
+                                                                  config.devices["num"])
 
-            model_loader = DatasetModelLoaderFactory.get_model_loader(config.simulation["model_name"], config.devices["num"])
+        self.x_train, self.y_train, self.x_test, self.y_test = self.model_loader.get_dataset()
 
-            x_train, y_train, x_test, y_test = model_loader.get_dataset()
+        self.initial_weights = self.model_loader.get_compiled_model(
+            optimizer=tensorflow.keras.optimizers.get(self.config.algorithms["optimizer"]),
+            metric=self.config.simulation["metric"], train_data=(self.x_train, self.y_train)).get_weights()
+
+    def reinitialize_status(self):
+        if self.config.simulation["initializer"] == "default":
 
             # init constant simulation data
             self.con = {
                 "devs": {
                     "availability": np.random.binomial(n=1,
-                                                       p=config.devices["p_available"],
-                                                       size=(config.simulation["num_rounds"],
-                                                             config.devices["num"])),
+                                                       p=self.config.devices["p_available"],
+                                                       size=(self.config.simulation["num_rounds"],
+                                                             self.config.devices["num"])),
                     "failures": np.random.binomial(n=1,
-                                                   p=config.devices["p_fail"],
-                                                   size=(config.simulation["num_rounds"],
-                                                         config.devices["num"])),
-                    "ips": self.randint(mean=config.computation["ips_mean"],
-                                        var=config.computation["ips_var"],
-                                        size=config.devices["num"],
+                                                   p=self.config.devices["p_fail"],
+                                                   size=(self.config.simulation["num_rounds"],
+                                                         self.config.devices["num"])),
+                    "ips": self.randint(mean=self.config.computation["ips_mean"],
+                                        var=self.config.computation["ips_var"],
+                                        size=self.config.devices["num"],
                                         dtype=int),
-                    "energy": self.randint(mean=config.energy["avail_mean"],
-                                           var=config.energy["avail_var"],
-                                           size=(config.simulation["num_rounds"], config.devices["num"]),
+                    "energy": self.randint(mean=self.config.energy["avail_mean"],
+                                           var=self.config.energy["avail_var"],
+                                           size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                            dtype=int),
-                    "net_speed": self.randint(mean=config.network["speed_mean"],
-                                              var=config.network["speed_var"],
-                                              size=(config.simulation["num_rounds"], config.devices["num"]),
+                    "net_speed": self.randint(mean=self.config.network["speed_mean"],
+                                              var=self.config.network["speed_var"],
+                                              size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                               dtype=int),
-                    "local_data_sizes": self.randint(mean=config.data["num_examples_mean"],
-                                                     var=config.data["num_examples_var"],
-                                                     size=config.devices["num"], dtype=int),
+                    "local_data_sizes": self.randint(mean=self.config.data["num_examples_mean"],
+                                                     var=self.config.data["num_examples_var"],
+                                                     size=self.config.devices["num"], dtype=int),
                     "local_data": (),
                     "local_data_stats": None,
-                    "local_models_weights": [None] * config.devices["num"]
+                    "local_models_weights": [None] * self.config.devices["num"]
                 }
             }
 
             # init local data
-            if config.data["non_iid_partitions"] > 0:
+            if self.config.data["non_iid_partitions"] > 0:
                 # non-iid partitions
-                train_indexes = model_loader.select_non_iid_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"], config.data["non_iid_partitions"])
-                eval_indexes = model_loader.select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
+                train_indexes = self.model_loader.select_non_iid_samples(self.y_train, self.config.devices["num"], self.con["devs"]["local_data_sizes"], self.config.data["non_iid_partitions"])
+                eval_indexes = self.model_loader.select_random_samples(self.y_test, self.config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
             else:
                 # random sampling
-                train_indexes = model_loader.select_random_samples(y_train, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.FIT)
-                eval_indexes = model_loader.select_random_samples(y_test, config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
+                train_indexes = self.model_loader.select_random_samples(self.y_train, self.config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.FIT)
+                eval_indexes = self.model_loader.select_random_samples(self.y_test, self.config.devices["num"], self.con["devs"]["local_data_sizes"], FedPhase.EVAL)
 
             self.con["devs"]["local_data"] = (train_indexes, eval_indexes)
-            self.con["devs"]["local_data_stats"] = model_loader.record_data_stats(y_train, train_indexes)
+            self.con["devs"]["local_data_stats"] = self.model_loader.record_data_stats(self.y_train, train_indexes)
 
-            # init global model
-            self.global_model_weights = None
+            # init global weights
+            self.global_model_weights = self.initial_weights
 
             # number of parameters of the model (initialized after the first train)
             self.con["model"] = {
@@ -75,43 +82,44 @@ class OrchestratorStatus:
             self.var = {
                 phase: {
                     "devs": {
-                        "selected": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "selected": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                              dtype=int)
                     },
                     "upd_opt_configs":
                         {loc: {
-                            "epochs": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                            "epochs": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                                dtype=int),
-                            "batch_size": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                            "batch_size": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                                    dtype=int),
-                            "num_examples": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                            "num_examples": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                                      dtype=int),
                             } for loc in ["global", "local"]
                         },
                     "times": {
-                        "computation": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "computation": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                                 dtype=float),
-                        "communication": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "communication": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                                   dtype=float)
                     },
                     "consumption": {
-                        "resources": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "resources": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                               dtype=float),
-                        "network": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "network": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                             dtype=float),
-                        "energy": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "energy": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                            dtype=float)
                     },
                     "model_metrics": {
-                        "metric": np.zeros(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "metric": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                              dtype=float),
-                        "loss": np.full(shape=(config.simulation["num_rounds"], config.devices["num"]),
+                        "loss": np.full(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                         fill_value=sys.float_info.max, dtype=float),
-                        "agg_metric": np.zeros(shape=config.simulation["num_rounds"], dtype=float),
-                        "agg_loss": np.full(shape=config.simulation["num_rounds"],
+                        "agg_metric": np.zeros(shape=self.config.simulation["num_rounds"], dtype=float),
+                        "agg_loss": np.full(shape=self.config.simulation["num_rounds"],
                                             fill_value=sys.float_info.max, dtype=float)
                     }}
                 for phase in ["fit", "eval"]}
+
 
     def update_optimizer_configs(self, num_round: int, dev_index: int, fed_phase: FedPhase, location: str, epochs: int, batch_size: int, num_examples: int):
         phase = fed_phase.value
@@ -165,6 +173,7 @@ class OrchestratorStatus:
             return np.random.randint(low=mean-var, high=mean+var, size=size, dtype=dtype)
 
     def to_dict(self):
+        self.global_model_weights = None
         self.con["devs"]["local_models_weights"] = None
         return {"con": self.con,
                 "var": self.var}

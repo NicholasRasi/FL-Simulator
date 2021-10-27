@@ -62,8 +62,7 @@ class Orchestrator:
 
             self.logger.info("saving run data")
             run_data.append(self.status.to_dict())
-
-            self.status = OrchestratorStatus(config=self.config, logger=self.logger)
+            self.status.reinitialize_status()
 
         self.export_data(run_data)
 

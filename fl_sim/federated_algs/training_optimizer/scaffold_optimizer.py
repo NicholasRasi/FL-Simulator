@@ -19,6 +19,8 @@ class SCAFFOLD_optimizer(keras.optimizers.Optimizer):
             self.add_slot(var, "pg")
 
     def _resource_apply_dense(self, grad, var):
+        print(self.local_control_variate)
+        print(self.global_control_variate)
         var_update = state_ops.assign_sub(var, (self._lr * grad) - self.local_control_variate + self.global_control_variate)
 
         return var_update

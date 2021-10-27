@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from json_tricks import loads
 from fl_sim import FedAvg
 from fl_sim.configuration import Config
@@ -96,7 +97,9 @@ class FedNova(FedAvg):
                                         metric=fedres.get("mean_metric"),
                                         loss=fedres.get("mean_loss"))
 
+            delta_weights = np.subtract(self.status.global_model_weights, fedres.get("model_weights"))
+
             fit_results.append(
-                (fedres.get("num_examples"), fedres.get("model_weights"), local_iterations, fedres.get("mean_loss"),
+                (fedres.get("num_examples"), delta_weights, local_iterations, fedres.get("mean_loss"),
                  fedres.get("mean_metric")))
         return fit_results

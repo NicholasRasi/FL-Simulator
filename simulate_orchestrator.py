@@ -32,6 +32,7 @@ if __name__ == '__main__':
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     status = OrchestratorStatus(config=config, logger=logger)
+    status.reinitialize_status()
 
     manager = multiprocessing.Manager()
     workers_queue = manager.list()

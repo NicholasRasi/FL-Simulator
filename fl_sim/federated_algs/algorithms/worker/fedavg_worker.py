@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import requests
 from json_tricks import dumps, loads
