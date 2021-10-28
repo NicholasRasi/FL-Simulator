@@ -24,8 +24,7 @@ class SCAFFOLDWorker(FedAvgWorker):
         # load model
         model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
         loss_func = self.status.model_loader.get_loss_function()
-
-        optimizer = SCAFFOLD_optimizer(global_control_variate=job["global_control_variate"], local_control_variate=job["local_control_variate"])
+        optimizer = SCAFFOLD_optimizer(global_control_variate=job["global_control_variate"], local_control_variate=job["local_control_variate"], num_layers=len(model.get_weights()))
 
         # compile model
         model.compile(optimizer=optimizer, run_eagerly=True, metrics=self.status.metric, loss=loss_func)
@@ -43,7 +42,7 @@ class SCAFFOLDWorker(FedAvgWorker):
 
         local_iter = job["batch_size"] / (job["epochs"] * job["num_examples"] * keras.backend.eval(model.optimizer.lr))
         if job["model_weights"] is not None:
-            weights_delta = np.subtract(np.array(job["model_weights"], dtype=object), np.array(model_weights, dtype=object))
+            weights_delta = np.subtract(job["model_weights"], model_weights)
             delta_variate = - job["global_control_variate"] + local_iter * weights_delta
         else:
             delta_variate = 0

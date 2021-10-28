@@ -97,19 +97,15 @@ class SCAFFOLD(FedAvg):
                 (fedres.get("num_examples"), fedres.get("model_weights"), fedres.get("mean_loss"),
                  fedres.get("mean_metric")))
 
-            self.compute_control_variates(local_delta_variates, device_indexes)
+        self.compute_control_variates(local_delta_variates, device_indexes)
 
         return fit_results
 
     def compute_control_variates(self, local_delta_variates, device_indexes):
         global_delta_variates = sum(local_delta_variates) / len(local_delta_variates)
+
         self.global_control_variate = self.global_control_variate + (
                     (global_delta_variates * len(local_delta_variates)) / self.config.devices["num"])
 
         for i in range(len(local_delta_variates)):
             self.local_control_variates[device_indexes[i]] = self.local_control_variates[device_indexes[i]] + local_delta_variates[i]
-
-
-
-
-

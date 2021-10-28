@@ -14,6 +14,7 @@ class Orchestrator:
         self.lock = lock
         self.logger = logger
         self.status = status
+        self.federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
         print("Initialize orchestrator")
 
     def start_orchestrator(self):
@@ -78,11 +79,9 @@ class Orchestrator:
 
     def model_fit(self, num_round):
         # select federated algorithm
-        federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
-        federated_algorithm.model_fit(num_round)
+        self.federated_algorithm.model_fit(num_round)
 
     def model_eval(self, num_round):
         # select federated algorithm
-        federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
-        federated_algorithm.model_eval(num_round)
+        self.federated_algorithm.model_eval(num_round)
 
