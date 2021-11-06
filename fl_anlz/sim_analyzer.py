@@ -493,13 +493,15 @@ class SimAnalyzer:
     def plot_devices_data_distribution(self):
         title = "Data Distribution"
         self.output_report.new_header(level=1, title=title)
-
+        num_classes = []
         for name, sim in self.sims:
             for i, status in enumerate(sim["status"]):
                 fig, ax = plt.subplots(1)
 
                 # local data
                 local_data_stats = status["con"]["devs"]["local_data_stats"]
+                for x in local_data_stats:
+                    num_classes.append(len(set(x)))
                 for j, local_data in enumerate(local_data_stats):
                     cumul = 0
                     for count in local_data:
@@ -512,6 +514,9 @@ class SimAnalyzer:
                 output_filename = "devs_local_data_" + name + "_" + str(i) + self.ext
                 self._save_show_plot(output_filename)
                 self._add_img_to_report(str(i), output_filename, level=2)
+
+        print(num_classes)
+        print(sum(num_classes)/len(num_classes))
 
     def _init_console_table(self, title, min_max=True,
                             column_names=("mean", "std", "min", "max"),

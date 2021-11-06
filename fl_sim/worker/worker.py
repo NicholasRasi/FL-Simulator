@@ -35,7 +35,7 @@ class Worker:
                     if len(next_job.text) > 0:
 
                         json_next_job = loads(next_job.text)
-                        logging.info(str("Handle " + json_next_job["job_type"] + " job , num round " + str(json_next_job["num_round"]) + " dev index " + str(json_next_job["dev_index"]) + ", num examples " + str(json_next_job["num_examples"])))
+                        logging.info(str("Handle " + json_next_job["job_type"] + " job , num round " + str(json_next_job["num_round"]) + " dev index " + str(json_next_job["dev_index"]) + ", num examples " + str(json_next_job["num_examples"]) + " epochs " + str(json_next_job["epochs"]) + " local iterations " + str(int(json_next_job["num_examples"]) * int(json_next_job["epochs"]) / int(json_next_job["batch_size"]))))
                         if json_next_job["job_type"] == 'fit':
                             self.federated_worker.handle_fit_job(json_next_job)
                         else:

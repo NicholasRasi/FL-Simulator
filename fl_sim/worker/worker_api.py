@@ -34,7 +34,7 @@ def notify_empty_queue(orchestrator_empty_queue):
 
 
 def notify_available_jobs(orchestrator_empty_queue):
-    orchestrator_empty_queue.value = not orchestrator_empty_queue.value
+    orchestrator_empty_queue.value = not Value(ctypes.c_bool, True)  # Value(ctypes.c_bool, False) not working
     return "", 200
 
 

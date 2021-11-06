@@ -9,6 +9,7 @@ class Cifar10(DatasetModelLoader):
         x_train, x_test = x_train / 255.0, x_test / 255.0
         return x_train, y_train, x_test, y_test
 
+    # Image classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
         tf_model = tf.keras.models.Sequential()
         tf_model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))

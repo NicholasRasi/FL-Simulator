@@ -104,7 +104,8 @@ class Shakespeare_tff(DatasetModelLoader):
 
         return input_texts_train, target_texts_train, input_texts_test, target_texts_test
 
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
+    # Text generation task
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/text/tutorials/text_generation
 
         class FlattenedCategoricalAccuracy(tf.keras.metrics.SparseCategoricalAccuracy):
 

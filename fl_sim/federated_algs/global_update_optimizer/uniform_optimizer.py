@@ -7,16 +7,29 @@ class UniformOptimizer(GlobalUpdateOptimizer):
 
     def __init__(self, epochs: int, batch_size: int, num_examples: int, status: OrchestratorStatus, logger):
         super().__init__(epochs, batch_size, num_examples, status, logger)
-        self.epochs_mean = epochs
-        self.epochs_var = 2
-        self.batch_size = batch_size
-        self.batch_size_var = 1
-        self.num_examples = num_examples
-        self.num_examples_var = 1
+        self.p_heterogeneity = 0.9
+        self.epochs_min = 1
+        self.epochs_max = epochs
+        self.batch_size_min = batch_size
+        self.batch_size_max = batch_size
+        self.num_examples_min = num_examples
+        self.num_examples_max = num_examples
 
     def optimize(self, r: int, dev_index: int, phase: str) -> dict:
-        return {"epochs": np.random.randint(low=self.epochs_mean-self.epochs_var, high=self.epochs_mean+self.epochs_var),
-                "batch_size": np.random.randint(low=self.batch_size-self.batch_size_var, high=self.batch_size+self.batch_size_var),
-                "num_examples": np.random.randint(low=self.num_examples-self.num_examples_var, high=self.num_examples+self.num_examples_var)}
+        is_heterogeneous = np.random.binomial(1, self.p_heterogeneity)
+        epochs = self.epochs_max
+        batch_size = self.batch_size_max
+        num_examples = self.num_examples_max
+        if is_heterogeneous:
 
+            if self.epochs_min < self.epochs_max:
+                epochs = np.random.randint(low=self.epochs_min, high=self.epochs_max)
+
+            if self.batch_size_min < self.batch_size_max:
+                batch_size = np.random.randint(low=self.batch_size_min, high=self.batch_size_max)
+
+            if self.num_examples_min < self.num_examples_max:
+                num_examples = np.random.randint(low=self.num_examples_min, high=self.num_examples_max)
+
+        return {"epochs": epochs, "batch_size": batch_size, "num_examples": num_examples}
 

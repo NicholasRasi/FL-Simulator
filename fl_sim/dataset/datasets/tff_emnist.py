@@ -20,6 +20,7 @@ class Emnist_tff(DatasetModelLoader):
 
         return images_train, labels_train, images_test, labels_test
 
+    # Image classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
         # build and compile Keras model
 
@@ -63,14 +64,14 @@ class Emnist_tff(DatasetModelLoader):
             for client_image in client_data:
                 images_of_client.append(np.float64(client_image['pixels'].numpy()))
                 labels_of_client.append(client_image['label'].numpy())
-            images_numpy.append(images_of_client.numpy())
-            labels_numpy.append(labels_of_client.numpy())
+            images_numpy.append(images_of_client) #.numpy()
+            labels_numpy.append(labels_of_client) #.numpy()
 
         return np.array(images_numpy), np.array(labels_numpy)
 
     def select_non_iid_samples(self, y, num_clients, nk, alpha):
 
-        (emnist_train), (emnist_test) = tff.simulation.datasets.emnist.load_data()
+        (emnist_train), (emnist_test) = tff.simulation.datasets.emnist.load_data(cache_dir="./datasets")
 
         sample_clients_train = emnist_train.client_ids[0:num_clients]
 

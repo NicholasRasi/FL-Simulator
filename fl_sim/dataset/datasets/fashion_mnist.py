@@ -10,6 +10,7 @@ class FashionMnist(DatasetModelLoader):
         x_test = x_test / 255.0
         return x_train, y_train, x_test, y_test
 
+    # Image classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
         tf_model = tf.keras.Sequential([
             tf.keras.layers.Flatten(input_shape=(28, 28)),

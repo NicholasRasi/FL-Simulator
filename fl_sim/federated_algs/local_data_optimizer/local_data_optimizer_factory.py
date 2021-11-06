@@ -1,4 +1,3 @@
-from fl_sim import Status
 from .random_optimizer import RandomOptimizer
 
 

@@ -9,10 +9,13 @@ from zipfile import ZipFile
 from ..model_loader import DatasetModelLoader
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
 
 
 class Sentiment140(DatasetModelLoader):
+
+    def __init__(self, num_devices: int):
+        super().__init__(num_devices)
+        self.train_users = []
 
     def get_dataset(self, mislabelling_percentage=0):
 
@@ -30,10 +33,13 @@ class Sentiment140(DatasetModelLoader):
         df = df.sample(frac=1)
 
         # Removing the unnecessary columns.
-        df = df[['sentiment', 'text']]
+        df = df[['sentiment', 'text', 'user']]
 
         # Replace 4 with 1
         df['sentiment'] = df['sentiment'].replace(4, 1)
+
+        # Sort by user
+        df = df.sort_values('user')
 
         # Storing data in lists.
         text, sentiment = list(df['text']), list(df['sentiment'])
@@ -41,7 +47,15 @@ class Sentiment140(DatasetModelLoader):
         # Preprocess text
         processedtext = self.preprocess(text)
 
-        x_train, x_test, y_train, y_test = train_test_split(processedtext, sentiment, train_size=0.8, test_size=0.2, random_state=1)
+        # Split data
+        train_size = 0.05
+        test_size = 0.01
+        x_train = processedtext[0:int(train_size*len(processedtext))]
+        y_train = sentiment[0:int(train_size*len(processedtext))]
+        self.train_users = list(df['user'])[0:int(train_size*len(processedtext))]
+
+        x_test = processedtext[int(train_size*len(processedtext)):int((test_size+train_size)*len(processedtext))]
+        y_test = sentiment[int(train_size*len(processedtext)):int((test_size+train_size)*len(processedtext))]
 
         tokenizer = Tokenizer(num_words=10000)
         tokenizer.fit_on_texts(x_train)
@@ -58,11 +72,12 @@ class Sentiment140(DatasetModelLoader):
 
         return x_train, y_train, x_test, y_test
 
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):
+    # Text classification task
+    def get_compiled_model(self, optimizer: str, metric: str, train_data): # https://www.tensorflow.org/text/tutorials/text_classification_rnn
 
-        vocab = 228644 #len(tokenizer.word_index) + 1
         emb_dim = 100
         maxlen = 100
+        vocab = 42940
 
         model = tf.keras.Sequential([
             tf.keras.layers.Embedding(
@@ -77,6 +92,7 @@ class Sentiment140(DatasetModelLoader):
         model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                       optimizer=optimizer,
                       metrics=[metric])
+
         return model
 
     def get_loss_function(self):
@@ -152,4 +168,14 @@ class Sentiment140(DatasetModelLoader):
         y = np.array(y)
 
         return x, y
+
+    # Each device has reviews belonging to a specific user
+    def select_non_iid_samples(self, y, num_clients, nk, alpha):
+        train_users_no_duplicates = list(set(self.train_users))
+        clients_data_indexes = []
+        for client in range(num_clients):
+            client_indexes = [i for i in range(len(self.train_users)) if self.train_users[i] == train_users_no_duplicates[client]][0:nk[client]]
+            clients_data_indexes.append(client_indexes)
+
+        return clients_data_indexes
 

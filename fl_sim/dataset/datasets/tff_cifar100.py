@@ -22,7 +22,7 @@ class Cifar100_tff(DatasetModelLoader):
 
         return images_train, labels_train, images_test, labels_test
 
-
+    # Image classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
 
         tf_model = tf.keras.models.Sequential()

@@ -4,13 +4,13 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "scaffold_mnist_new.json"
+  output_file: "fedprox_mnist2.json"
   # model
-  model_name: "mnist"
+  model_name: "emnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 20
+  num_rounds: 10
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -27,7 +27,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "scaffold"
+  federated_algorithm: "fedprox"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -42,19 +42,19 @@ algorithms:
       # fraction of devices used for the computation
       k: 0.9
       # number of epochs executed for fit for each round
-      epochs: 3
+      epochs: 20
       # batch size used for fit for each round
-      batch_size: 20
+      batch_size: 10
       # number of examples used for fit for each round
-      num_examples: 100
+      num_examples: 60
   eval:
     selection: "random"
-    update: "uniform"
+    update: "static"
     data: "random"
     params:
       k: 0.9
-      epochs: 3
-      batch_size: 20
+      epochs: 20
+      batch_size: 10
       num_examples: 30
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "sgd"
@@ -90,8 +90,8 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 150
-  num_examples_var: 50
+  num_examples_mean: 100
+  num_examples_var: 20
   # use non-i.d.d data
   non_iid_partitions: 0.5
   # percentage of mislabelled data

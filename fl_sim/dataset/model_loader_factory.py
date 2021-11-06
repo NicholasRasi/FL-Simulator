@@ -1,4 +1,5 @@
 from .datasets.mnist import Mnist
+from .datasets.emnist import Emnist
 from .datasets.fashion_mnist import FashionMnist
 from .datasets.cifar10 import Cifar10
 from .datasets.cifar100 import Cifar100
@@ -17,6 +18,8 @@ class DatasetModelLoaderFactory:
     def get_model_loader(model_name: str, num_devices: int):
         if model_name == "mnist":
             return Mnist(num_devices)
+        if model_name == "emnist":
+            return Emnist(num_devices)
         elif model_name == "tff_emnist":
             return Emnist_tff(num_devices)
         elif model_name == "fashion_mnist": # https://www.tensorflow.org/tutorials/keras/classification

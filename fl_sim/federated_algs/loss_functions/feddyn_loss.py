@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import torch
 
 
 def feddyn_loss(loss_type, model, alfa_parameter, gradients, global_weights):
@@ -15,7 +16,7 @@ def feddyn_loss(loss_type, model, alfa_parameter, gradients, global_weights):
         # Linear penalty
         linear_penalty = 0
         if gradients is not 0:
-            linear_penalty = local_model_weights * gradients
+            linear_penalty = torch.sum(local_model_weights * gradients)
 
         # Quadratic penalty
         quadratic_penalty = 0

@@ -2,7 +2,6 @@ from json_tricks import dump
 import os
 import time
 from fl_sim.federated_algs.algorithms.orchestrator.orchestrator_algorithm_factory import OrchestratorAlgorithmFactory
-from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 
 class Orchestrator:
@@ -15,7 +14,6 @@ class Orchestrator:
         self.logger = logger
         self.status = status
         self.federated_algorithm = OrchestratorAlgorithmFactory.get_federated_algorithm(self.config.algorithms["federated_algorithm"], self.status, self.config, self.logger, self.jobs_queue, self.completed_jobs_queue, self.workers_queue, self.lock)
-        print("Initialize orchestrator")
 
     def start_orchestrator(self):
         run_data = []

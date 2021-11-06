@@ -44,9 +44,6 @@ class Shakespeare(DatasetModelLoader):
 
         # CREATE TRAINING BATCHES
 
-        # Batch size
-        BATCH_SIZE = 64
-
         # Buffer size to shuffle the dataset
         BUFFER_SIZE = 10000
 
@@ -69,6 +66,7 @@ class Shakespeare(DatasetModelLoader):
 
         return x_train, y_train, x_test, y_test
 
+    # Text generation task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/text/tutorials/text_generation
 
         x_train, y_train = train_data

@@ -25,6 +25,7 @@ class ImdbReviews(DatasetModelLoader):
 
         return training_data, training_targets, testing_data, testing_targets
 
+    # Text classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
 
         # Input - Layer

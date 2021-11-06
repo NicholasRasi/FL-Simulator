@@ -34,6 +34,7 @@ class FedAvg(FedAlg):
                                                                 self.config,
                                                                 self.status, self.logger)
         }
+
         self.global_update_optimizer = {
             "fit": GlobalUpdateOptimizerFactory.get_optimizer(self.config.algorithms["fit"]["update"],
                                                               self.config.algorithms["fit"]["params"]["epochs"],
@@ -46,7 +47,9 @@ class FedAvg(FedAlg):
                                                                self.config.algorithms["eval"]["params"]["num_examples"],
                                                                self.status, self.logger)
         }
+
         self.aggregator = AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config, self.logger)
+
 
     def select_devs(self, num_round: int, fed_phase: FedPhase):
         phase = fed_phase.value
@@ -63,6 +66,7 @@ class FedAvg(FedAlg):
         created_jobs = 0
         failed_jobs = 0
         failing_devs_indexes = self.get_failed_devs(num_round)
+
         for dev_index in dev_indexes:
             # run update optimizer
             global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
@@ -77,7 +81,9 @@ class FedAvg(FedAlg):
                 failed_jobs += 1
             else:
                 global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
+
                 self.put_client_job_fit(num_round, dev_index, global_config)
+
                 created_jobs += 1
 
         self.logger.info("jobs successful: %d | failed: %d" % (created_jobs, failed_jobs))
