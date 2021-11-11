@@ -7,7 +7,7 @@ from ..model_loader import DatasetModelLoader
 
 class Emnist(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/datasets/catalog/emnist
         ds = tfds.load('emnist', split='train[:10%]')
 
         X = []

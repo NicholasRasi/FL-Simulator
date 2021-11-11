@@ -34,8 +34,22 @@ class SCAFFOLD_optimizer(keras.optimizers.Optimizer):
 
         return var_update
 
-    def _resource_apply_sparse(self, grad, var):
-        raise NotImplementedError
+    def _resource_apply_sparse(self, grad, var, indices, apply_state=None):
+        x = grad
+
+        if self.local_control_variate is not 0:
+            control_variates_diff = np.subtract(self.global_control_variate[self.current_index % self.num_layers],
+                                                self.local_control_variate[self.current_index % self.num_layers])
+            x = x + control_variates_diff
+
+        x = self._lr * x
+        var_update = state_ops.assign_sub(var, x)
+        #print(var.shape)
+        #print(x.shape)
+        #var_update = var
+        self.current_index = self.current_index + 1
+
+        return var_update
 
     def get_config(self):
         base_config = super().get_config()

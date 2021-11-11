@@ -6,7 +6,7 @@ import numpy as np
 
 class Emnist_tff(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/federated/api_docs/python/tff/simulation/datasets/emnist
         (emnist_train), (emnist_test) = tff.simulation.datasets.emnist.load_data(cache_dir="./datasets")
 
         sample_clients_train = emnist_train.client_ids[0:self.num_devices]

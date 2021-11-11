@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 import requests
 from json_tricks import dumps, loads
@@ -80,14 +79,13 @@ class FedAvgWorker:
                                                            (x_train, y_train), FedPhase.EVAL)
 
         # load model
-        model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
+        model = self.status.model_loader.get_compiled_model(optimizer=tf.keras.optimizers.get(self.status.optimizer), metric=self.status.metric, train_data=(x_data, y_data))
 
         loss_func = self.status.model_loader.get_loss_function()
 
         # compile model
         model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric,
                       loss=loss_func)
-
         # load weights
         model.set_weights(job["model_weights"])
 

@@ -82,7 +82,7 @@ class Shakespeare_tff(DatasetModelLoader):
             i = i + 1
         return all_elements
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/federated/api_docs/python/tff/simulation/datasets/shakespeare
         # download dataset and load samples of clients
         train_data, test_data = tff.simulation.datasets.shakespeare.load_data(cache_dir="./datasets")
         sample_clients_train = train_data.client_ids[0:self.num_devices]

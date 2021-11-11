@@ -3,6 +3,7 @@ from .datasets.emnist import Emnist
 from .datasets.fashion_mnist import FashionMnist
 from .datasets.cifar10 import Cifar10
 from .datasets.cifar100 import Cifar100
+from .datasets.oxford_pets import Oxford_pets
 from .datasets.tff_cifar100 import Cifar100_tff
 from .datasets.tff_emnist import Emnist_tff
 from .datasets.boston_housing import BostonHousing
@@ -22,23 +23,25 @@ class DatasetModelLoaderFactory:
             return Emnist(num_devices)
         elif model_name == "tff_emnist":
             return Emnist_tff(num_devices)
-        elif model_name == "fashion_mnist": # https://www.tensorflow.org/tutorials/keras/classification
+        elif model_name == "fashion_mnist":
             return FashionMnist(num_devices)
-        elif model_name == "cifar10": # https://www.tensorflow.org/tutorials/images/cnn
+        elif model_name == "cifar10":
             return Cifar10(num_devices)
-        elif model_name == "cifar100": # https://www.tensorflow.org/tutorials/images/cnn
+        elif model_name == "cifar100":
             return Cifar100(num_devices)
         elif model_name == "tff_cifar100":
             return Cifar100_tff(num_devices)
-        elif model_name == "boston_housing": # https://keras.io/api/datasets/boston_housing
+        if model_name == "oxford_pets":
+            return Oxford_pets(num_devices)
+        elif model_name == "boston_housing":
             return BostonHousing(num_devices)
-        elif model_name == "imdb_reviews": # https://builtin.com/data-science/how-build-neural-network-keras
+        elif model_name == "imdb_reviews":
             return ImdbReviews(num_devices)
-        elif model_name == "shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
+        elif model_name == "shakespeare":  # https://www.tensorflow.org/text/tutorials/text_generation
             return Shakespeare(num_devices)
-        elif model_name == "tff_shakespeare": # https://www.tensorflow.org/text/tutorials/text_generation
+        elif model_name == "tff_shakespeare":  # https://www.tensorflow.org/text/tutorials/text_generation
             return Shakespeare_tff(num_devices)
-        elif model_name == "sentiment140": # https://www.tensorflow.org/text/tutorials/text_classification_rnn
+        elif model_name == "sentiment140":  # https://www.tensorflow.org/text/tutorials/text_classification_rnn
             return Sentiment140(num_devices)
         else:
             return None

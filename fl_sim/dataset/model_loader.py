@@ -45,6 +45,7 @@ class DatasetModelLoader(ABC):
     @staticmethod
     def select_random_samples(y, num_clients, nk, fedphase: FedPhase):
         clients_data_indexes = []
+
         if y is not None:
             for client in range(num_clients):
                 indices = np.random.choice(y.shape[0], nk[client], replace=False)

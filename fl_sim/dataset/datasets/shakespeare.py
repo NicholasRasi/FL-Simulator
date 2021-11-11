@@ -7,7 +7,7 @@ from tensorflow.keras.layers.experimental import preprocessing
 
 class Shakespeare(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt
         path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
 
         # VECTORIZE
@@ -47,10 +47,7 @@ class Shakespeare(DatasetModelLoader):
         # Buffer size to shuffle the dataset
         BUFFER_SIZE = 10000
 
-        dataset = (
-            dataset
-                .shuffle(BUFFER_SIZE)
-                .prefetch(tf.data.experimental.AUTOTUNE))
+        dataset = (dataset.prefetch(tf.data.experimental.AUTOTUNE))
 
         x_train = []
         y_train = []
@@ -62,8 +59,7 @@ class Shakespeare(DatasetModelLoader):
         x_train = np.array(x_train)
         y_train = np.array(y_train)
 
-        x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
-
+        x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, random_state=1, shuffle=False)
         return x_train, y_train, x_test, y_test
 
     # Text generation task
@@ -117,4 +113,3 @@ class Shakespeare(DatasetModelLoader):
 
     def get_loss_function(self):
         return tf.losses.SparseCategoricalCrossentropy(from_logits=True)
-

@@ -6,14 +6,14 @@ import numpy as np
 
 class Mnist(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/api_docs/python/tf/keras/datasets/mnist
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
         x_train, x_test = x_train / 255.0, x_test / 255.0
 
         return x_train, y_train, x_test, y_test
 
     # Image classification task
-    def get_compiled_model(self, optimizer: str, metric: str, train_data): # https://www.tensorflow.org/tutorials/quickstart/beginner
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
         # build and compile Keras model
         tf_model = tf.keras.models.Sequential(
             [

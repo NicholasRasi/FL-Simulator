@@ -515,8 +515,7 @@ class SimAnalyzer:
                 self._save_show_plot(output_filename)
                 self._add_img_to_report(str(i), output_filename, level=2)
 
-        print(num_classes)
-        print(sum(num_classes)/len(num_classes))
+        print("Average number of classes per device: " + str(sum(num_classes)/len(num_classes)))
 
     def _init_console_table(self, title, min_max=True,
                             column_names=("mean", "std", "min", "max"),

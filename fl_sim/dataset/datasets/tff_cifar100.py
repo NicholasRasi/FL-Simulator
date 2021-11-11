@@ -6,7 +6,7 @@ import tensorflow_federated as tff
 
 class Cifar100_tff(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/federated/api_docs/python/tff/simulation/datasets/cifar100
         (cifar100_train), (cifar100_test) = tff.simulation.datasets.cifar100.load_data(cache_dir="./datasets")
 
         sample_clients_train = cifar100_train.client_ids[0:self.num_devices]
@@ -23,7 +23,7 @@ class Cifar100_tff(DatasetModelLoader):
         return images_train, labels_train, images_test, labels_test
 
     # Image classification task
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/images/cnn
 
         tf_model = tf.keras.models.Sequential()
         tf_model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))

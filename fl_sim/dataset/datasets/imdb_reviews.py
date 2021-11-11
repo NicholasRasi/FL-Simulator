@@ -5,7 +5,7 @@ from ..model_loader import DatasetModelLoader
 
 class ImdbReviews(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0):
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/api_docs/python/tf/keras/datasets/imdb
 
         (training_data, training_targets), (testing_data, testing_targets) = tf.keras.datasets.imdb.load_data(
             num_words=10000)
@@ -25,8 +25,8 @@ class ImdbReviews(DatasetModelLoader):
 
         return training_data, training_targets, testing_data, testing_targets
 
-    # Text classification task
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):
+    # Binary text classification task
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):   # https://builtin.com/data-science/how-build-neural-network-keras
 
         # Input - Layer
         tf_model = tf.keras.models.Sequential()
