@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import torch
+import keras.backend as K
 
 
 def feddyn_loss(loss_type, model, alfa_parameter, gradients, global_weights):
@@ -22,7 +23,7 @@ def feddyn_loss(loss_type, model, alfa_parameter, gradients, global_weights):
         quadratic_penalty = 0
         if global_weights is not None:
             for index, (value1, value2) in enumerate(zip(local_model_weights, global_weights)):
-                quadratic_penalty += ((alfa_parameter / 2) * np.linalg.norm(np.subtract(value1.numpy(), value2)) ** 2)
+                quadratic_penalty += ((alfa_parameter / 2) * np.linalg.norm(np.subtract(K.eval(value1), value2)) ** 2)
 
         loss_result = task_loss - linear_penalty + quadratic_penalty
 

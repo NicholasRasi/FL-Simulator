@@ -50,7 +50,7 @@ class FedProxWorker(FedAvgWorker):
         loss_func = fed_prox_loss(self.status.model_loader.get_loss_function(), model, global_weights, self.mu_parameter)
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric, loss=loss_func)
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric, loss=loss_func)
 
         # load weights if not None
         if job["model_weights"] is not None:
@@ -94,7 +94,7 @@ class FedProxWorker(FedAvgWorker):
         loss_func = fed_prox_loss(self.status.model_loader.get_loss_function(), model, global_weights, self.mu_parameter)
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric,
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric,
                       loss=loss_func)
 
         # load weights

@@ -57,7 +57,7 @@ class FedDynWorker(FedAvgWorker):
         loss_func = feddyn_loss(self.status.model_loader.get_loss_function(), model, job["alfa_parameter"], self.feddyn_gradients, global_weights)
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric, loss=loss_func)
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric, loss=loss_func)
         # load weights if not None
         if job["model_weights"] is not None:
             model.set_weights(job["model_weights"])
@@ -103,7 +103,7 @@ class FedDynWorker(FedAvgWorker):
         loss_func = feddyn_loss(self.status.model_loader.get_loss_function(), model, job["alfa_parameter"], self.feddyn_gradients, global_weights)
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric,
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric,
                       loss=loss_func)
 
         # load weights

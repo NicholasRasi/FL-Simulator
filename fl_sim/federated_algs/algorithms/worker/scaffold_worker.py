@@ -27,7 +27,7 @@ class SCAFFOLDWorker(FedAvgWorker):
         optimizer = SCAFFOLD_optimizer(global_control_variate=job["global_control_variate"], local_control_variate=job["local_control_variate"], num_layers=len(model.get_weights()))
 
         # compile model
-        model.compile(optimizer=optimizer, run_eagerly=True, metrics=self.status.metric, loss=loss_func)
+        model.compile(optimizer=optimizer, metrics=self.status.metric, loss=loss_func)
 
         # load weights if not None
         if job["model_weights"] is not None:

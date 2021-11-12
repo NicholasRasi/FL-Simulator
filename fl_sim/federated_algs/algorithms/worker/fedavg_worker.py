@@ -42,7 +42,7 @@ class FedAvgWorker:
         loss_func = self.status.model_loader.get_loss_function()
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric, loss=loss_func)
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric, loss=loss_func)
 
         # load weights if not None
         if job["model_weights"] is not None:
@@ -84,7 +84,7 @@ class FedAvgWorker:
         loss_func = self.status.model_loader.get_loss_function()
 
         # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), run_eagerly=True, metrics=self.status.metric,
+        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric,
                       loss=loss_func)
         # load weights
         model.set_weights(job["model_weights"])

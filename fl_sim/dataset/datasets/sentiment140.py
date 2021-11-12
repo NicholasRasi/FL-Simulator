@@ -8,6 +8,7 @@ from io import BytesIO, TextIOWrapper
 from zipfile import ZipFile
 from sklearn.model_selection import train_test_split
 from ..model_loader import DatasetModelLoader
+from keras.preprocessing.text import Tokenizer
 
 
 class Sentiment140(DatasetModelLoader):
@@ -29,16 +30,14 @@ class Sentiment140(DatasetModelLoader):
         data = TextIOWrapper(zipfile.open('training.1600000.processed.noemoticon.csv'), encoding=DATASET_ENCODING)
         df = pd.read_csv(data, encoding=DATASET_ENCODING, names=DATASET_COLUMNS)
 
-        # Reshuffle
-        df = df.sample(frac=1)
+        # Select a subset of dataset (since it's huge)
+        df = df.sample(50000, random_state=1)
 
         # Removing the unnecessary columns.
         df = df[['sentiment', 'text', 'user']]
 
         # Replace 4 with 1
         df['sentiment'] = df['sentiment'].replace(4, 1)
-
-        df = df[:30000]
 
         # Storing data in lists.
         text, sentiments = list(df['text']), list(df['sentiment'])
@@ -48,47 +47,53 @@ class Sentiment140(DatasetModelLoader):
 
         # Split data
         train_inputs, test_inputs, train_targets, test_targets = train_test_split(processedtext, sentiments, train_size=0.8, test_size=0.2, shuffle=False)
-        #self.users = list(df['user'])[:int(0.8*len(processedtext))]
-        train_inputs = np.asarray(train_inputs)
-        train_targets = np.asarray(train_targets)
-        test_inputs = np.asarray(test_inputs)
-        test_targets = np.asarray(test_targets)
 
-        VOCAB_SIZE = 1000
+        tokenizer = Tokenizer(num_words=10000)
+        tokenizer.fit_on_texts(train_inputs)
 
-        encoder = tf.keras.layers.TextVectorization(
-            max_tokens=VOCAB_SIZE)
-        encoder.adapt(train_inputs)
-        vocab = np.array(encoder.get_vocabulary())
+        x_train = tokenizer.texts_to_sequences(train_inputs)
+        x_test = tokenizer.texts_to_sequences(test_inputs)
+        x_train = np.asarray(x_train)
+        x_test = np.asarray(x_test)
 
-        self.encoder = encoder
+        x_train = self.vectorize(x_train)
+        x_test = self.vectorize(x_test)
+        y_train = np.array(train_targets).astype("float32")
+        y_test = np.array(test_targets).astype("float32")
 
-        return train_inputs, train_targets, test_inputs, test_targets
+        return x_train, y_train, x_test, y_test
+
+    def vectorize(self, sequences, dimension=10000):
+        results = np.zeros((len(sequences), dimension))
+
+        for i, sequence in enumerate(sequences):
+            results[i, sequence] = 1
+        return results
 
     # Text classification task
-    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/text/tutorials/text_classification_rnn
+    def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://builtin.com/data-science/how-build-neural-network-keras
 
-        model = tf.keras.Sequential([
-            self.encoder,
-            tf.keras.layers.Embedding(
-                input_dim=len(self.encoder.get_vocabulary()),
-                output_dim=64,
-                # Use masking to handle the variable sequence lengths
-                mask_zero=True),
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
-            tf.keras.layers.Dense(64, activation='relu'),
-            tf.keras.layers.Dense(1)
-        ])
+        # Input - Layer
+        tf_model = tf.keras.models.Sequential()
+        tf_model.add(tf.keras.layers.Dense(50, activation="relu", input_shape=(10000,)))
+        # Hidden - Layers
+        tf_model.add(tf.keras.layers.Dropout(0.3, noise_shape=None, seed=None))
+        tf_model.add(tf.keras.layers.Dense(50, activation="relu"))
+        tf_model.add(tf.keras.layers.Dropout(0.2, noise_shape=None, seed=None))
+        tf_model.add(tf.keras.layers.Dense(50, activation="relu"))
+        # Output- Layer
+        tf_model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
 
-        model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-                      optimizer=optimizer,
-                      metrics=[metric])
+        tf_model.compile(
+            optimizer=optimizer,
+            loss="binary_crossentropy",
+            metrics=[metric]
+        )
 
-        return model
+        return tf_model
 
     def get_loss_function(self):
-        return tf.keras.losses.BinaryCrossentropy(from_logits=True)
-
+        return tf.keras.losses.BinaryCrossentropy()
 
     # dictionary containing all emojis.
     emojis = {':)': 'smile', ':-)': 'smile', ';d': 'wink', ':-E': 'vampire', ':(': 'sad',

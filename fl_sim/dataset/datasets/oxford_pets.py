@@ -1,4 +1,3 @@
-import random
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from ..model_loader import DatasetModelLoader
