@@ -770,13 +770,18 @@ class SimAnalyzer:
                                      "std_round": np.mean(std_ncs)})
         self.console.print(table)
 
-    def print_metric(self, phase="eval"):
-        table = self._init_console_table(column_names=["latest", "num rounds"], title=f"ACCURACY [%] ({phase})")
+    def print_metric(self, phase="eval", round=-1):
+
+        if round == -1:
+            round_column = "latest"
+        else:
+            round_column = "ROUND " + str(round)
+        table = self._init_console_table(column_names=[round_column, "num rounds"], title=f"ACCURACY [%] ({phase})")
         for name, sim in self.sims:
             latest_accs = []
             rounds = []
             for i, status in enumerate(sim["status"]):
-                latest_acc = status["var"][phase]["model_metrics"]["agg_metric"][-1]
+                latest_acc = status["var"][phase]["model_metrics"]["agg_metric"][round]
                 round_acc = status["var"][phase]["model_metrics"]["agg_metric"].shape[0]
                 latest_accs.append(latest_acc)
                 rounds.append(round_acc)
@@ -786,13 +791,17 @@ class SimAnalyzer:
                                      "mean": np.mean(latest_accs), "num_rounds": np.mean(rounds)})
         self.console.print(table)
 
-    def print_loss(self, phase="eval"):
-        table = self._init_console_table(column_names=["latest", "num rounds"], title=f"LOSS ({phase})")
+    def print_loss(self, phase="eval", round=-1):
+        if round == -1:
+            round_column = "latest"
+        else:
+            round_column = "ROUND " + str(round)
+        table = self._init_console_table(column_names=[round_column, "num rounds"], title=f"LOSS ({phase})")
         for name, sim in self.sims:
             latest_losses = []
             rounds = []
             for i, status in enumerate(sim["status"]):
-                latest_loss = status["var"][phase]["model_metrics"]["agg_loss"][-1]
+                latest_loss = status["var"][phase]["model_metrics"]["agg_loss"][round]
                 round_acc = status["var"][phase]["model_metrics"]["agg_loss"].shape[0]
                 latest_losses.append(latest_loss)
                 rounds.append(round_acc)

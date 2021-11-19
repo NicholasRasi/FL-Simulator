@@ -1,44 +1,48 @@
 #   Human activity recognition for healthcare
 #
-#   Given data collected by sensors embedded in wearable devices,
-#   we need to recognize the type of activity perfomed between:
-#   WALKING, WALKING-UPSTAIRS, WALKING-DOWNSTAIRS, SITTING, STANDING and LAYING.
+#   Certain activities in daily life reﬂect early signals of some cognitive diseases.
+#   By monitoring users’ activities using body-worn sensors, daily activities and sports activities can be recognized.
+#   Wearable technology, smartphone, wristbands, and smart glasses provide easy access to this information.
+#   Other than activities, physiological signals can also help to detect certain diseases.
 #
-#   - the selected dataset is the keras dataset "boston_housing" since the structure and the target
-#     are similar to the ones of the healthcare problem (further improvement with UCI Smartphone data)
-#   - highly heterogeneous dataset, since it depends on the habits and activities of each individual
-#   - privacy is fundamental
+#   Given data collected by sensors embedded in wearable devices, we need to recognize the type of activity performed.
+#
+#   - The selected dataset is the publicly available dataset "WISDM" which contains data collected during WALKING,
+#   WALKING-UPSTAIRS, WALKING-DOWNSTAIRS, SITTING, STANDING and JOGGING from 51 subjects.
+#   - Each subject has an heterogeneous dataset, since it depends on the habits and activities of each individual.
+#   - Devices which collected data are smartphones and smartwatches with limited resources.
 #
 
 simulation:
   # number or repetitions
-  repetitions: 2
+  repetitions: 3
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "human_activity.json"
+  output_file: "activity_recognition.json"
   # model
-  model_name: "boston_housing"
+  model_name: "wisdm"
   # metric
-  metric: "mae"
+  metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 20
+  num_rounds: 30
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
-    metric: 1000000
+    metric: 1
     # global model loss (during evaluation)
     loss: 0
   # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
-  seed: none # 19680801
+  seed: 1
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
-  tf_verbosity: 0
+  tf_verbosity: 1
   # number of concurrent processes
-  num_processes: 2
+  num_processes: 1
 
 algorithms:
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -51,33 +55,32 @@ algorithms:
     # parameters used by the algorithm
     params:
       # fraction of devices used for the computation
-      k: 0.5
+      k: 0.7
       # number of epochs executed for fit for each round
-      epochs: 10
+      epochs: 1
       # batch size used for fit for each round
-      batch_size: 32
+      batch_size: 4
       # number of examples used for fit for each round
-      num_examples: 100
+      num_examples: 20
   eval:
-    aggregation: "fedavg"
     selection: "random"
     update: "static"
     data: "random"
     params:
-      k: 0.5
-      epochs: 10
-      batch_size: 32
-      num_examples: 100
+      k: 0.1
+      epochs: 1
+      batch_size: 4
+      num_examples: 20
   # optimizer used (local iteration) string or optimizer instance
-  optimizer: "rmsprop"
+  optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 10
+  num: 30
   # probability a device is available for a round
-  p_available: 0.8
+  p_available: 0.65
   # probability a device fails during a round
-  p_fail: 0.05
+  p_fail: 0.1
   # number of malicious devices
   adversary_num: 0
 
@@ -88,8 +91,8 @@ computation:
 
 energy:
   # mean and variance of energy available at each device [mWh]
-  avail_mean: 3000
-  avail_var: 100
+  avail_mean: 7000
+  avail_var: 2000
   # power consumption for 1 second of computation [mW/s]
   pow_comp_s: 100
   # power consumption for 1 second of network used [mW/s]
@@ -98,13 +101,13 @@ energy:
 network:
   # mean and variance of network speed available at each device [params/s]
   speed_mean: 100000
-  speed_var: 1000
+  speed_var: 50000
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 10
-  num_examples_var: 10
+  num_examples_mean: 300
+  num_examples_var: 0
   # use non-i.d.d data
-  non_iid_partitions: 0
+  non_iid_partitions: 0.5
   # percentage of mislabelled data
   mislabelling_percentage: 0

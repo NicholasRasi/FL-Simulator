@@ -31,7 +31,7 @@ class Sentiment140(DatasetModelLoader):
         df = pd.read_csv(data, encoding=DATASET_ENCODING, names=DATASET_COLUMNS)
 
         # Select a subset of dataset (since it's huge)
-        df = df.sample(50000, random_state=1)
+        df = df.sample(70000, random_state=1)
 
         # Removing the unnecessary columns.
         df = df[['sentiment', 'text', 'user']]
@@ -165,13 +165,4 @@ class Sentiment140(DatasetModelLoader):
 
         return x, y
 
-    # Each device has reviews belonging to a specific user
-    def select_non_iid_samples(self, y, num_clients, nk, alpha):
-        train_users_no_duplicates = list(set(self.users))
-        clients_data_indexes = []
-        for client in range(num_clients):
-            client_indexes = [i for i in range(len(self.users)) if self.users[i] == train_users_no_duplicates[client]][0:nk[client]]
-            clients_data_indexes.append(client_indexes)
-
-        return clients_data_indexes
 

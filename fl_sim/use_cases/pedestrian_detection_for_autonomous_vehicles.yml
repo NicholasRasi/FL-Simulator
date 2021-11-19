@@ -2,7 +2,7 @@
 #
 #   Given a dataset of images, we need to detect pedestrians.
 #
-#   - the selected dataset is ? which is appropriate for object detection (further improvement with UCI Smartphone data)
+#   - the selected dataset is ? which is appropriate for object detection
 #   - highly heterogeneous dataset, since it depends on the individual routine, habits, level of traffic
 #   - robustness is fundamental: a form of intelligence that can overcome faults and failures quickly is needed,
 #     thereby ensuring system resilience and service continuity

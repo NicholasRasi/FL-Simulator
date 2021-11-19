@@ -61,7 +61,6 @@ class DatasetModelLoader(ABC):
         return np.unique(y)
 
     def select_non_iid_samples(self, y, num_clients, nk, alpha):
-        print("non iid")
         # compute unique labels
         classes = DatasetModelLoader.get_num_classes(y)
 

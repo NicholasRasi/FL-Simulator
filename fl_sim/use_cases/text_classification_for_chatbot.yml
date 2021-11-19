@@ -1,10 +1,29 @@
+#   Text classification for customer support processes
+#
+#   Financial or government institutions that wish to train a chatbot for their clients cannot
+#   be allowed to upload all text data from the client-side to their central server due to strict
+#   privacy protection statements.
+#   Text classification can be used to automatically route support tickets to a teammate
+#   with specific product expertise.
+#
+#   Sentiment classification in particular can be used to:
+#   - Automatically detect the urgency of a support ticket and prioritize those that contain negative sentiments.
+#   - Classify calls according to sentiment (i.e positive or negative) in order to help call centre quality
+#     controllers monitor the performance of their agents, and get useful feedback about the satisfaction
+#     of their customers.
+#
+#   The dataset considered is sentiment140 which contains twitter comments and the corresponding sentiment class.
+#   It's assumed that the devices used for the training are smartphones and computers since those are the devices
+#   more common when contacting chatbots.
+#
+
 simulation:
   # number or repetitions
   repetitions: 3
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "scenario2_fedavg_exp2.json"
+  output_file: "sentiment_analysis_for_customer_support.json"
   # model
   model_name: "sentiment140"
   # metric
@@ -27,7 +46,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedavg"
+  federated_algorithm: "feddyn"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"

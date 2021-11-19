@@ -22,9 +22,13 @@ class OrchestratorStatus:
             optimizer=tensorflow.keras.optimizers.get(self.config.algorithms["optimizer"]),
             metric=self.config.simulation["metric"], train_data=(self.x_train, self.y_train)).get_weights()
 
+        if self.config.simulation["seed"] is not None:
+            np.random.seed(self.config.simulation["seed"])
+
         self.initialize_constants()
         self.initialize_global_weights()
         self.initialize_variables()
+
 
         # init local data
         if self.config.data["non_iid_partitions"] > 0:
@@ -47,6 +51,9 @@ class OrchestratorStatus:
 
     def reinitialize_status(self):
         if self.config.simulation["initializer"] == "default":
+
+            if self.config.simulation["seed"] is not None:
+                np.random.seed(self.config.simulation["seed"])
 
             # init constant simulation data
             self.initialize_constants()
