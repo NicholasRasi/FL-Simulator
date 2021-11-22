@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "dynamic_sampling"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -61,7 +61,7 @@ algorithms:
 
 devices:
   # total number of devices (D)
-  num: 30
+  num: 10
   # probability a device is available for a round
   p_available: 1
   # probability a device fails during a round

@@ -1,5 +1,6 @@
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
+from .dynamic_sampling import DynamicSamplingSelector
 from .random_selector import RandomSelector
 from ...status.orchestrator_status import OrchestratorStatus
 
@@ -16,3 +17,5 @@ class ClientsSelectorFactory:
             return BestSelector(config, status, logger, params={"sortBy": "net_speed"})
         elif selector == "best_energy":
             return BestSelector(config, status, logger, params={"sortBy": "energy"})
+        elif selector == "dynamic_sampling":
+            return DynamicSamplingSelector(config, status, logger)

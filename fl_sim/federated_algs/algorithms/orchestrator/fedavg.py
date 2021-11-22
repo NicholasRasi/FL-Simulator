@@ -50,7 +50,6 @@ class FedAvg(FedAlg):
 
         self.aggregator = AggregationStrategyFactory.get_aggregation_strategy(self.config.algorithms["fit"]["aggregation"], self.status, self.config, self.logger)
 
-
     def select_devs(self, num_round: int, fed_phase: FedPhase):
         phase = fed_phase.value
         # get dev indexes
