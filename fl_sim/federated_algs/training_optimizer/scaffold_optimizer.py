@@ -11,7 +11,6 @@ class SCAFFOLD_optimizer(keras.optimizers.Optimizer):
         self._lr = learning_rate
         self.global_control_variate = global_control_variate
         self.local_control_variate = local_control_variate
-        self._is_first = True
         self.num_layers = num_layers
         self.current_index = 0
 
@@ -44,9 +43,6 @@ class SCAFFOLD_optimizer(keras.optimizers.Optimizer):
 
         x = self._lr * x
         var_update = state_ops.assign_sub(var, x)
-        #print(var.shape)
-        #print(x.shape)
-        #var_update = var
         self.current_index = self.current_index + 1
 
         return var_update

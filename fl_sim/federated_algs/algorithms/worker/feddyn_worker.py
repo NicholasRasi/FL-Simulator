@@ -1,4 +1,3 @@
-import types
 import numpy as np
 import tensorflow as tf
 import requests
@@ -62,9 +61,9 @@ class FedDynWorker(FedAvgWorker):
         if job["model_weights"] is not None:
             model.set_weights(job["model_weights"])
 
-
         # fit model
         gradients_update = self.GradientsUpdateCallback(self, self.feddyn_gradients, global_weights, job["alfa_parameter"])
+
         history = model.fit(x_data, y_data, epochs=job["epochs"], batch_size=job["batch_size"], verbose=job["verbosity"], callbacks=[gradients_update])
 
         mean_metric = stats.mean(history.history[self.status.metric])

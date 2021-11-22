@@ -69,7 +69,8 @@ class SCAFFOLD(FedAvg):
             # compute metrics
             local_iterations = fedres.get("epochs") * fedres.get("num_examples") / fedres.get("batch_size")
             computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.get("dev_index")]
-            network_consumption = 2 * self.status.con["model"]["tot_weights"]
+            network_consumption = 4 * self.status.con["model"]["tot_weights"]
+
             communication_time = network_consumption / \
                                  self.status.con["devs"]["net_speed"][fedres.get("num_round"), fedres.get("dev_index")]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time + \

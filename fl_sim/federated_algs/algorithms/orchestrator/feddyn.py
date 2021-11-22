@@ -14,9 +14,9 @@ class FedDyn(FedAvg):
     def __init__(self, status: OrchestratorStatus, config: Config, logger, jobs_queue, completed_jobs_queue, workers_queue, lock):
         super().__init__(status, config, logger,  jobs_queue, completed_jobs_queue, workers_queue, lock)
 
-        self.aggregator = FedDynAgg(status, config, logger)
         self.alfa_parameter = 0.01
         self.h = 0
+        self.aggregator = FedDynAgg(status, config, logger, self.h, self.alfa_parameter)
 
     def update_h(self, results):
         term = 0
@@ -66,6 +66,7 @@ class FedDyn(FedAvg):
             accuracies = [(r[0], r[3]) for r in local_fits]
 
             # aggregate local results
+            self.aggregator = FedDynAgg(self.status, self.config, self.logger, self.h, self.alfa_parameter)
             aggregated_weights = self.aggregator.aggregate_fit(weights)
             aggregated_loss = self.aggregator.aggregate_losses(losses)
             aggregated_metrics = self.aggregator.aggregate_accuracies(accuracies)
@@ -114,42 +115,3 @@ class FedDyn(FedAvg):
         self.jobs_queue.put(dumps(next_job))
         self.lock.release()
 
-    def get_fit_results(self, completed_jobs_queue, created_jobs):
-        fit_results = []
-        for _ in range(created_jobs):
-            fedres = loads(completed_jobs_queue.get())
-
-            if self.status.con["model"]["tot_weights"] is None:
-                self.status.con["model"]["tot_weights"] = sum([w_list.size for w_list in fedres.get("model_weights")])
-
-            # update model weights with the new computed ones
-            self.status.con["devs"]["local_models_weights"][fedres.get("dev_index")] = fedres.get("model_weights")
-
-            # compute metrics
-            local_iterations = fedres.get("epochs") * fedres.get("num_examples") / fedres.get("batch_size")
-            computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.get("dev_index")]
-            network_consumption = 2 * self.status.con["model"]["tot_weights"]
-            communication_time = network_consumption / \
-                                 self.status.con["devs"]["net_speed"][fedres.get("num_round"), fedres.get("dev_index")]
-            energy_consumption = self.config.energy["pow_comp_s"] * computation_time + \
-                                 self.config.energy["pow_net_s"] * communication_time
-
-            # update global configs status
-            self.status.update_optimizer_configs(fedres.get("num_round"), fedres.get("dev_index"), FedPhase.FIT,
-                                                 "local", fedres.get("epochs"), fedres.get("batch_size"),
-                                                 fedres.get("num_examples"))
-
-            # update status
-            self.status.update_sim_data(fedres.get("num_round"), FedPhase.FIT, fedres.get("dev_index"),
-                                        computation_time=computation_time,
-                                        communication_time=communication_time,
-                                        local_iterations=local_iterations,
-                                        network_consumption=network_consumption,
-                                        energy_consumption=energy_consumption,
-                                        metric=fedres.get("mean_metric"),
-                                        loss=fedres.get("mean_loss"))
-
-            fit_results.append(
-                (fedres.get("num_examples"), fedres.get("model_weights"), fedres.get("mean_loss"),
-                 fedres.get("mean_metric")))
-        return fit_results

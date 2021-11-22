@@ -33,19 +33,21 @@ class SCAFFOLDWorker(FedAvgWorker):
         if job["model_weights"] is not None:
             model.set_weights(job["model_weights"])
 
+        local_iter = job["batch_size"] / (job["epochs"] * job["num_examples"] * keras.backend.eval(model.optimizer.lr))
+
         # fit model
         history = model.fit(x_data, y_data, epochs=job["epochs"], batch_size=job["batch_size"], verbose=job["verbosity"])
 
-        mean_metric = stats.mean(history.history[self.status.metric])
-        mean_loss = stats.mean(history.history['loss'])
         model_weights = model.get_weights()
-
-        local_iter = job["batch_size"] / (job["epochs"] * job["num_examples"] * keras.backend.eval(model.optimizer.lr))
         if job["model_weights"] is not None:
             weights_delta = np.subtract(job["model_weights"], model_weights)
             delta_variate = - job["global_control_variate"] + local_iter * weights_delta
         else:
             delta_variate = 0
+
+        mean_metric = stats.mean(history.history[self.status.metric])
+        mean_loss = stats.mean(history.history['loss'])
+
 
         job_completed = {"mean_metric": mean_metric,
                          "mean_loss": mean_loss,

@@ -2,20 +2,18 @@ from typing import List, Tuple
 from . import FedAvgAgg
 from .aggregate import Aggregate
 from .aggregation_strategy import NDArrayList
+from ... import Config
+import numpy as np
+from ...status.orchestrator_status import OrchestratorStatus
 
 
 class FedDynAgg(FedAvgAgg):
 
+    def __init__(self, status: OrchestratorStatus, config: Config, logger, h_parameter, alfa_parameter):
+        super().__init__(status, config, logger)
+        self.h_parameter = h_parameter
+        self.alfa_parameter = alfa_parameter
+
     def aggregate_fit(self, weights: List[Tuple[NDArrayList]]) -> NDArrayList:
-        return Aggregate.average(weights)
+        return np.subtract(Aggregate.average(weights), (1/self.alfa_parameter) * self.h_parameter)
 
-    def aggregate_losses(self, losses: List[Tuple[int, float]]) -> float:
-        return Aggregate.weighted_loss_avg(losses)
-
-    def aggregate_accuracies(self, accuracies: List[Tuple[int, float]]) -> float:
-        return Aggregate.weighted_accuracies_avg(accuracies)
-
-    def aggregate_evaluate(self, results: List[Tuple[int, float, float]]) -> Tuple[float, float]:
-        losses = [(num_samples, loss) for num_samples, loss, _ in results]
-        accuracies = [(num_samples, acc) for num_samples, _, acc in results]
-        return Aggregate.weighted_loss_avg(losses), Aggregate.weighted_accuracies_avg(accuracies)
