@@ -4,13 +4,13 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "prova.json"
+  output_file: "prova_fedcs.json"
   # model
   model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 30
+  num_rounds: 15
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "dynamic_sampling"
+    selection: "fedcs"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer

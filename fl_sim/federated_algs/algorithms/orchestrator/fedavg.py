@@ -80,9 +80,7 @@ class FedAvg(FedAlg):
                 pass
                 failed_jobs += 1
             else:
-
                 global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
-
                 self.put_client_job_fit(num_round, dev_index, global_config)
                 created_jobs += 1
 
