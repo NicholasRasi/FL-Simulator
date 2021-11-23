@@ -29,7 +29,6 @@ class OrchestratorStatus:
         self.initialize_global_weights()
         self.initialize_variables()
 
-
         # init local data
         if self.config.data["non_iid_partitions"] > 0:
             # non-iid partitions

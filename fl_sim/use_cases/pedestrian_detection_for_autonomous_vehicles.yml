@@ -9,13 +9,5 @@
 #   - The selection of devices must be performed depending on the quality of images, for example non-blurred images are preferred
 #
 
-simulation:
-  model_name: ?
-
-algorithms:
-  fit:
-    aggregation: ?
-    selection: ?
-
-non_iid_partitions: ?
+# TO DO
 

@@ -1,6 +1,7 @@
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
 from .dynamic_sampling import DynamicSamplingSelector
+from .exploration_exploitation_selector import ExplorationExploitationSelector
 from .fedcs_selector import FedCSSelector
 from .random_selector import RandomSelector
 from ...status.orchestrator_status import OrchestratorStatus
@@ -22,3 +23,5 @@ class ClientsSelectorFactory:
             return DynamicSamplingSelector(config, status, logger)
         elif selector == "fedcs":
             return FedCSSelector(config, status, logger)
+        elif selector == "exploration_exploitation":
+            return ExplorationExploitationSelector(config, status, logger)
