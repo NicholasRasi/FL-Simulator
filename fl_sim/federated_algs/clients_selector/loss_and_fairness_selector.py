@@ -6,7 +6,7 @@ from fl_sim.federated_algs.clients_selector.clients_selector import ClientsSelec
 from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 
-class ExplorationExploitationSelector(ClientsSelector):
+class LossAndFairnessSelector(ClientsSelector):
 
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
@@ -33,5 +33,5 @@ class ExplorationExploitationSelector(ClientsSelector):
             exploitation = np.divide(L, N)
             exploration = U
             UCB_indexes = exploration + exploitation
-            dev_indexes = sorted(range(len(UCB_indexes)), key=lambda x: UCB_indexes[x])[-3:]
+            dev_indexes = sorted(range(len(UCB_indexes)), key=lambda x: UCB_indexes[x])[-num_devs:]
         return dev_indexes

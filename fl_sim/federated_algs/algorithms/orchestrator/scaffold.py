@@ -69,12 +69,15 @@ class SCAFFOLD(FedAvg):
             # compute metrics
             local_iterations = fedres.get("epochs") * fedres.get("num_examples") / fedres.get("batch_size")
             computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.get("dev_index")]
-            network_consumption = 4 * self.status.con["model"]["tot_weights"]
-
-            communication_time = network_consumption / \
-                                 self.status.con["devs"]["net_speed"][fedres.get("num_round"), fedres.get("dev_index")]
+            network_consumption_upload = 2 * self.status.con["model"]["tot_weights"]
+            network_consumption_distribution = 2 * self.status.con["model"]["tot_weights"]
+            communication_time_upload = network_consumption_upload / \
+                                        self.status.con["devs"]["net_speed"][fedres["num_round"], fedres["dev_index"]]
+            communication_time_distribution = network_consumption_distribution / \
+                                              self.status.con["devs"]["net_speed"][
+                                                  fedres["num_round"], fedres["dev_index"]]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time + \
-                                 self.config.energy["pow_net_s"] * communication_time
+                                 self.config.energy["pow_net_s"] * (communication_time_upload + communication_time_distribution)
 
             # update global configs status
             self.status.update_optimizer_configs(fedres.get("num_round"), fedres.get("dev_index"), FedPhase.FIT,
@@ -87,9 +90,11 @@ class SCAFFOLD(FedAvg):
             # update status
             self.status.update_sim_data(fedres.get("num_round"), FedPhase.FIT, fedres.get("dev_index"),
                                         computation_time=computation_time,
-                                        communication_time=communication_time,
+                                        communication_time_upload=communication_time_upload,
+                                        communication_time_distribution=communication_time_distribution,
                                         local_iterations=local_iterations,
-                                        network_consumption=network_consumption,
+                                        network_consumption_upload=network_consumption_upload,
+                                        network_consumption_distribution=network_consumption_distribution,
                                         energy_consumption=energy_consumption,
                                         metric=fedres.get("mean_metric"),
                                         loss=fedres.get("mean_loss"))

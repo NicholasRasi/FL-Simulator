@@ -123,14 +123,19 @@ class OrchestratorStatus:
                 "times": {
                     "computation": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                             dtype=float),
-                    "communication": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
-                                              dtype=float)
+                    "communication_upload": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
+                                              dtype=float),
+                    "communication_distribution": np.zeros(
+                        shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
+                        dtype=float)
                 },
                 "consumption": {
                     "resources": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                           dtype=float),
-                    "network": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
+                    "network_upload": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                         dtype=float),
+                    "network_distribution": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
+                                               dtype=float),
                     "energy": np.zeros(shape=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                        dtype=float)
                 },
@@ -157,13 +162,16 @@ class OrchestratorStatus:
         self.var[phase]["model_metrics"]["agg_metric"][num_round] = agg_metric
 
     def update_sim_data(self, num_round: int, fed_phase: FedPhase, dev_index: int, computation_time: float,
-                        communication_time: float, local_iterations: float, network_consumption: float,
-                        energy_consumption: float, metric: float, loss: float):
+                        communication_time_upload: float, communication_time_distribution: float, local_iterations: float,
+                        network_consumption_upload: float, network_consumption_distribution: float, energy_consumption: float,
+                        metric: float, loss: float):
         phase = fed_phase.value
         self.var[phase]["times"]["computation"][num_round, dev_index] = computation_time
-        self.var[phase]["times"]["communication"][num_round, dev_index] = communication_time
+        self.var[phase]["times"]["communication_upload"][num_round, dev_index] = communication_time_upload
+        self.var[phase]["times"]["communication_distribution"][num_round, dev_index] = communication_time_distribution
         self.var[phase]["consumption"]["resources"][num_round, dev_index] = local_iterations
-        self.var[phase]["consumption"]["network"][num_round, dev_index] = network_consumption
+        self.var[phase]["consumption"]["network_upload"][num_round, dev_index] = network_consumption_upload
+        self.var[phase]["consumption"]["network_distribution"][num_round, dev_index] = network_consumption_distribution
         self.var[phase]["consumption"]["energy"][num_round, dev_index] = energy_consumption
         self.var[phase]["model_metrics"]["metric"][num_round, dev_index] = metric
         self.var[phase]["model_metrics"]["loss"][num_round, dev_index] = loss
@@ -179,9 +187,9 @@ class OrchestratorStatus:
             for loc in ["global", "local"]:
                 for config in ["epochs", "batch_size", "num_examples"]:
                     self.var[phase]["upd_opt_configs"][loc][config] = self.var[phase]["upd_opt_configs"][loc][config][:num_rounds, :]
-            for time in ["computation", "communication"]:
+            for time in ["computation", "communication_upload", "communication_distribution"]:
                 self.var[phase]["times"][time] = self.var[phase]["times"][time][:num_rounds, :]
-            for consumption in ["resources", "network", "energy"]:
+            for consumption in ["resources", "network_upload", "network_distribution", "energy"]:
                 self.var[phase]["consumption"][consumption] = self.var[phase]["consumption"][consumption][:num_rounds, :]
             for metric in ["metric", "loss"]:
                 self.var[phase]["model_metrics"][metric] = self.var[phase]["model_metrics"][metric][:num_rounds, :]

@@ -127,7 +127,7 @@ class SimAnalyzer:
 
     def plot_communication_time(self, phase="fit"):
         title = f"Communication Time ({phase})"
-        self._plot_round_times(phase=phase, title=title, keys=["communication"])
+        self._plot_round_times(phase=phase, title=title, keys=["communication_upload", "communication_distribution"])
 
         output_filename = "rt_communication_" + phase + self.ext
         self._save_show_plot(output_filename)
@@ -135,18 +135,20 @@ class SimAnalyzer:
 
     def plot_total_time(self, phase="fit"):
         title = f"Total Time ({phase})"
-        self._plot_round_times(phase=phase, title=title, keys=["computation", "communication"])
+        self._plot_round_times(phase=phase, title=title, keys=["computation", "communication_upload", "communication_distribution"])
 
         output_filename = "rt_total_" + phase + self.ext
         self._save_show_plot(output_filename)
         self._add_img_to_report(title, output_filename)
 
-    def _plot_round_consumptions(self, phase, title, key, ylabel, legend_loc=1):
+    def _plot_round_consumptions(self, phase, title, keys, ylabel, legend_loc=1):
         fig, ax = plt.subplots()
         for name, sim in self.sims:
             ys = []
             for status in sim["status"]:
-                val = status["var"][phase]["consumption"][key]
+                val = 0
+                for key in keys:
+                    val += status["var"][phase]["consumption"][key]
                 ys.append(np.sum(val, axis=1))
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
@@ -162,7 +164,7 @@ class SimAnalyzer:
 
     def plot_resources_consumption(self, phase="fit"):
         title = f"Resources Consumption ({phase})"
-        self._plot_round_consumptions(phase=phase, title=title, key="resources", ylabel="iters")
+        self._plot_round_consumptions(phase=phase, title=title, keys=["resources"], ylabel="iters")
 
         output_filename = "consumption_resources_" + phase + self.ext
         self._save_show_plot(output_filename)
@@ -170,7 +172,7 @@ class SimAnalyzer:
 
     def plot_network_consumption(self, phase="fit"):
         title = f"Network Consumption ({phase})"
-        self._plot_round_consumptions(phase=phase, title=title, key="network", ylabel="params")
+        self._plot_round_consumptions(phase=phase, title=title, keys=["network_upload", "network_distribution"], ylabel="params")
 
         output_filename = "consumption_network_" + phase + self.ext
         self._save_show_plot(output_filename)
@@ -178,7 +180,7 @@ class SimAnalyzer:
 
     def plot_energy_consumption(self, phase="fit"):
         title = f"Energy Consumption ({phase})"
-        self._plot_round_consumptions(phase=phase, title=title, key="energy", ylabel="mA")
+        self._plot_round_consumptions(phase=phase, title=title, keys=["energy"], ylabel="mA")
 
         output_filename = "consumption_energy_" + phase + self.ext
         self._save_show_plot(output_filename)
@@ -682,7 +684,7 @@ class SimAnalyzer:
             mean_rts = []
             std_rts = []
             for i, status in enumerate(sim["status"]):
-                rt = status["var"][phase]["times"]["computation"] + status["var"][phase]["times"]["communication"]
+                rt = status["var"][phase]["times"]["computation"] + status["var"][phase]["times"]["communication_upload"] + status["var"][phase]["times"]["communication_distribution"]
                 max_round = np.amax(rt, axis=1)
                 tot_tt = np.sum(max_round)
                 mean_rt = np.mean(max_round)
@@ -755,7 +757,7 @@ class SimAnalyzer:
             mean_ncs = []
             std_ncs = []
             for i, status in enumerate(sim["status"]):
-                nc = status["var"][phase]["consumption"]["network"]
+                nc = status["var"][phase]["consumption"]["network_upload"] + status["var"][phase]["consumption"]["network_distribution"]
                 tot_nc = np.sum(nc)
                 mean_nc = np.mean(np.sum(nc, axis=1))
                 std_nc = np.std(np.sum(nc, axis=1))

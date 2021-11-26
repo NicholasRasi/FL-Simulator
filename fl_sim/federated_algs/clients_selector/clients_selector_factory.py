@@ -1,8 +1,8 @@
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
 from .dynamic_sampling import DynamicSamplingSelector
-from .exploration_exploitation_selector import ExplorationExploitationSelector
-from .fedcs_selector import FedCSSelector
+from .loss_and_fairness_selector import LossAndFairnessSelector
+from .best_round_time_selector import BestRoundTimeSelector
 from .random_selector import RandomSelector
 from ...status.orchestrator_status import OrchestratorStatus
 
@@ -21,7 +21,7 @@ class ClientsSelectorFactory:
             return BestSelector(config, status, logger, params={"sortBy": "energy"})
         elif selector == "dynamic_sampling":
             return DynamicSamplingSelector(config, status, logger)
-        elif selector == "fedcs":
-            return FedCSSelector(config, status, logger)
-        elif selector == "exploration_exploitation":
-            return ExplorationExploitationSelector(config, status, logger)
+        elif selector == "best_round_time":
+            return BestRoundTimeSelector(config, status, logger)
+        elif selector == "loss_and_fairness":
+            return LossAndFairnessSelector(config, status, logger)

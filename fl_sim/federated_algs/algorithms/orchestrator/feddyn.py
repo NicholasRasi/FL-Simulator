@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import requests
-from json_tricks import loads, dumps
+from json_tricks import dumps
 from fl_sim import FedAvg
 from fl_sim.configuration import Config
 from fl_sim.federated_algs.aggregation_strategy.feddyn_agg import FedDynAgg
@@ -28,6 +28,15 @@ class FedDyn(FedAvg):
             self.h = self.h - term
 
     def model_fit(self, num_round):
+
+        # compute global config for each device
+        global_configs = [self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit") for dev_index in range(self.config.devices["num"])]
+
+        # update global configs status
+        for i, global_conf in enumerate(global_configs):
+            self.status.update_optimizer_configs(num_round, i, FedPhase.FIT, "global", global_conf["epochs"],
+                                                 global_conf["batch_size"], global_conf["num_examples"])
+
         # select devices
         dev_indexes = self.select_devs(num_round, FedPhase.FIT)
 
@@ -36,18 +45,14 @@ class FedDyn(FedAvg):
         failing_devs_indexes = self.get_failed_devs(num_round)
         for dev_index in dev_indexes:
             # run update optimizer
-            global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
+            global_config = global_configs[dev_index]
             global_config["tf_verbosity"] = self.config.simulation["tf_verbosity"]
-
-            # update global configs status
-            self.status.update_optimizer_configs(num_round, dev_index, FedPhase.FIT, "global", global_config["epochs"], global_config["batch_size"], global_config["num_examples"])
 
             # check if device fails
             if dev_index in failing_devs_indexes:
                 pass
                 failed_jobs += 1
             else:
-                global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
                 self.put_client_job_fit(num_round, dev_index, global_config)
                 created_jobs += 1
 

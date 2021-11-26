@@ -16,6 +16,16 @@ class FedNova(FedAvg):
         self.aggregator = FedNovaAgg(status, config, logger)
 
     def model_fit(self, num_round):
+
+        # compute global config for each device
+        global_configs = [self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit") for dev_index in
+                          range(self.config.devices["num"])]
+
+        # update global configs status
+        for i, global_conf in enumerate(global_configs):
+            self.status.update_optimizer_configs(num_round, i, FedPhase.FIT, "global", global_conf["epochs"],
+                                                 global_conf["batch_size"], global_conf["num_examples"])
+
         # select devices
         dev_indexes = self.select_devs(num_round, FedPhase.FIT)
 
@@ -24,18 +34,14 @@ class FedNova(FedAvg):
         failing_devs_indexes = self.get_failed_devs(num_round)
         for dev_index in dev_indexes:
             # run update optimizer
-            global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
+            global_config = global_configs[dev_index]
             global_config["tf_verbosity"] = self.config.simulation["tf_verbosity"]
-
-            # update global configs status
-            self.status.update_optimizer_configs(num_round, dev_index, FedPhase.FIT, "global", global_config["epochs"], global_config["batch_size"], global_config["num_examples"])
 
             # check if device fails
             if dev_index in failing_devs_indexes:
                 pass
                 failed_jobs += 1
             else:
-                global_config = self.global_update_optimizer["fit"].optimize(num_round, dev_index, "fit")
                 self.put_client_job_fit(num_round, dev_index, global_config)
                 created_jobs += 1
 
@@ -76,11 +82,15 @@ class FedNova(FedAvg):
             # compute metrics
             local_iterations = fedres.get("epochs") * fedres.get("num_examples") / fedres.get("batch_size")
             computation_time = local_iterations / self.status.con["devs"]["ips"][fedres.get("dev_index")]
-            network_consumption = 2 * self.status.con["model"]["tot_weights"]
-            communication_time = network_consumption / \
-                                 self.status.con["devs"]["net_speed"][fedres.get("num_round"), fedres.get("dev_index")]
+            network_consumption_upload = self.status.con["model"]["tot_weights"]
+            network_consumption_distribution = self.status.con["model"]["tot_weights"]
+            communication_time_upload = network_consumption_upload / \
+                                        self.status.con["devs"]["net_speed"][fedres["num_round"], fedres["dev_index"]]
+            communication_time_distribution = network_consumption_distribution / \
+                                              self.status.con["devs"]["net_speed"][
+                                                  fedres["num_round"], fedres["dev_index"]]
             energy_consumption = self.config.energy["pow_comp_s"] * computation_time + \
-                                 self.config.energy["pow_net_s"] * communication_time
+                                 self.config.energy["pow_net_s"] * (communication_time_upload + communication_time_distribution)
 
             # update global configs status
             self.status.update_optimizer_configs(fedres.get("num_round"), fedres.get("dev_index"), FedPhase.FIT,
@@ -90,9 +100,11 @@ class FedNova(FedAvg):
             # update status
             self.status.update_sim_data(fedres.get("num_round"), FedPhase.FIT, fedres.get("dev_index"),
                                         computation_time=computation_time,
-                                        communication_time=communication_time,
+                                        communication_time_upload=communication_time_upload,
+                                        communication_time_distribution=communication_time_distribution,
                                         local_iterations=local_iterations,
-                                        network_consumption=network_consumption,
+                                        network_consumption_upload=network_consumption_upload,
+                                        network_consumption_distribution=network_consumption_distribution,
                                         energy_consumption=energy_consumption,
                                         metric=fedres.get("mean_metric"),
                                         loss=fedres.get("mean_loss"))

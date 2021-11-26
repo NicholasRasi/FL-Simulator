@@ -1,10 +1,10 @@
 simulation:
   # number or repetitions
-  repetitions: 5
+  repetitions: 2
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "prova_exp.json"
+  output_file: "prova.json"
   # model
   model_name: "mnist"
   # metric
@@ -20,7 +20,7 @@ simulation:
   # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
-  seed: 1
+  seed: 2
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
   # number of concurrent processes
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "exploration_exploitation"
+    selection: "random"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
