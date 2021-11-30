@@ -10,8 +10,8 @@ class LossAndFairnessSelector(ClientsSelector):
 
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
-        self.gamma_parameter = 0.7
-        self.delta_parameter = 1
+        self.gamma_parameter = 0.2
+        self.delta_parameter = 10
 
     def select_devices(self, num_round: int) -> List:
         avail_indexes = self.get_available_devices(num_round)
@@ -25,11 +25,10 @@ class LossAndFairnessSelector(ClientsSelector):
             participation = self.status.var["fit"]["devs"]["selected"] - (self.status.var["fit"]["devs"]["selected"] & self.status.con["devs"]["failures"])
             N = np.dot(gamma, participation)
             scaled_N = [math.log(T / elem) for elem in N]
-            U = [math.sqrt(2 * self.delta_parameter * elem) for elem in scaled_N]
+            U = [math.sqrt(2 * self.delta_parameter**2 * elem) for elem in scaled_N]
             losses = np.transpose([[y if y != sys.float_info.max else 0 for y in x] for x in self.status.var["fit"]["model_metrics"]["loss"]])
             cumulative_losses = [np.cumsum(loss) / self.config.simulation["num_rounds"] for loss in losses]
-            L = [n * cum_loss for n, cum_loss in zip(N, cumulative_losses)]
-            L = [sum(x) for x in L]
+            L = [n * sum(cum_loss) for n, cum_loss in zip(N, cumulative_losses)]
             exploitation = np.divide(L, N)
             exploration = U
             UCB_indexes = exploration + exploitation

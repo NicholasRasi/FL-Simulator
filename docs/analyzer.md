@@ -107,6 +107,6 @@ The available graphs are:
      
 - ```print_network_consumption(phase)```
      
-- ```print_accuracy(phase)```
+- ```print_metric(phase, round)```
      
-- ```print_loss(phase)```
+- ```print_loss(phase, round)```

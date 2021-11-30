@@ -99,7 +99,6 @@ class SimAnalyzer:
         self._add_img_to_report(title, output_filename)
 
     def _plot_round_times(self, phase, title, keys, ylabel="time [s]", legend_loc=1):
-        
         fig, ax = plt.subplots()
         for i, (name, sim) in enumerate(self.sims):
             ys = []

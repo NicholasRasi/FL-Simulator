@@ -49,8 +49,8 @@ class OrchestratorStatus:
         self.con["devs"]["local_data_stats"] = self.model_loader.record_data_stats(self.y_train, self.train_indexes)
 
     def reinitialize_status(self):
-        if self.config.simulation["initializer"] == "default":
 
+        if self.config.simulation["initializer"] == "default":
             if self.config.simulation["seed"] is not None:
                 np.random.seed(self.config.simulation["seed"])
 
@@ -88,10 +88,14 @@ class OrchestratorStatus:
                                        var=self.config.energy["avail_var"],
                                        size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
                                        dtype=int),
-                "net_speed": self.randint(mean=self.config.network["speed_mean"],
-                                          var=self.config.network["speed_var"],
-                                          size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
-                                          dtype=int),
+                "net_speed": self.get_heterogeneous_numbers(self.config.simulation["num_rounds"],
+                                                         self.config.devices["num"],
+                                                         self.config.network["speed_mean"],
+                                                         self.config.network["speed_var"]),
+                #"net_speed": self.randint(mean=self.config.network["speed_mean"],
+                #                       var=self.config.network["speed_var"],
+                #                       size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
+                #                       dtype=int),
                 "local_data_sizes": self.randint(mean=self.config.data["num_examples_mean"],
                                                  var=self.config.data["num_examples_var"],
                                                  size=self.config.devices["num"], dtype=int),
@@ -202,6 +206,20 @@ class OrchestratorStatus:
             return np.full(shape=size, fill_value=mean, dtype=dtype)
         else:
             return np.random.randint(low=mean-var, high=mean+var, size=size, dtype=dtype)
+
+    @staticmethod
+    def get_heterogeneous_numbers(rounds, devices, mean, var):
+        numbers = []
+        means = np.random.randint(low=mean - var, high=mean + var, size=devices)
+        var_degrees = np.random.uniform(low=0.01, high=0.99, size=devices)
+        vars = var * var_degrees
+        for dev in range(devices):
+            x = np.random.randint(low=max(means[dev]-vars[dev], 0), high=means[dev]+vars[dev], size=rounds)
+            numbers.append(x)
+            #print("device ", dev, " avg ", np.average(x), "std ", np.std(x))
+
+        numbers = np.transpose(np.array(numbers))
+        return numbers
 
     def to_dict(self):
         self.global_model_weights = None

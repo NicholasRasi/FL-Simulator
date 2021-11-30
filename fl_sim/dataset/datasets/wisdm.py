@@ -14,7 +14,7 @@ from ..model_loader import DatasetModelLoader
 
 class Wisdm(DatasetModelLoader):
 
-    def get_dataset(self, mislabelling_percentage=0): #  https://www.cis.fordham.edu/wisdm/dataset.php
+    def get_dataset(self, mislabelling_percentage=0):  # https://www.cis.fordham.edu/wisdm/dataset.php
         url = 'https://www.cis.fordham.edu/wisdm/includes/datasets/latest/'
         dataset_url = 'WISDM_ar_latest.tar.gz'
         r = urlopen(url + dataset_url)

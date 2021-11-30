@@ -1,16 +1,16 @@
 simulation:
   # number or repetitions
-  repetitions: 2
+  repetitions: 4
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "prova.json"
+  output_file: "loss_and_fairness.json"
   # model
   model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 10
+  num_rounds: 15
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -20,7 +20,7 @@ simulation:
   # initialization policy
   initializer: "default"
   # fixing random state for reproducibility
-  seed: 2
+  seed: 123
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
   # number of concurrent processes
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "loss_and_fairness"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -40,32 +40,32 @@ algorithms:
     # parameters used by the algorithm
     params:
       # fraction of devices used for the computation
-      k: 0.7
+      k: 0.5
       # number of epochs executed for fit for each round
-      epochs: 5
+      epochs: 2
       # batch size used for fit for each round
-      batch_size: 32
-      # number of examples used for fit for each round
-      num_examples: 500
+      batch_size: 16
+      # number of exaples used for fit for each round
+      num_examples: 100
   eval:
     selection: "random"
     update: "static"
     data: "random"
     params:
       k: 0.5
-      epochs: 5
-      batch_size: 32
+      epochs: 2
+      batch_size: 16
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 10
+  num: 20
   # probability a device is available for a round
-  p_available: 1
+  p_available: 0.8
   # probability a device fails during a round
-  p_fail: 0.05
+  p_fail: 0.1
   # number of malicious devices
   adversary_num: 0
 
@@ -86,7 +86,7 @@ energy:
 network:
   # mean and variance of network speed available at each device [params/s]
   speed_mean: 100000
-  speed_var: 1000
+  speed_var: 70000
 
 data:
   # mean and variance of number of examples available at each device

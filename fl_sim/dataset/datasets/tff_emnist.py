@@ -22,7 +22,6 @@ class Emnist_tff(DatasetModelLoader):
 
     # Image classification task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):  # https://www.tensorflow.org/tutorials/quickstart/beginner
-        # build and compile Keras model
 
         tf_model = tf.keras.models.Sequential(
             [

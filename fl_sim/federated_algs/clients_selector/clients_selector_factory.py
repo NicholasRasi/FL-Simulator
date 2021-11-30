@@ -1,5 +1,6 @@
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
+from .best_time_expected_selector import BestTimeExpectedSelector
 from .dynamic_sampling import DynamicSamplingSelector
 from .loss_and_fairness_selector import LossAndFairnessSelector
 from .best_round_time_selector import BestRoundTimeSelector
@@ -25,3 +26,5 @@ class ClientsSelectorFactory:
             return BestRoundTimeSelector(config, status, logger)
         elif selector == "loss_and_fairness":
             return LossAndFairnessSelector(config, status, logger)
+        elif selector == "best_time_expected":
+            return BestTimeExpectedSelector(config, status, logger)

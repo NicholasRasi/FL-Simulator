@@ -10,7 +10,7 @@ class Shakespeare(DatasetModelLoader):
         super().__init__(num_devices)
         self.vocabulary = None
 
-    def get_dataset(self, mislabelling_percentage=0):  # https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt
+    def get_dataset(self, mislabelling_percentage=0):
         ds = tfds.load('tiny_shakespeare', split='train')
         text = None
 

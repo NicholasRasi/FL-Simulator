@@ -101,7 +101,7 @@ energy:
 network:
   # mean and variance of network speed available at each device [params/s]
   speed_mean: 100000
-  speed_var: 50000
+  speed_var: 70000
 
 data:
   # mean and variance of number of examples available at each device
