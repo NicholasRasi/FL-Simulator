@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "loss_and_fairness.json"
+  output_file: "crop_rotation.json"
   # model
   model_name: "mnist"
   # metric
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "loss_and_fairness"
+    selection: "crop_rotation"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## Added
 - Client selection technique based on fairness, round time and network stability
+- Client selection technique based on fairness, round time and loss
 - Changelog to project
  
 ## 2021-11-26
