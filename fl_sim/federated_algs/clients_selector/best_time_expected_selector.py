@@ -9,9 +9,9 @@ class BestTimeExpectedSelector(ClientsSelector):
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
 
-        self.fairness_parameter = 0.5
-        self.fastests_parameter = 0.5
-        self.more_stable_parameter = 0
+        self.fairness_parameter = 0.33
+        self.fastests_parameter = 0.34
+        self.more_stable_parameter = 0.33
         assert self.fairness_parameter + self.fastests_parameter + self.more_stable_parameter == 1
 
     def select_devices(self, num_round: int) -> List:
@@ -33,7 +33,7 @@ class BestTimeExpectedSelector(ClientsSelector):
 
             times = computation_times + comm_upload_times + comm_distribution_times
 
-            avg_times = np.asarray([0 if len(t[t > 0]) == 0 else sum(t) / np.count_nonzero(t) for t in times])
+            #avg_times = np.asarray([0 if len(t[t > 0]) == 0 else sum(t) / np.count_nonzero(t) for t in times])
             mean_square_times = np.asarray([0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0]**2)) for t in times])
             var_times = np.asarray([0 if len(t[t > 0]) == 0 else np.var(t[t > 0]) for t in times])
 
@@ -43,17 +43,11 @@ class BestTimeExpectedSelector(ClientsSelector):
             more_stable_index = np.multiply(var_times, self.more_stable_parameter)
             fairness_index = np.multiply(times_selected, self.fairness_parameter * np.average(mean_square_times[mean_square_times > 0]))
             indexes = fastest_index + more_stable_index + fairness_index
-            print(times_selected)
-            fastests = [x for x in np.argsort(mean_square_times) if x in avail_indexes]
-            more_stable = [x for x in np.argsort(var_times) if x in avail_indexes]
+            #fastests = [x for x in np.argsort(mean_square_times) if x in avail_indexes]
+            #more_stable = [x for x in np.argsort(var_times) if x in avail_indexes]
+            #least_selected = [x for x in np.argsort(times_selected) if x in avail_indexes]
             best = [x for x in np.argsort(indexes) if x in avail_indexes]
-            least_selected = [x for x in np.argsort(times_selected) if x in avail_indexes]
-            print("fast ", fastests)
-            print("stable ", more_stable)
-            print("least selected ", least_selected)
-            print("best ", best)
 
             dev_indexes = best[:num_devs]
-            print("selezionati ", dev_indexes)
 
         return dev_indexes

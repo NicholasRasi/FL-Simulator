@@ -96,7 +96,7 @@ during the fit and evaluation phases.
 ### Algorithm Parameters
 These parameters define how the algorithms are executed and how updates are performed,
 i.e., the amount of computation performed  by each device at each round.
-For example, these parameters can be used to set the number oflocal iterations
+For example, these parameters can be used to set the number of local iterations
 (epochs * num_examples / batch_size) used by the standard FedAvg algorithm.
 
 - **k**:

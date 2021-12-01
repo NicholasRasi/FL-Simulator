@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "crop_rotation.json"
+  output_file: "provaaa.json"
   # model
   model_name: "mnist"
   # metric

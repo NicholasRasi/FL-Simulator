@@ -5,9 +5,45 @@ During the eval phase the model is evaluated locally, the resulting losses and a
 well the model is performing.
 
 ## Federated Algorithm
-The federated algorithm should implement two functions, called by the simulator during the
-execution of the loop.
+The simulator provides a number of federated algorithms. The basic federated algorithm is FedAvg but each federated algorithm 
+implements a personalized version for the worker and the orchestrator by overriding functions. 
+Each federated worker can override functions:
 
-#### model_fit
+- #### handle_fit_job
 
-#### model_eval
+- #### handle_eval_job
+
+Each federated orchestrator can override function:
+
+- #### model_fit
+
+- #### model_eval
+
+- ####select_devs
+
+- ####put_client_job_fit
+
+- #### put_client_job_eval
+
+- #### get_fit_results
+
+- #### get_eval_results
+
+## Available federated algorithms
+
+The algorithms implemented are the followings:
+
+### FedAvg
+- Reference: https://arxiv.org/abs/1602.05629
+
+### FedProx
+- Reference: https://arxiv.org/abs/1812.06127
+
+### FedNova
+- Reference: https://arxiv.org/abs/2007.07481
+
+### SCAFFOLD
+- Reference: https://arxiv.org/abs/1910.06378
+
+### FedDyn
+- Reference: https://arxiv.org/abs/2111.04263

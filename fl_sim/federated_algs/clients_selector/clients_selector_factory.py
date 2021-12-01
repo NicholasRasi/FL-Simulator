@@ -31,3 +31,5 @@ class ClientsSelectorFactory:
             return BestTimeExpectedSelector(config, status, logger)
         elif selector == "crop_rotation":
             return CropRotationSelector(config, status, logger)
+
+

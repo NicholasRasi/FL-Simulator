@@ -92,10 +92,6 @@ class OrchestratorStatus:
                                                          self.config.devices["num"],
                                                          self.config.network["speed_mean"],
                                                          self.config.network["speed_var"]),
-                #"net_speed": self.randint(mean=self.config.network["speed_mean"],
-                #                       var=self.config.network["speed_var"],
-                #                       size=(self.config.simulation["num_rounds"], self.config.devices["num"]),
-                #                       dtype=int),
                 "local_data_sizes": self.randint(mean=self.config.data["num_examples_mean"],
                                                  var=self.config.data["num_examples_var"],
                                                  size=self.config.devices["num"], dtype=int),
@@ -216,7 +212,6 @@ class OrchestratorStatus:
         for dev in range(devices):
             x = np.random.randint(low=max(means[dev]-vars[dev], 0), high=means[dev]+vars[dev], size=rounds)
             numbers.append(x)
-            #print("device ", dev, " avg ", np.average(x), "std ", np.std(x))
 
         numbers = np.transpose(np.array(numbers))
         return numbers

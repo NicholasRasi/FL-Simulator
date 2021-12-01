@@ -8,7 +8,7 @@ class UniformOptimizer(GlobalUpdateOptimizer):
     def __init__(self, epochs: int, batch_size: int, num_examples: int, status: OrchestratorStatus, logger):
         super().__init__(epochs, batch_size, num_examples, status, logger)
         self.p_heterogeneity = 1
-        self.epochs_min = 5
+        self.epochs_min = 1
         self.epochs_max = epochs
         self.batch_size_min = batch_size
         self.batch_size_max = batch_size
