@@ -10,8 +10,8 @@ class CropRotationSelector(ClientsSelector):
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
         self.fairness_desired = 1.5
-        self.best_time_selection = 0
-        self.best_loss_selection = 0
+        self.best_time_counter = 0
+        self.best_loss_counter = 0
 
     def select_devices(self, num_round: int) -> List:
         avail_indexes = self.get_available_devices(num_round)
@@ -33,9 +33,9 @@ class CropRotationSelector(ClientsSelector):
                 dev_indexes = least_selected[:num_devs]
             # Otherwise, alternate one round with fastest devices and one round with biggest loss devices
             else:
-                if self.best_time_selection <= self.best_loss_selection:
+                if self.best_time_counter <= self.best_loss_counter:
                     # Select fastests devices
-                    self.best_time_selection += 1
+                    self.best_time_counter += 1
                     comm_distribution_times = np.transpose(self.status.var["fit"]["times"]["communication_distribution"])
                     comm_upload_times = np.transpose(self.status.var["fit"]["times"]["communication_upload"])
                     computation_times = np.transpose(self.status.var["fit"]["times"]["computation"])
@@ -47,11 +47,8 @@ class CropRotationSelector(ClientsSelector):
                     dev_indexes = fastests[:num_devs]
                 else:
                     # Select biggest loss devices
-                    self.best_loss_selection += 1
+                    self.best_loss_counter += 1
                     losses = [sys.float_info.max if len(x[x < sys.float_info.max]) == 0 else x[np.where(x != sys.float_info.max)[0][-1]] for x in np.transpose(self.status.var["fit"]["model_metrics"]["loss"])]
                     biggest_loss = [x for x in np.argsort(losses) if x in avail_indexes]
-                    print(biggest_loss)
                     dev_indexes = biggest_loss[-num_devs:]
-                    print("selezionati ", dev_indexes)
-
         return dev_indexes

@@ -7,10 +7,13 @@ All notable changes to this project will be documented in this file.
 ## Added
 - Client selection technique based on fairness, round time and network stability
 - Client selection technique based on fairness, round time and loss
+- Client selection technique based on time limitation
+- Optimizer which assigns local iterations based on device ips
 - Changelog to project
 
 ## Updated
-- Documentation about available datasets
+- Documentation about available datasets, federated algorithms, optimizers and simulator
+- Model for emnist and tff_emnist datasets
  
 ## 2021-11-26
  

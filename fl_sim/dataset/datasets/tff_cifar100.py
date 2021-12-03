@@ -44,7 +44,6 @@ class Cifar100_tff(DatasetModelLoader):
     def get_loss_function(self):
         return tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
-
     @staticmethod
     def get_images_and_labels(federated_data):
         images_numpy = []

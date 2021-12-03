@@ -131,13 +131,11 @@ _________________________________________________________________
 - **name**: ```boston_housing```
 - **description**: this dataset is taken from the StatLib library which is maintained at Carnegie Mellon University. 
   Samples contain 13 attributes of houses at different locations around the Boston suburbs in the late 1970s. 
-  Targets are the median values of the houses at a location (in k$). 
-  The dataste is composed of ? training samples and ? test samples.
+  Targets are the median values of the houses at a location (in k$).
 - **url**: [http://lib.stat.cmu.edu/datasets/boston](http://lib.stat.cmu.edu/datasets/boston)  
 - **source**: [TensorFlow Datasets](https://www.tensorflow.org/api_docs/python/tf/keras/datasets/boston_housing)
 - **IID**: yes
 - **task**: regression
-- **model**: neural network from [?](?)
 ```
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
@@ -203,30 +201,22 @@ _________________________________________________________________
 - **source**: [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/emnist)
 - **IID**: yes
 - **task**: image classification
-- **model**: neural network from [?](?)
+- **model**: neural network from [TensorFlow](https://www.tensorflow.org/tutorials/quickstart/beginner)
 ```
 _________________________________________________________________
-  Layer (type)                Output Shape              Param #   
+Layer (type)                Output Shape              Param #   
 =================================================================
- conv2d_9 (Conv2D)           (None, 26, 26, 32)        320       
+ flatten_3 (Flatten)         (None, 784)               0         
                                                                  
- max_pooling2d_6 (MaxPooling  (None, 13, 13, 32)       0         
- 2D)                                                             
+ dense_6 (Dense)             (None, 128)               100480    
                                                                  
- conv2d_10 (Conv2D)          (None, 11, 11, 32)        9248      
+ dropout_3 (Dropout)         (None, 128)               0         
                                                                  
- max_pooling2d_7 (MaxPooling  (None, 5, 5, 32)         0         
- 2D)                                                             
-                                                                 
- flatten_6 (Flatten)         (None, 800)               0         
-                                                                 
- dense_22 (Dense)            (None, 64)                51264     
-                                                                 
- dense_23 (Dense)            (None, 62)                4030      
+ dense_7 (Dense)             (None, 62)                7998      
                                                                  
 =================================================================
-Total params: 64,862
-Trainable params: 64,862
+Total params: 108,478
+Trainable params: 108,478
 Non-trainable params: 0
 _________________________________________________________________
 ```
@@ -279,10 +269,26 @@ _________________________________________________________________
 - **source**: [Tensorflow Datasets](https://www.tensorflow.org/datasets/catalog/tiny_shakespeare)
 - **IID**: yes
 - **task**: text generation (char level)
-- **model**: neural network from [?](?)
 ```
 _________________________________________________________________
- ?
+Layer (type)                Output Shape              Param #   
+=================================================================
+ input_1 (InputLayer)        [(None, None, 65)]        0         
+                                                                 
+ lstm (LSTM)                 [(None, None, 128),       99328     
+                              (None, 128),                       
+                              (None, 128)]                       
+                                                                 
+ lstm_1 (LSTM)               [(None, None, 128),       131584    
+                              (None, 128),                       
+                              (None, 128)]                       
+                                                                 
+ dense (Dense)               (None, None, 65)          8385      
+                                                                 
+=================================================================
+Total params: 239,297
+Trainable params: 239,297
+Non-trainable params: 0
 _________________________________________________________________
 ```
 
@@ -295,7 +301,7 @@ _________________________________________________________________
 - **source**: [Fordham University Dataset](https://www.cis.fordham.edu/wisdm/dataset.php)
 - **IID**: yes
 - **task**: activity recognition
-- **model**: neural network from [?](?)
+- **model**: neural network from [Github Repository](https://github.com/laxmimerit/Human-Activity-Recognition-Using-Accelerometer-Data-and-CNN/blob/master/Human%20Activity%20Recognition.ipynb)
 ```
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
@@ -369,20 +375,22 @@ _________________________________________________________________
 - **source**: [Tensorflow Dataset](https://www.tensorflow.org/federated/api_docs/python/tff/simulation/datasets/emnist)
 - **IID**: no
 - **task**: image classification
-- **model**: neural network from [Tensorflow](https://www.tensorflow.org/tutorials/quickstart/beginner)
+- **model**: neural network from [TensorFlow](https://www.tensorflow.org/tutorials/quickstart/beginner)
 ```
 _________________________________________________________________
- Layer (type)                Output Shape              Param #   
+Layer (type)                Output Shape              Param #   
 =================================================================
- flatten_8 (Flatten)         (None, 784)               0         
+ flatten_3 (Flatten)         (None, 784)               0         
                                                                  
- dense_30 (Dense)            (None, 10)                7850      
+ dense_6 (Dense)             (None, 128)               100480    
                                                                  
- softmax (Softmax)           (None, 10)                0         
+ dropout_3 (Dropout)         (None, 128)               0         
+                                                                 
+ dense_7 (Dense)             (None, 62)                7998      
                                                                  
 =================================================================
-Total params: 7,850
-Trainable params: 7,850
+Total params: 108,478
+Trainable params: 108,478
 Non-trainable params: 0
 _________________________________________________________________
 ```
@@ -400,7 +408,18 @@ _________________________________________________________________
 - **model**: neural network from [Tensorflow](https://www.tensorflow.org/text/tutorials/text_generation)
 ```
 _________________________________________________________________
- ?
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ embedding (Embedding)       multiple                  22016     
+                                                                 
+ gru (GRU)                   multiple                  394752    
+                                                                 
+ dense (Dense)               multiple                  22102     
+                                                                 
+=================================================================
+Total params: 438,870
+Trainable params: 438,870
+Non-trainable params: 0
 _________________________________________________________________
 ```
 
@@ -413,7 +432,6 @@ _________________________________________________________________
 - **source**: [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/oxford_iiit_pet)
 - **IID**: yes
 - **task**: image segmentation
-- **model**: neural network from [?](?)
 ```
 _________________________________________________________________
    Layer (type)                Output Shape              Param #   

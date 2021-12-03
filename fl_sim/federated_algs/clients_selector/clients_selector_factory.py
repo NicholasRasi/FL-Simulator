@@ -3,6 +3,7 @@ from .best_selector import BestSelector
 from .best_time_expected_selector import BestTimeExpectedSelector
 from .crop_rotation_selector import CropRotationSelector
 from .dynamic_sampling import DynamicSamplingSelector
+from .limited_time_selector import LimitedTimeSelector
 from .loss_and_fairness_selector import LossAndFairnessSelector
 from .best_round_time_selector import BestRoundTimeSelector
 from .random_selector import RandomSelector
@@ -31,5 +32,8 @@ class ClientsSelectorFactory:
             return BestTimeExpectedSelector(config, status, logger)
         elif selector == "crop_rotation":
             return CropRotationSelector(config, status, logger)
+        elif selector == "limited_time":
+            return LimitedTimeSelector(config, status, logger)
+
 
 

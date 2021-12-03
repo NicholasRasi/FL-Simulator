@@ -1,3 +1,4 @@
+from .equal_computation_time_optimizer import EqualComputationTimeOptimizer
 from .static_optimizer import StaticOptimizer
 from .best_rt_optimizer import BestRTOptimizer
 from .uniform_optimizer import UniformOptimizer
@@ -14,4 +15,6 @@ class GlobalUpdateOptimizerFactory:
             return BestRTOptimizer(epochs, batch_size, num_examples, status, logger)
         elif optimizer == "uniform":
             return UniformOptimizer(epochs, batch_size, num_examples, status, logger)
+        elif optimizer == "equal_computation_time":
+            return EqualComputationTimeOptimizer(epochs, batch_size, num_examples, status, logger)
 

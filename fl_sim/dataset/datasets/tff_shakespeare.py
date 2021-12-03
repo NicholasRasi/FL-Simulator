@@ -122,13 +122,12 @@ class Shakespeare_tff(DatasetModelLoader):
 
         # Length of the vocabulary in chars
         vocab = list('dhlptx@DHLPTX $(,048cgkoswCGKOSW[_#\'/37;?bfjnrvzBFJNRVZ"&*.26:\naeimquyAEIMQUY]!%)-159\r')
-        vocab_size = len(vocab)
 
         # The embedding dimension
         embedding_dim = 256
 
         # Number of RNN units
-        rnn_units = 1024
+        rnn_units = 256
 
         class MyModel(tf.keras.Model):
             def __init__(self, vocab_size, embedding_dim, rnn_units):

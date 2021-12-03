@@ -4,7 +4,7 @@ from ..model_loader import DatasetModelLoader
 import numpy as np
 
 
-class Oxford_pets(DatasetModelLoader):
+class OxfordPets(DatasetModelLoader):
 
     def get_dataset(self, mislabelling_percentage=0):  # https://www.tensorflow.org/datasets/catalog/oxford_iiit_pet
         dataset = tfds.load('oxford_iiit_pet:3.*.*')
@@ -55,7 +55,7 @@ class Oxford_pets(DatasetModelLoader):
     # Image segmentation task
     def get_compiled_model(self, optimizer: str, metric: str, train_data):
 
-        depth = 5
+        depth = 2
         num_classes = 21
 
         model = tf.keras.Sequential()
@@ -65,7 +65,7 @@ class Oxford_pets(DatasetModelLoader):
         img_h = 128
         img_w = 128
 
-        vgg = tf.keras.applications.VGG16(include_top=False, input_shape=(img_h, img_w, 3))
+        vgg = tf.keras.applications.VGG16(weights=None, include_top=False, input_shape=(img_h, img_w, 3))
         for layer in vgg.layers:
             layer.trainable = False
 
@@ -96,7 +96,7 @@ class Oxford_pets(DatasetModelLoader):
         model.compile(
             optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[metric]
         )
-
+        model.summary()
         return model
 
     def get_loss_function(self):
