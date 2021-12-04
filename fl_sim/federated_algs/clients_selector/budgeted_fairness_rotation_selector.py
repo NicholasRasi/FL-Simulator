@@ -9,7 +9,10 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
 
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
+
+        # Desired standard deviation of devices selection
         self.fairness_desired = 1.5
+
         self.best_time_counter = 0
         self.best_loss_counter = 0
 
@@ -21,7 +24,6 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
         if num_round == 0:
             dev_indexes = np.random.choice(avail_indexes, size=num_devs, replace=False)
         else:
-
             # Compute current fairness
             sel_by_dev = np.sum(self.status.var["fit"]["devs"]["selected"], axis=0)
             current_fairness = np.std(sel_by_dev)
@@ -34,25 +36,16 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
             # Otherwise, alternate one round with fastest devices and one round with biggest loss devices
             else:
                 if self.best_time_counter <= self.best_loss_counter:
-                    # Select fastests devices
+                    # Select fastest devices
                     self.best_time_counter += 1
-                    comm_distribution_times = np.transpose(self.status.var["fit"]["times"]["communication_distribution"])
-                    comm_upload_times = np.transpose(self.status.var["fit"]["times"]["communication_upload"])
-
-                    global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
-                    current_local_iterations = global_opt_configs["epochs"][num_round] * \
-                                               global_opt_configs["num_examples"][
-                                                   num_round] / global_opt_configs["batch_size"][num_round]
-                    expected_computation_times = np.divide(current_local_iterations, self.status.con["devs"]["ips"])
-                    comm_times = comm_upload_times + comm_distribution_times
-                    mean_square_comm_times = np.asarray([0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) for t in comm_times])
-                    total_times = np.asarray([comm + comp for comm, comp in zip(mean_square_comm_times, expected_computation_times)])
-                    fastests = [x for x in np.argsort(total_times) if x in avail_indexes]
-                    dev_indexes = fastests[:num_devs]
+                    mean_square_times = self.get_quadratic_mean_times(num_round)
+                    fastest = [x for x in np.argsort(mean_square_times) if x in avail_indexes]
+                    dev_indexes = fastest[:num_devs]
                 else:
                     # Select biggest loss devices
                     self.best_loss_counter += 1
                     losses = [sys.float_info.max if len(x[x < sys.float_info.max]) == 0 else x[np.where(x != sys.float_info.max)[0][-1]] for x in np.transpose(self.status.var["fit"]["model_metrics"]["loss"])]
                     biggest_loss = [x for x in np.argsort(losses) if x in avail_indexes]
                     dev_indexes = biggest_loss[-num_devs:]
+
         return dev_indexes

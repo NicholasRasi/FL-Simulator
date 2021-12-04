@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "opt_equal_comp+best_time_expected_local.json"
+  output_file: "p1.json"
   # model
   model_name: "mnist"
   # metric
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "best_time_expected_v2"
+    selection: "budgeted_time_rotation"
     # algorithm used for the update optimizer
     update: "equal_computation_time"
     # algorithm used for the local data optimizer

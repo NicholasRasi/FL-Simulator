@@ -24,3 +24,33 @@ class ClientsSelector(ABC):
         avail_devs = self.status.con["devs"]["availability"][num_round]
         avail_indexes = np.where(avail_devs == 1)[0]
         return avail_indexes
+
+    def get_quadratic_mean_times(self, num_round):
+        comm_distribution_times = np.transpose(self.status.var["fit"]["times"]["communication_distribution"])
+        comm_upload_times = np.transpose(self.status.var["fit"]["times"]["communication_upload"])
+
+        global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
+        current_local_iterations = global_opt_configs["epochs"][num_round] * \
+                                   global_opt_configs["num_examples"][
+                                       num_round] / global_opt_configs["batch_size"][num_round]
+        expected_computation_times = np.divide(current_local_iterations, self.status.con["devs"]["ips"])
+        comm_times = comm_upload_times + comm_distribution_times
+        mean_square_times = np.asarray(
+            [0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) + comp for t, comp in
+             zip(comm_times, expected_computation_times)])
+        return mean_square_times
+
+    def get_quadratic_mean_computation_times(self, num_round):
+        global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
+        current_local_iterations = global_opt_configs["epochs"][num_round] * global_opt_configs["num_examples"][
+            num_round] / global_opt_configs["batch_size"][num_round]
+        expected_computation_times = np.divide(current_local_iterations, self.status.con["devs"]["ips"])
+        return expected_computation_times
+
+    def get_quadratic_mean_communication_times(self):
+        comm_distribution_times = np.transpose(self.status.var["fit"]["times"]["communication_distribution"])
+        comm_upload_times = np.transpose(self.status.var["fit"]["times"]["communication_upload"])
+        comm_times = comm_upload_times + comm_distribution_times
+        mean_square_comm_times = np.asarray(
+            [0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) for t in comm_times])
+        return mean_square_comm_times
