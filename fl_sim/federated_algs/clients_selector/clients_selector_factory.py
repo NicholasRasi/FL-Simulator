@@ -1,7 +1,8 @@
 from fl_sim.configuration import Config
 from .best_selector import BestSelector
 from .best_time_expected_selector import BestTimeExpectedSelector
-from .crop_rotation_selector import CropRotationSelector
+from .budgeted_fairness_rotation_selector import BudgetedFairnessRotationSelector
+from .budgeted_time_rotation_selector import BudgetedTimeRotationSelector
 from .dynamic_sampling import DynamicSamplingSelector
 from .limited_time_selector import LimitedTimeSelector
 from .loss_and_fairness_selector import LossAndFairnessSelector
@@ -30,8 +31,10 @@ class ClientsSelectorFactory:
             return LossAndFairnessSelector(config, status, logger)
         elif selector == "best_time_expected":
             return BestTimeExpectedSelector(config, status, logger)
-        elif selector == "crop_rotation":
-            return CropRotationSelector(config, status, logger)
+        elif selector == "budgeted_fairness_rotation":
+            return BudgetedFairnessRotationSelector(config, status, logger)
+        elif selector == "budgeted_time_rotation":
+            return BudgetedTimeRotationSelector(config, status, logger)
         elif selector == "limited_time":
             return LimitedTimeSelector(config, status, logger)
 

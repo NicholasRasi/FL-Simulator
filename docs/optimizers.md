@@ -30,26 +30,36 @@ then decreases the sampling rate during each communication.
 Once a more generalized federated model is trained based on the initialization, the method dynamically decreases 
 the number of clients for model aggregation to save communication cost
 
-##### Loss and Fairness
+##### Loss and Fairness Selector
 The [Loss and Fairness Selector](https://arxiv.org/abs/2012.08009) is a exploration-exploitation based technique. 
 The algorithm performs exploitation by selecting clients with larger local loss as that leads to faster convergence, 
 and performs exploration to ensure diversity and achieve a lower error floor.
 
-#### Best Round Time 
+#### Best Round Time Selector
 The **Best Round Time Selector** is built under the assumption that at each round each device provides current 
 resources information. By taking advantage of this knowledge it's possible to estimate the round time for each device and 
 select devices which are taking the shortest time.
 
-#### Best Expected Time
+#### Best Expected Time Selector
 The **Best Expected Time Selector** allows to select devices as a trade-off between devices which tend to be faster, 
 those that tend to have stable resources and those which haven't been selected frequently. It allows to balance
 each factor (speed, stability, fairness) by tuning 3 hyperparameters.
 
-#### Crop Rotation Time
-The **Crop Rotation Time Selector** alternates one round in which fastest devices are selected and one round in which 
+#### Budgeted Fairness Rotation Selector
+The **Budgeted Fairness Rotation Selector** alternates one round in which fastest devices are selected and one round in which 
 devices with biggest loss are selected. In order to guarantee fairness, it's possible to set a desired fairness that should
 be kept for the entire simulation. Every time the current fairness is worse than the desired one, the algorithm performs 
 a round in which the least selected devices are chosen. 
+
+#### Budgeted Time Rotation Selector
+The **Budgeted Fairness Rotation Selector** alternates rounds in which devices with biggest loss are selected and rounds in which 
+the least selected devices are chosen. The frequency depends on how the parameters are set. It is also possible to define
+a desired average round time to be kept for the simulation, every time the current average round time is higher than the
+desired one, then perform one round in which fastests devices are selected.
+
+#### Limited Time Selector
+The **Limited Time Selector** allows to define optionally define a time limitation for computation time, communication time
+and total time. Once obtained devices which respect time limitations, then select randomly among those devices.
 
 ### Global Update Optimizer
 The **Global Update Optimizer** computes ```epochs``` (E), ```batch_size``` (B) and ```num_examples``` (N) so the
@@ -71,6 +81,10 @@ The **Static Optimizer** statically set E, B and N from the given parameters.
 
 ##### Uniform Optimizer
 The **Uniform Optimizer** generates E, B, N with a uniform distribution in the range specified.
+
+#### Equal Computation Time Optimizer
+The **Equal Computation Time Optimizer** generates E, B, N depending on a fixed amount of desired computation
+time and the specific ips value for the device. The assumption is that ips is known for each device.
 
 ### Local Data Optimizer
 The **Local Data Optimizer** selects the ```num_examples``` examples used for the local update

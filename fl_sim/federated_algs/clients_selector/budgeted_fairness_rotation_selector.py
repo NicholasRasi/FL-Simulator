@@ -5,7 +5,7 @@ from fl_sim.federated_algs.clients_selector.clients_selector import ClientsSelec
 from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 
-class CropRotationSelector(ClientsSelector):
+class BudgetedFairnessRotationSelector(ClientsSelector):
 
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
@@ -38,12 +38,16 @@ class CropRotationSelector(ClientsSelector):
                     self.best_time_counter += 1
                     comm_distribution_times = np.transpose(self.status.var["fit"]["times"]["communication_distribution"])
                     comm_upload_times = np.transpose(self.status.var["fit"]["times"]["communication_upload"])
-                    computation_times = np.transpose(self.status.var["fit"]["times"]["computation"])
 
-                    times = computation_times + comm_upload_times + comm_distribution_times
-
-                    mean_square_times = np.asarray([0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) for t in times])
-                    fastests = [x for x in np.argsort(mean_square_times) if x in avail_indexes]
+                    global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
+                    current_local_iterations = global_opt_configs["epochs"][num_round] * \
+                                               global_opt_configs["num_examples"][
+                                                   num_round] / global_opt_configs["batch_size"][num_round]
+                    expected_computation_times = np.divide(current_local_iterations, self.status.con["devs"]["ips"])
+                    comm_times = comm_upload_times + comm_distribution_times
+                    mean_square_comm_times = np.asarray([0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) for t in comm_times])
+                    total_times = np.asarray([comm + comp for comm, comp in zip(mean_square_comm_times, expected_computation_times)])
+                    fastests = [x for x in np.argsort(total_times) if x in avail_indexes]
                     dev_indexes = fastests[:num_devs]
                 else:
                     # Select biggest loss devices

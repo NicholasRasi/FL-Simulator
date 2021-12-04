@@ -2,6 +2,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2021-12-10
+
+## Updated
+- Budgeted time selection technique to make it dependent on number of local iterations
+- Budgeted fairness selection technique to make it dependent on number of local iterations
+- Best expected time selection technique to make it dependent on number of local iterations
+- Optimizers docs 
+
 ## 2021-12-03
 
 ## Added

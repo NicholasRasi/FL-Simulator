@@ -1,10 +1,10 @@
 simulation:
   # number or repetitions
-  repetitions: 1
+  repetitions: 4
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "p.json"
+  output_file: "opt_equal_comp+best_time_expected_local.json"
   # model
   model_name: "mnist"
   # metric
@@ -32,9 +32,9 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "limited_time"
+    selection: "best_time_expected_v2"
     # algorithm used for the update optimizer
-    update: "static"
+    update: "equal_computation_time"
     # algorithm used for the local data optimizer
     data: "random"
     # parameters used by the algorithm
@@ -42,7 +42,7 @@ algorithms:
       # fraction of devices used for the computation
       k: 0.5
       # number of epochs executed for fit for each round
-      epochs: 4
+      epochs: 2
       # batch size used for fit for each round
       batch_size: 16
       # number of exaples used for fit for each round
@@ -53,7 +53,7 @@ algorithms:
     data: "random"
     params:
       k: 0.5
-      epochs: 5
+      epochs: 2
       batch_size: 16
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
