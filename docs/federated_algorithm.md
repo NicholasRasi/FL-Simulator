@@ -34,16 +34,34 @@ Each federated orchestrator can override function:
 The algorithms implemented are the followings:
 
 ### FedAvg
+- Present a practical method for the federated learning of deep networks based on iterative model averaging
+- Each client locally takes one step of gradient descent on the current model using its local data, and the server then
+takes a weighted average of the resulting models
 - Reference: https://arxiv.org/abs/1602.05629
+![](imgs/federated_algorithms/fedavg.jpeg)
 
 ### FedProx
+- Introduce a framework, FedProx, to tackle heterogeneity in federated networks
+- In highly heterogeneous settings, FedProx demonstrates signiﬁcantly more stable and accurate convergence behavior relative to FedAvg
 - Reference: https://arxiv.org/abs/1812.06127
+![](imgs/federated_algorithms/fedprox.jpeg)
 
 ### FedNova
+- Propose FedNova, a normalized averaging method that eliminates objective inconsistency while preserving fast error convergence
+- FedNova considers that different parties may conduct different numbers of local steps
 - Reference: https://arxiv.org/abs/2007.07481
+![](imgs/federated_algorithms/fednova.jpeg)
 
 ### SCAFFOLD
+- Propose a new algorithm (SCAFFOLD) which uses control variates (variance reduction) to correct for the ‘client-drift’ 
+in its local updates
+- Prove that SCAFFOLD requires signiﬁcantly fewer communication rounds and is not affected by data heterogeneity or client sampling
+- Can take advantage of similarity in the client’s data yielding even faster convergence
 - Reference: https://arxiv.org/abs/1910.06378
+![](imgs/federated_algorithms/scaffold.jpeg)
 
 ### FedDyn
+- Propose a dynamic regularizer for each device at each round, so that in the limit the global and device solutions are aligned
+- Is fully agnostic to device heterogeneity and robust to large number of devices, partial participation and unbalanced data
 - Reference: https://arxiv.org/abs/2111.04263
+![](imgs/federated_algorithms/feddyn.jpeg)

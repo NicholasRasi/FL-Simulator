@@ -10,7 +10,7 @@ class LimitedConsumptionSelector(ClientsSelector):
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
 
-        # Parameters representing budget consumption (None is there is no limit)
+        # Parameters representing budget consumption (None if there is no limit)
         self.energy_limit = 4000
         self.resources_limit = 150
         self.network_limit = 16000000

@@ -61,6 +61,10 @@ desired one, then perform one round in which fastests devices are selected.
 The **Limited Time Selector** allows to define optionally define a time limitation for computation time, communication time
 and total time. Once obtained devices which respect time limitations, then select randomly among those devices.
 
+#### Limited Consumption Selector
+The **Limited Consumption Selector** selects devices with the biggest loss in the previous round and at the same time allows 
+to define a limit of resources, energy and network consumption.
+
 ### Global Update Optimizer
 The **Global Update Optimizer** computes ```epochs``` (E), ```batch_size``` (B) and ```num_examples``` (N) so the
 amount of computation performed locally by each devices. The configuration can be different for every elected device.

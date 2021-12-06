@@ -6,12 +6,13 @@ All notable changes to this project will be documented in this file.
 
 # Added
 - Client selection algorithm based on limited consumption
+- Use cases documentation
 
 ## Updated
 - Budgeted time selection technique to make it dependent on number of local iterations
 - Budgeted fairness selection technique to make it dependent on number of local iterations
 - Best expected time selection technique to make it dependent on number of local iterations
-- Optimizers docs 
+- Optimizers and federated algorithms docs 
 
 ## 2021-12-03
 
