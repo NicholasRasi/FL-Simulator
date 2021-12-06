@@ -15,21 +15,11 @@ class BestRoundTimeSelector(ClientsSelector):
         else:
             # Otherwise compute the expected time for each device and select the fastest devices
 
-            # Compute computation time
-            global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
-            local_iterations = global_opt_configs["epochs"][num_round] * global_opt_configs["num_examples"][num_round] / global_opt_configs["batch_size"][num_round]
-            computation_times = local_iterations / self.status.con["devs"]["ips"]
-
-            # Compute communication time
-            network_consumption_upload = self.status.var["fit"]["consumption"]["network_upload"][num_round - 1]
-            network_parameters_upload = network_consumption_upload[network_consumption_upload > 0][0]
-            network_consumption_distribution = self.status.var["fit"]["consumption"]["network_distribution"][num_round - 1]
-            network_parameters_distribution = network_consumption_distribution[network_consumption_distribution > 0][0]
-            upload_times = network_parameters_upload / self.status.con["devs"]["net_speed"][num_round]
-            distribution_times = network_parameters_distribution / self.status.con["devs"]["net_speed"][num_round]
+            computation_times = self.get_computation_times(num_round)
+            communication_times = self.get_network_consumption(num_round) / self.status.con["devs"]["net_speed"][num_round]
 
             # Compute total times
-            times = computation_times + upload_times + distribution_times
+            times = computation_times + communication_times
 
             # Select fastest
             dev_indexes = sorted(range(len(times)), key=lambda x: times[x])[:num_devs]

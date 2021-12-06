@@ -40,7 +40,7 @@ class BestTimeExpectedSelector(ClientsSelector):
             indexes = fastest_index + more_stable_index + fairness_index
             best = [x for x in np.argsort(indexes) if x in avail_indexes]
 
-            # Select num_devs devices with highest score
+            # Select num_devs devices with lowest score
             dev_indexes = best[:num_devs]
 
         return dev_indexes

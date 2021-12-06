@@ -4,6 +4,7 @@ from .best_time_expected_selector import BestTimeExpectedSelector
 from .budgeted_fairness_rotation_selector import BudgetedFairnessRotationSelector
 from .budgeted_time_rotation_selector import BudgetedTimeRotationSelector
 from .dynamic_sampling import DynamicSamplingSelector
+from .limited_consumption_selector import LimitedConsumptionSelector
 from .limited_time_selector import LimitedTimeSelector
 from .loss_and_fairness_selector import LossAndFairnessSelector
 from .best_round_time_selector import BestRoundTimeSelector
@@ -37,6 +38,8 @@ class ClientsSelectorFactory:
             return BudgetedTimeRotationSelector(config, status, logger)
         elif selector == "limited_time":
             return LimitedTimeSelector(config, status, logger)
+        elif selector == "limited_consumption":
+            return LimitedConsumptionSelector(config, status, logger)
 
 
 

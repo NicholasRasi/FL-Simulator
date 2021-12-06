@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## 2021-12-10
 
+# Added
+- Client selection algorithm based on limited consumption
+
 ## Updated
 - Budgeted time selection technique to make it dependent on number of local iterations
 - Budgeted fairness selection technique to make it dependent on number of local iterations

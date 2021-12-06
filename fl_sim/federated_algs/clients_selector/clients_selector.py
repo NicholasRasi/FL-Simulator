@@ -40,7 +40,7 @@ class ClientsSelector(ABC):
              zip(comm_times, expected_computation_times)])
         return mean_square_times
 
-    def get_quadratic_mean_computation_times(self, num_round):
+    def get_computation_times(self, num_round):
         global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
         current_local_iterations = global_opt_configs["epochs"][num_round] * global_opt_configs["num_examples"][
             num_round] / global_opt_configs["batch_size"][num_round]
@@ -54,3 +54,33 @@ class ClientsSelector(ABC):
         mean_square_comm_times = np.asarray(
             [0 if len(t[t > 0]) == 0 else np.sqrt(np.mean(t[t > 0] ** 2)) for t in comm_times])
         return mean_square_comm_times
+
+    def get_resources_consumption(self, num_round):
+        global_opt_configs = self.status.var["fit"]["upd_opt_configs"]["global"]
+        resources_consumption = global_opt_configs["epochs"][num_round] * global_opt_configs["num_examples"][
+            num_round] / global_opt_configs["batch_size"][num_round]
+        return resources_consumption
+
+    def get_network_consumption(self, num_round):
+        network_consumption_upload = self.status.var["fit"]["consumption"]["network_upload"][num_round - 1]
+        network_parameters_upload = network_consumption_upload[network_consumption_upload > 0][0]
+        network_consumption_distribution = self.status.var["fit"]["consumption"]["network_distribution"][
+            num_round - 1]
+        network_parameters_distribution = network_consumption_distribution[network_consumption_distribution > 0][0]
+        network_consumption = (network_parameters_upload + network_parameters_distribution)
+        return network_consumption
+
+    def get_estimated_energy_consumption(self, num_round):
+        estimated_energy_consumption = self.config.energy["pow_comp_s"] * self.get_computation_times(num_round) + self.config.energy[
+            "pow_net_s"] * self.get_quadratic_mean_communication_times()
+        return estimated_energy_consumption
+
+    def get_energy_consumption(self, num_round):
+        communication_times = self.get_network_consumption(num_round) / self.status.con["devs"]["net_speed"][num_round]
+        energy_consumption = self.config.energy["pow_comp_s"] * self.get_computation_times(num_round) + \
+                             self.config.energy["pow_net_s"] * communication_times
+        return energy_consumption
+
+
+
+

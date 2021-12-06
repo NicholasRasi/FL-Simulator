@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "p1.json"
+  output_file: "prova_limited_consumption2.json"
   # model
   model_name: "mnist"
   # metric
@@ -32,9 +32,9 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "budgeted_time_rotation"
+    selection: "limited_consumption"
     # algorithm used for the update optimizer
-    update: "equal_computation_time"
+    update: "static"
     # algorithm used for the local data optimizer
     data: "random"
     # parameters used by the algorithm

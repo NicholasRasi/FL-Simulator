@@ -16,11 +16,11 @@ class LimitedTimeSelector(ClientsSelector):
         avail_indexes = self.get_available_devices(num_round)
         num_devs = int(self.config.algorithms["fit"]["params"]["k"] * avail_indexes.shape[0])
 
+        # If it's the first round or there are no time limitations then extract randomly num_devs devices
         if num_round == 0 or (self.communication_time_limit == self.computation_time_limit == self.total_time_limit is None):
-            # If it's the first round or there are no time limitations then extract randomly num_devs devices
             dev_indexes = np.random.choice(avail_indexes, size=num_devs, replace=False)
+        # Otherwise
         else:
-            # Otherwise
 
             # 1. Filter devices depending on time limitations
             in_time_devices = set(avail_indexes)
@@ -29,7 +29,7 @@ class LimitedTimeSelector(ClientsSelector):
                 out_of_time_devices = set(np.where(mean_square_comm_times > self.communication_time_limit)[0])
                 in_time_devices = in_time_devices - out_of_time_devices
             if self.computation_time_limit is not None:
-                expected_computation_times = self.get_quadratic_mean_computation_times(num_round)
+                expected_computation_times = self.get_computation_times(num_round)
                 out_of_time_devices = set(np.where(expected_computation_times > self.computation_time_limit)[0])
                 in_time_devices = in_time_devices - out_of_time_devices
             if self.total_time_limit is not None:
