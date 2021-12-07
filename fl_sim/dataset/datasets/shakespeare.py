@@ -1,3 +1,5 @@
+import re
+import string
 import numpy as np
 import tensorflow as tf
 from ..model_loader import DatasetModelLoader
@@ -17,7 +19,14 @@ class Shakespeare(DatasetModelLoader):
         for x in ds:
             text = x['text'].numpy()
 
+        # Clean up text
         text = text.decode(encoding='utf-8')
+        text = re.sub(r'.+:\n\b', '', text)
+        text = text.translate(str.maketrans('', '', string.punctuation))
+        text = text.replace('\n', ' ')
+        text = text.lower()
+        text = text[:160000]
+
         self.vocabulary = sorted(list(set(text)))
 
         # Select subset of dataset since it's huge (1.600.000 examples)

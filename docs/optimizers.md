@@ -83,6 +83,11 @@ Example of returned configuration:
 ##### Static Optimizer
 The **Static Optimizer** statically set E, B and N from the given parameters.
 
+#### Best RT Optimizer
+The **Best RT Optimizer** sets B and N from the given parameters and E is assigned proportionally with respect to the 
+maximum IPS value. The device with the highest IPS (which has the lowest computation) is assigned with the highest number 
+of epochs which is the parameter in the configuration file.
+
 ##### Uniform Optimizer
 The **Uniform Optimizer** generates E, B, N with a uniform distribution in the range specified.
 

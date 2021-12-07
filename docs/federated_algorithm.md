@@ -9,11 +9,11 @@ The simulator provides a number of federated algorithms. The basic federated alg
 implements a personalized version for the worker and the orchestrator by overriding functions. 
 Each federated worker can override functions:
 
-- #### handle_fit_job
+- #### handle_fit_job 
 
 - #### handle_eval_job
 
-Each federated orchestrator can override function:
+Each federated orchestrator can override functions:
 
 - #### model_fit
 
@@ -42,7 +42,7 @@ takes a weighted average of the resulting models
 
 ### FedProx
 - Introduce a framework, FedProx, to tackle heterogeneity in federated networks
-- In highly heterogeneous settings, FedProx demonstrates signiﬁcantly more stable and accurate convergence behavior relative to FedAvg
+- In highly heterogeneous settings, FedProx demonstrates significantly more stable and accurate convergence behavior relative to FedAvg
 - Reference: https://arxiv.org/abs/1812.06127
 ![](imgs/federated_algorithms/fedprox.jpeg)
 
@@ -55,7 +55,7 @@ takes a weighted average of the resulting models
 ### SCAFFOLD
 - Propose a new algorithm (SCAFFOLD) which uses control variates (variance reduction) to correct for the ‘client-drift’ 
 in its local updates
-- Prove that SCAFFOLD requires signiﬁcantly fewer communication rounds and is not affected by data heterogeneity or client sampling
+- Prove that SCAFFOLD requires significantly fewer communication rounds and is not affected by data heterogeneity or client sampling
 - Can take advantage of similarity in the client’s data yielding even faster convergence
 - Reference: https://arxiv.org/abs/1910.06378
 ![](imgs/federated_algorithms/scaffold.jpeg)

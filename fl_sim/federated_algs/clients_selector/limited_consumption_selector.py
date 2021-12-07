@@ -53,7 +53,7 @@ class LimitedConsumptionSelector(ClientsSelector):
             # 4. Solve optimization model
             model.solve(PULP_CBC_CMD(msg=False))
 
-            # 5. Select devices chosen by the optimization solution
+            # 5. Select devices chosen by the optimized solution
             dev_indexes = []
             for var in model.variables():
                 if var.value() == 1:
