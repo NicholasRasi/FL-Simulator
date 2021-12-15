@@ -1,10 +1,10 @@
 simulation:
   # number or repetitions
-  repetitions: 1
+  repetitions: 4
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "prova.json"
+  output_file: "prova14.json"
   # model
   model_name: "mnist"
   # metric
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "best_time_expected"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -57,11 +57,11 @@ algorithms:
       batch_size: 16
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
-  optimizer: "adam"
+  optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 20
+  num: 50
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round

@@ -11,9 +11,9 @@ class LimitedConsumptionSelector(ClientsSelector):
         super().__init__(config, status, logger, params)
 
         # Parameters representing budget consumption (None if there is no limit)
-        self.energy_limit = 4000
-        self.resources_limit = 150
-        self.network_limit = 16000000
+        self.energy_limit = 3400
+        self.resources_limit = 100
+        self.network_limit = 14000000
 
     def select_devices(self, num_round: int) -> List:
         avail_indexes = self.get_available_devices(num_round)
@@ -24,6 +24,7 @@ class LimitedConsumptionSelector(ClientsSelector):
             dev_indexes = np.random.choice(avail_indexes, size=num_devs, replace=False)
         # For subsequent rounds
         else:
+
             # 1. Compute scores for each device depending on previous round loss
             scores = np.array([0 if len(x[x < sys.float_info.max]) == 0 else 1/x[
                         np.where(x != sys.float_info.max)[0][-1]] for x in

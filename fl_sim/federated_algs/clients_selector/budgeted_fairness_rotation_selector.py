@@ -12,6 +12,7 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
 
         # Desired standard deviation of devices selection
         self.fairness_desired = 1.5
+        self.auto_tuning = True
 
         self.best_time_counter = 0
         self.best_loss_counter = 0
@@ -24,6 +25,10 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
         if num_round == 0:
             dev_indexes = np.random.choice(avail_indexes, size=num_devs, replace=False)
         else:
+
+            if self.auto_tuning:
+                self.update_fairness_desired(num_round)
+
             # Compute current fairness
             sel_by_dev = np.sum(self.status.var["fit"]["devs"]["selected"], axis=0)
             current_fairness = np.std(sel_by_dev)
@@ -49,3 +54,6 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
                     dev_indexes = biggest_loss[-num_devs:]
 
         return dev_indexes
+
+    def update_fairness_desired(self, num_round):
+        self.fairness_desired = 0.25 * (num_round / 2)

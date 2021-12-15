@@ -212,7 +212,6 @@ class OrchestratorStatus:
         for dev in range(devices):
             x = np.random.randint(low=max(means[dev]-vars[dev], 0), high=means[dev]+vars[dev], size=rounds)
             numbers.append(x)
-
         numbers = np.transpose(np.array(numbers))
         return numbers
 

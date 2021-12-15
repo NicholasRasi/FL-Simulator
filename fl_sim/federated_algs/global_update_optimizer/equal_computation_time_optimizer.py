@@ -7,7 +7,7 @@ class EqualComputationTimeOptimizer(GlobalUpdateOptimizer):
     # Assumption: ips of devices are known
     def __init__(self, epochs: int, batch_size: int, num_examples: int, status: OrchestratorStatus, logger):
         super().__init__(epochs, batch_size, num_examples, status, logger)
-        self.computation_time = 0.2
+        self.computation_time = 0.15
         self.is_epochs_varying = True
         self.is_num_examples_varying = False
         self.is_batch_size_varying = False
