@@ -10,3 +10,9 @@ rich
 tensorflow
 numpy
 tensorflow_federated
+tensorflow-datasets
+scikit-learn
+pulp
+flask
+torch
+flask-restful
