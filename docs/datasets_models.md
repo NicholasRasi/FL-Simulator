@@ -1,4 +1,30 @@
 # Datasets & Models
+**FELES** provides a set of ready-to-use datasets and models for bootstrapping
+FL algorithms implementation and comparison.
+
+The datasets and models are taken from well known sources
+and provided by [TensorFlow Datasets](https://www.tensorflow.org/datasets/).
+
+The available datasets are:
+
+| name | task | reference |
+|---|---|---|
+| ``mnist`` | image classification | [MNIST](#mnist) |
+| ``fashion_mnist`` | image classification | [Fashion MNIST](#fashion-mnist) |
+| ``cifar10`` | image classification | [CIFAR10](#cifar10) |
+| ``cifar100`` | image classification | [CIFAR100](#cifar100) |
+| ``imdb_reviews`` | text classification, sentiment | [IMDB Reviews](#imdb-reviews) |
+| ``boston_housing`` | regression | [Boston Housing](#boston-housing) |
+| ``emnist`` | image classification | [EMNIST](#emnist) |
+| ``sentiment140`` | text classification, sentiment | [Sentiment140](#sentiment140) |
+| ``shakespeare`` | text generation (char level) | [Shakespeare](#shakespeare) |
+| ``wisdm`` | activity recognition | [WISDM](#wisdm) |
+| ``oxford_iiit_pet:3.*.*`` | image classification | [Oxford Pets](#oxford-pets) |
+| ``tff_cifar100`` | image classification | [TFF_CIFAR100](#tff_cifar100) |
+| ``tff_emnist`` | image classification | [TFF_EMNIST](#tff_emnist) |
+| ``tff_shakespeare`` | text generation | [TFF_SHAKESPEARE](#tff_shakespeare) |
+
+
 
 ### MNIST
 - **name**: ```mnist```
@@ -93,6 +119,43 @@ Non-trainable params: 0
 _________________________________________________________________
 ```
 
+### CIFAR100
+- **name**: ```cifar100```
+- **description**: the CIFAR-100 dataset consists of 50,000 32x32 color training images and 10,000 test images, 
+  labeled over 100 fine-grained classes that are grouped into 20 coarse-grained classes. 
+- **url**: [https://www.cs.toronto.edu/%7Ekriz/cifar.html](https://www.cs.toronto.edu/%7Ekriz/cifar.html)  
+- **source**: [TensorFlow Datasets](https://www.tensorflow.org/api_docs/python/tf/keras/datasets/cifar100)
+- **IID**: yes
+- **task**: image classification
+- **model**: neural network from [Tensorflow](https://www.tensorflow.org/tutorials/images/cnn)
+```
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d_6 (Conv2D)           (None, 30, 30, 32)        896       
+                                                                 
+ max_pooling2d_4 (MaxPooling  (None, 15, 15, 32)       0         
+ 2D)                                                             
+                                                                 
+ conv2d_7 (Conv2D)           (None, 13, 13, 64)        18496     
+                                                                 
+ max_pooling2d_5 (MaxPooling  (None, 6, 6, 64)         0         
+ 2D)                                                             
+                                                                 
+ conv2d_8 (Conv2D)           (None, 4, 4, 64)          36928     
+                                                                 
+ flatten_5 (Flatten)         (None, 1024)              0         
+                                                                 
+ dense_20 (Dense)            (None, 64)                65600     
+                                                                 
+ dense_21 (Dense)            (None, 100)               6500      
+                                                                 
+=================================================================
+Total params: 128,420
+Trainable params: 128,420
+Non-trainable params: 0
+_________________________________________________________________
+```
 
 ### IMDB Reviews
 - **name**: ```imdb_reviews```
@@ -149,45 +212,6 @@ _________________________________________________________________
 =================================================================
 Total params: 5,121
 Trainable params: 5,121
-Non-trainable params: 0
-_________________________________________________________________
-```
-
-
-### CIFAR100
-- **name**: ```cifar100```
-- **description**: the CIFAR-100 dataset consists of 50,000 32x32 color training images and 10,000 test images, 
-  labeled over 100 fine-grained classes that are grouped into 20 coarse-grained classes. 
-- **url**: [https://www.cs.toronto.edu/%7Ekriz/cifar.html](https://www.cs.toronto.edu/%7Ekriz/cifar.html)  
-- **source**: [TensorFlow Datasets](https://www.tensorflow.org/api_docs/python/tf/keras/datasets/cifar100)
-- **IID**: yes
-- **task**: image classification
-- **model**: neural network from [Tensorflow](https://www.tensorflow.org/tutorials/images/cnn)
-```
-_________________________________________________________________
- Layer (type)                Output Shape              Param #   
-=================================================================
- conv2d_6 (Conv2D)           (None, 30, 30, 32)        896       
-                                                                 
- max_pooling2d_4 (MaxPooling  (None, 15, 15, 32)       0         
- 2D)                                                             
-                                                                 
- conv2d_7 (Conv2D)           (None, 13, 13, 64)        18496     
-                                                                 
- max_pooling2d_5 (MaxPooling  (None, 6, 6, 64)         0         
- 2D)                                                             
-                                                                 
- conv2d_8 (Conv2D)           (None, 4, 4, 64)          36928     
-                                                                 
- flatten_5 (Flatten)         (None, 1024)              0         
-                                                                 
- dense_20 (Dense)            (None, 64)                65600     
-                                                                 
- dense_21 (Dense)            (None, 100)               6500      
-                                                                 
-=================================================================
-Total params: 128,420
-Trainable params: 128,420
 Non-trainable params: 0
 _________________________________________________________________
 ```
@@ -330,6 +354,65 @@ _________________________________________________________________
 ```
 
 
+### Oxford Pets
+- **name**: ```oxford_iiit_pet:3.*.*```
+- **description**: The Oxford-IIIT pet dataset is a 37 category pet image dataset with roughly 200 images for each class. 
+  The images have large variations in scale, pose and lighting. All images have an associated ground truth annotation of breed.
+- **url**: [http://www.robots.ox.ac.uk/~vgg/data/pets/](http://www.robots.ox.ac.uk/~vgg/data/pets/)  
+- **source**: [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/oxford_iiit_pet)
+- **IID**: yes
+- **task**: image segmentation
+```
+_________________________________________________________________
+   Layer (type)                Output Shape              Param #   
+=================================================================
+ vgg16 (Functional)          (None, 4, 4, 512)         14714688  
+                                                                 
+ up_sampling2d (UpSampling2D  (None, 8, 8, 512)        0         
+ )                                                               
+                                                                 
+ conv2d_11 (Conv2D)          (None, 8, 8, 256)         1179904   
+                                                                 
+ re_lu (ReLU)                (None, 8, 8, 256)         0         
+                                                                 
+ up_sampling2d_1 (UpSampling  (None, 16, 16, 256)      0         
+ 2D)                                                             
+                                                                 
+ conv2d_12 (Conv2D)          (None, 16, 16, 128)       295040    
+                                                                 
+ re_lu_1 (ReLU)              (None, 16, 16, 128)       0         
+                                                                 
+ up_sampling2d_2 (UpSampling  (None, 32, 32, 128)      0         
+ 2D)                                                             
+                                                                 
+ conv2d_13 (Conv2D)          (None, 32, 32, 64)        73792     
+                                                                 
+ re_lu_2 (ReLU)              (None, 32, 32, 64)        0         
+                                                                 
+ up_sampling2d_3 (UpSampling  (None, 64, 64, 64)       0         
+ 2D)                                                             
+                                                                 
+ conv2d_14 (Conv2D)          (None, 64, 64, 32)        18464     
+                                                                 
+ re_lu_3 (ReLU)              (None, 64, 64, 32)        0         
+                                                                 
+ up_sampling2d_4 (UpSampling  (None, 128, 128, 32)     0         
+ 2D)                                                             
+                                                                 
+ conv2d_15 (Conv2D)          (None, 128, 128, 16)      4624      
+                                                                 
+ re_lu_4 (ReLU)              (None, 128, 128, 16)      0         
+                                                                 
+ conv2d_16 (Conv2D)          (None, 128, 128, 21)      357       
+                                                                 
+=================================================================
+Total params: 16,286,869
+Trainable params: 1,572,181
+Non-trainable params: 14,714,688
+_________________________________________________________________
+```
+
+
 ### TFF_CIFAR100
 - **name**: ```tff_cifar100```
 - **description**: a federated version of the CIFAR-100 dataset. The training and testing examples are partitioned across 500 and 100 clients (respectively).
@@ -420,64 +503,5 @@ _________________________________________________________________
 Total params: 438,870
 Trainable params: 438,870
 Non-trainable params: 0
-_________________________________________________________________
-```
-
-
-### Oxford Pets
-- **name**: ```oxford_iiit_pet:3.*.*```
-- **description**: The Oxford-IIIT pet dataset is a 37 category pet image dataset with roughly 200 images for each class. 
-  The images have large variations in scale, pose and lighting. All images have an associated ground truth annotation of breed.
-- **url**: [http://www.robots.ox.ac.uk/~vgg/data/pets/](http://www.robots.ox.ac.uk/~vgg/data/pets/)  
-- **source**: [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/oxford_iiit_pet)
-- **IID**: yes
-- **task**: image segmentation
-```
-_________________________________________________________________
-   Layer (type)                Output Shape              Param #   
-=================================================================
- vgg16 (Functional)          (None, 4, 4, 512)         14714688  
-                                                                 
- up_sampling2d (UpSampling2D  (None, 8, 8, 512)        0         
- )                                                               
-                                                                 
- conv2d_11 (Conv2D)          (None, 8, 8, 256)         1179904   
-                                                                 
- re_lu (ReLU)                (None, 8, 8, 256)         0         
-                                                                 
- up_sampling2d_1 (UpSampling  (None, 16, 16, 256)      0         
- 2D)                                                             
-                                                                 
- conv2d_12 (Conv2D)          (None, 16, 16, 128)       295040    
-                                                                 
- re_lu_1 (ReLU)              (None, 16, 16, 128)       0         
-                                                                 
- up_sampling2d_2 (UpSampling  (None, 32, 32, 128)      0         
- 2D)                                                             
-                                                                 
- conv2d_13 (Conv2D)          (None, 32, 32, 64)        73792     
-                                                                 
- re_lu_2 (ReLU)              (None, 32, 32, 64)        0         
-                                                                 
- up_sampling2d_3 (UpSampling  (None, 64, 64, 64)       0         
- 2D)                                                             
-                                                                 
- conv2d_14 (Conv2D)          (None, 64, 64, 32)        18464     
-                                                                 
- re_lu_3 (ReLU)              (None, 64, 64, 32)        0         
-                                                                 
- up_sampling2d_4 (UpSampling  (None, 128, 128, 32)     0         
- 2D)                                                             
-                                                                 
- conv2d_15 (Conv2D)          (None, 128, 128, 16)      4624      
-                                                                 
- re_lu_4 (ReLU)              (None, 128, 128, 16)      0         
-                                                                 
- conv2d_16 (Conv2D)          (None, 128, 128, 21)      357       
-                                                                 
-=================================================================
-Total params: 16,286,869
-Trainable params: 1,572,181
-Non-trainable params: 14,714,688
 _________________________________________________________________
 ```
