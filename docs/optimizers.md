@@ -52,14 +52,14 @@ be kept for the entire simulation. Every time the current fairness is worse than
 a round in which the least selected devices are chosen. 
 
 #### Budgeted Time Rotation Selector
-The **Budgeted Fairness Rotation Selector** alternates rounds in which devices with biggest loss are selected and rounds in which 
+The **Budgeted Time Rotation Selector** alternates rounds in which devices with biggest loss are selected and rounds in which 
 the least selected devices are chosen. The frequency depends on how the parameters are set. It is also possible to define
 a desired average round time to be kept for the simulation, every time the current average round time is higher than the
 desired one, then perform one round in which fastests devices are selected.
 
 #### Limited Time Selector
-The **Limited Time Selector** allows to define optionally define a time limitation for computation time, communication time
-and total time. Once obtained devices which respect time limitations, then select randomly among those devices.
+The **Limited Time Selector** allows to optionally define a time limitation for computation time, communication time
+and total time. Once obtained devices which respect time limitations, then select devices with the biggest loss among them.
 
 #### Limited Consumption Selector
 The **Limited Consumption Selector** selects devices with the biggest loss in the previous round and at the same time allows 
