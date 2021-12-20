@@ -24,9 +24,9 @@ The available datasets are:
 | ``tff_emnist`` | image classification | [TFF_EMNIST](#tff_emnist) |
 | ``tff_shakespeare`` | text generation | [TFF_SHAKESPEARE](#tff_shakespeare) |
 
+---
 
-
-### MNIST
+## MNIST
 - **name**: ```mnist```
 - **description**: the MNIST database of handwritten digits has a  training set of 60,000 examples,and a test set of
   10,000 examples. It is a subset of a larger set available from NIST. The digits have been size-normalized and
@@ -56,7 +56,7 @@ _________________________________________________________________
 ```
 
 
-### Fashion MNIST
+## Fashion MNIST
 - **name**: ```fashion_mnist```
 - **description**: fashion-MNIST is a dataset of Zalando's article images—consisting of a training set of 60,000 examples
   and a test set of 10,000 examples. Each example is a 28x28 grayscale image, associated with a label from 10 classes
@@ -83,7 +83,7 @@ _________________________________________________________________
 ```
 
 
-### CIFAR10
+## CIFAR10
 - **name**: ```cifar10```
 - **description**: the CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class.
   There are 50000 training images and 10000 test images
@@ -119,7 +119,7 @@ Non-trainable params: 0
 _________________________________________________________________
 ```
 
-### CIFAR100
+## CIFAR100
 - **name**: ```cifar100```
 - **description**: the CIFAR-100 dataset consists of 50,000 32x32 color training images and 10,000 test images, 
   labeled over 100 fine-grained classes that are grouped into 20 coarse-grained classes. 
@@ -157,7 +157,7 @@ Non-trainable params: 0
 _________________________________________________________________
 ```
 
-### IMDB Reviews
+## IMDB Reviews
 - **name**: ```imdb_reviews```
 - **description**: Large Movie Review Dataset. This is a dataset for binary sentiment classification containing
   substantially more data than previous benchmark datasets. We provide a set of 25,000 highly polar movie reviews for
@@ -190,7 +190,7 @@ _________________________________________________________________
 ```
 
 
-### Boston Housing
+## Boston Housing
 - **name**: ```boston_housing```
 - **description**: this dataset is taken from the StatLib library which is maintained at Carnegie Mellon University. 
   Samples contain 13 attributes of houses at different locations around the Boston suburbs in the late 1970s. 
@@ -217,7 +217,7 @@ _________________________________________________________________
 ```
 
 
-### EMNIST
+## EMNIST
 - **name**: ```emnist```
 - **description**: the EMNIST dataset is a set of handwritten character digits derived from the NIST Special Database 19 
   and converted to a 28x28 pixel image format and dataset structure that directly matches the MNIST dataset. 
@@ -246,7 +246,7 @@ _________________________________________________________________
 ```
 
 
-### Sentiment140
+## Sentiment140
 - **name**: ```sentiment140```
 - **description**: Sentiment140 allows you to discover the sentiment of a brand, product, or topic on Twitter.
   The data is a CSV with emoticons removed. Data file format has 6 fields:
@@ -285,7 +285,7 @@ _________________________________________________________________
 ```
 
 
-### Shakespeare
+## Shakespeare
 - **name**: ```shakespeare```
 - **description**: 40,000 lines of Shakespeare from a variety of Shakespeare's plays. Featured in Andrej Karpathy's blog post 
   'The Unreasonable Effectiveness of Recurrent Neural Networks': http://karpathy.github.io/2015/05/21/rnn-effectiveness/
@@ -317,7 +317,7 @@ _________________________________________________________________
 ```
 
 
-### WISDM
+## WISDM
 - **name**: ```wisdm```
 - **description**: the WISDM dataset contains accelerometer and gyroscope time-series sensor data collected from a smartphone 
   and smartwatch as 51 test subjects perform 18 activities for 3 minutes each.
@@ -354,7 +354,7 @@ _________________________________________________________________
 ```
 
 
-### Oxford Pets
+## Oxford Pets
 - **name**: ```oxford_iiit_pet:3.*.*```
 - **description**: The Oxford-IIIT pet dataset is a 37 category pet image dataset with roughly 200 images for each class. 
   The images have large variations in scale, pose and lighting. All images have an associated ground truth annotation of breed.
@@ -413,7 +413,7 @@ _________________________________________________________________
 ```
 
 
-### TFF_CIFAR100
+## TFF_CIFAR100
 - **name**: ```tff_cifar100```
 - **description**: a federated version of the CIFAR-100 dataset. The training and testing examples are partitioned across 500 and 100 clients (respectively).
 - **url**: [https://www.cs.toronto.edu/%7Ekriz/cifar.html](https://www.cs.toronto.edu/%7Ekriz/cifar.html)  
@@ -451,7 +451,7 @@ _________________________________________________________________
 ```
 
 
-### TFF_EMNIST
+## TFF_EMNIST
 - **name**: ```tff_emnist```
 - **description**: a federated version of the EMNIST dataset. The dataset contains 671,585 train examples and 77,483 test examples
 - **url**: [https://github.com/TalwalkarLab/leaf](https://github.com/TalwalkarLab/leaf)  
@@ -479,7 +479,7 @@ _________________________________________________________________
 ```
 
 
-### TFF_SHAKESPEARE
+## TFF_SHAKESPEARE
 - **name**: ```tff_shakespeare```
   - **description**: a federated version of the Shakespeare dataset. The data set consists of 715 users (characters of Shakespeare plays), 
   where each example corresponds to a contiguous set of lines spoken by the character in a given play. The dataste is composed

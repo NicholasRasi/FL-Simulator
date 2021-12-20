@@ -1,27 +1,30 @@
-# Documentation
+# Documentation (TOC)
 
-## View data
-[Analyzer](./analyzer.md)
+## Configuration
+- [Parameters](./parameters.md)
 
+## Federated Algorithms
+- [Federated Algorithms](./federated_algorithms.md)
 
-## Implementing custom algorithms
-- [Optimizers](./optimizers.md)
-- [Federated Algorithm](./federated_algorithm.md)
-- [Losses](./loss_functions.md)
-- [Training Optimizers](./training_optimizers.md)
+## Custom Strategies
+- [Strategies Introduction](./strategies_introduction.md)
+- [Selection Strategies](./selection_strategies.md)
+- [Data Strategies](./data_strategies.md)
+- [Update Strategies](./update_strategies.md)
 - [Aggregation Strategies](./aggregation_strategies.md)
 
-
-## Simulation configuration
-[Parameters](./parameters.md)
-[Configuration](./configuration.md)
+## Analyze and View Data
+- [Analyzer](./analyzer.md)
 
 ## Datasets
-[Datasets](./datasets_models.md)
+- [Datasets](./datasets_models.md)
 
-## Simulator
-[Simulator](./simulator.md)
+## Architecture
+- [Architecture](./architecture.md)
 
-## Use cases
-[Use cases](./use_cases.md)
+## Use Cases
+- [Use Cases](./use_cases.md)
 
+## Other
+- [Loss Functions](./loss_functions.md)
+- [Training Optimizers](./training_optimizers.md)

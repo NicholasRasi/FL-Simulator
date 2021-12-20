@@ -48,7 +48,7 @@ to perform the FL phases.
 | ``output_folder`` | str | the folder where to save the simulation output data |
 | ``output_file`` | str | the file where to save the simulation output data |
 | ``model_name`` | str | the model used for the simulation. See [Datasets and Models](./datasets_models.md) for possible values |
-| ``metric`` | str | TODO |
+| ``metric`` | str | metric to be evaluated by the model during training and testing, see [tf.keras.metrics](https://www.tensorflow.org/api_docs/python/tf/keras/metrics) |
 | ``num_rounds`` | int | the total number of rounds to execute of the FL algorithm |
 | ``stop_conds`` | object | the execution will stop when the stopping conditions are met, see [Stopping Conditions](#stopping-conditions) |
 | ``initializer`` | str | set the initialization policy. Available values: ``default`` |
@@ -75,7 +75,7 @@ simulation:
 ```
 
 #### Stopping Conditions
-Rhe execution will stop when the stopping conditions are met.
+The execution will stop when the stopping conditions are met.
 
 | name | type | desc |
 |---|---|---|
