@@ -1,16 +1,16 @@
 simulation:
   # number or repetitions
-  repetitions: 4
+  repetitions: 3
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "prova14.json"
+  output_file: "scaffold_x.json"
   # model
   model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 15
+  num_rounds: 20
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -27,12 +27,12 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedavg"
+  federated_algorithm: "scaffold"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "best_time_expected"
+    selection: "random"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -61,7 +61,7 @@ algorithms:
 
 devices:
   # total number of devices (D)
-  num: 50
+  num: 20
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round

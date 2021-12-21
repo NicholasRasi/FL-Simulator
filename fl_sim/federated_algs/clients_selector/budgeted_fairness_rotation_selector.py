@@ -56,4 +56,5 @@ class BudgetedFairnessRotationSelector(ClientsSelector):
         return dev_indexes
 
     def update_fairness_desired(self, num_round):
-        self.fairness_desired = 0.25 * (num_round / 2)
+        self.alpha = 0.25
+        self.fairness_desired = self.alpha * (num_round / 2)

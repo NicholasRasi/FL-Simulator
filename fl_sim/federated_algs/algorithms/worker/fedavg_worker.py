@@ -7,11 +7,10 @@ from fl_sim.utils import FedPhase
 
 
 class FedAvgWorker:
-    def __init__(self, ip_address, port_number, config, jobs_queue, init_conf):
+    def __init__(self, ip_address, port_number, config, init_conf):
         self.ip_address = ip_address
         self.port_number = port_number
         self.config = config
-        self.jobs_queue = jobs_queue
         self.orchestrator_address = "http://127.0.0.1:8000"
         self.status = WorkerStatus(config)
         self.status.initialize_global_fields(init_conf)

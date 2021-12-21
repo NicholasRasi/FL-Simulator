@@ -18,7 +18,6 @@ class FedAvg(FedAlg):
         self.clients_selector = None
         self.aggregator = None
         self.global_update_optimizer = None
-        self.local_data_optimizer = None
         self.jobs_queue = jobs_queue
         self.completed_jobs_queue = completed_jobs_queue
         self.workers_queue = workers_queue

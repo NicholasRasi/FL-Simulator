@@ -269,6 +269,7 @@ class SimAnalyzer:
                 val = status["var"][phase]["devs"]["selected"] - \
                       (status["var"][phase]["devs"]["selected"] & status["con"]["devs"]["failures"])
                 ys.append(np.sum(val, axis=1))
+                print(np.sum(val, axis=0))
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)
@@ -515,8 +516,6 @@ class SimAnalyzer:
                 output_filename = "devs_local_data_" + name + "_" + str(i) + self.ext
                 self._save_show_plot(output_filename)
                 self._add_img_to_report(str(i), output_filename, level=2)
-
-        print("Average number of classes per device: " + str(sum(num_classes)/len(num_classes)))
 
     def _init_console_table(self, title, min_max=True,
                             column_names=("mean", "std", "min", "max"),

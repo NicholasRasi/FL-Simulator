@@ -7,16 +7,16 @@ from fl_sim.federated_algs.algorithms.worker.scaffold_worker import SCAFFOLDWork
 class WorkerAlgorithmFactory:
 
     @staticmethod
-    def get_federated_algorithm(algorithm_name: str, ip_address, port_number, config, jobs_queue, init_conf):
+    def get_federated_algorithm(algorithm_name: str, ip_address, port_number, config, init_conf):
         if algorithm_name == "fedavg":
-            return FedAvgWorker(ip_address, port_number, config, jobs_queue, init_conf)
+            return FedAvgWorker(ip_address, port_number, config, init_conf)
         if algorithm_name == "fedprox":
-            return FedProxWorker(ip_address, port_number, config, jobs_queue, init_conf)
+            return FedProxWorker(ip_address, port_number, config, init_conf)
         if algorithm_name == "fednova":
-            return FedAvgWorker(ip_address, port_number, config, jobs_queue, init_conf)
+            return FedAvgWorker(ip_address, port_number, config, init_conf)
         if algorithm_name == "scaffold":
-            return SCAFFOLDWorker(ip_address, port_number, config, jobs_queue, init_conf)
+            return SCAFFOLDWorker(ip_address, port_number, config, init_conf)
         if algorithm_name == "feddyn":
-            return FedDynWorker(ip_address, port_number, config, jobs_queue, init_conf)
+            return FedDynWorker(ip_address, port_number, config, init_conf)
         else:
             return None

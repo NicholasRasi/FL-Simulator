@@ -33,26 +33,6 @@ class SCAFFOLD(FedAvg):
         self.jobs_queue.put(dumps(next_job))
         self.lock.release()
 
-    def put_client_job_eval(self, num_round: int, dev_index: int, global_config: dict):
-
-        next_job = {"job_type": "eval",
-                    "num_round": int(num_round),
-                    "dev_index": int(dev_index),
-                    "verbosity": self.config.simulation["tf_verbosity"],
-                    "model_weights": self.status.global_model_weights,
-                    "epochs": global_config["epochs"],
-                    "batch_size": global_config["batch_size"],
-                    "local_control_variate": self.local_control_variates[int(dev_index)],
-                    "global_control_variate": self.global_control_variate,
-                    "num_examples": global_config["num_examples"]}
-
-        self.lock.acquire()
-        if self.jobs_queue.qsize() == 0:
-            for worker in self.workers_queue:
-                requests.post("http://" + worker[0] + ":" + str(worker[1]) + "/notify_available_jobs")
-        self.jobs_queue.put(dumps(next_job))
-        self.lock.release()
-
     def get_fit_results(self, completed_jobs_queue, created_jobs):
         fit_results = []
         local_delta_variates = []

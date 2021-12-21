@@ -9,8 +9,6 @@ from fl_sim import Config
 from fl_sim.worker.worker import Worker
 from fl_sim.worker.worker_api import WorkerAPI
 
-
-jobs_queue = multiprocessing.Queue()
 orchestrator_empty_queue = multiprocessing.Value(ctypes.c_bool, False)
 
 parser = argparse.ArgumentParser()
@@ -28,7 +26,7 @@ config = Config(args.config)
 ip_address = 'localhost'
 port_number = randint(1000, 65535)
 
-worker = multiprocessing.Process(target=Worker(ip_address, port_number, config, jobs_queue).start_worker, args=(orchestrator_empty_queue,))
+worker = multiprocessing.Process(target=Worker(ip_address, port_number, config).start_worker, args=(orchestrator_empty_queue,))
 worker.start()
 api = multiprocessing.Process(target=WorkerAPI(port_number, orchestrator_empty_queue).start_api_listener, args=())
 api.start()

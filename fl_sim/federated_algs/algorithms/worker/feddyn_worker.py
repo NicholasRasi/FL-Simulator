@@ -11,8 +11,8 @@ from fl_sim.utils import FedPhase
 
 class FedDynWorker(FedAvgWorker):
 
-    def __init__(self, ip_address, port_number, config, jobs_queue, init_conf):
-        super().__init__(ip_address, port_number, config, jobs_queue, init_conf)
+    def __init__(self, ip_address, port_number, config, init_conf):
+        super().__init__(ip_address, port_number, config, init_conf)
 
         self.current_weights = None
         self.feddyn_gradients = 0
@@ -81,51 +81,3 @@ class FedDynWorker(FedAvgWorker):
 
         # send results to the orchestrator
         requests.post(self.orchestrator_address + "/send_completed_job", json=dumps(job_completed, conv_str_byte=True))
-
-    def handle_eval_job(self, job):
-        # load data
-        x_train, y_train = self.load_local_data(FedPhase.EVAL, job["dev_index"])
-
-        # run local data optimizer
-        x_data, y_data = self.status.local_optimizer_fit.optimize(job["num_round"], job["dev_index"],
-                                                           job["num_examples"],
-                                                           self.status.dataset,
-                                                           self.status.dev_num,
-                                                           (x_train, y_train), FedPhase.EVAL)
-
-        # load model
-        model = self.status.model_loader.get_compiled_model(optimizer=self.status.optimizer, metric=self.status.metric, train_data=(x_data, y_data))
-
-        global_weights = job["model_weights"]
-        self.current_weights = None
-        self.feddyn_gradients = 0
-        loss_func = feddyn_loss(self.status.model_loader.get_loss_function(), model, job["alfa_parameter"], self.feddyn_gradients, global_weights)
-
-        # compile model
-        model.compile(optimizer=tf.keras.optimizers.get(self.status.optimizer), metrics=self.status.metric,
-                      loss=loss_func)
-
-        # load weights
-        model.set_weights(job["model_weights"])
-
-        # evaluate model
-        gradients_update = self.GradientsUpdateCallback(self, self.feddyn_gradients, global_weights, job["alfa_parameter"])
-        loss, metric = model.evaluate(x_data, y_data, verbose=job["verbosity"], callbacks=gradients_update)
-
-        job_completed = {"metric": metric,
-                         "loss": loss,
-                         "num_examples": job["num_examples"],
-                         "num_round": job["num_round"],
-                         "epochs": job["epochs"],
-                         "batch_size": job["batch_size"],
-                         "dev_index": job["dev_index"]}
-
-        # send results to the orchestrator
-        requests.post(self.orchestrator_address + "/send_completed_job", json=dumps(job_completed))
-
-
-
-
-
-
-

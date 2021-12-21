@@ -6,11 +6,10 @@ from fl_sim.federated_algs.algorithms.worker.worker_algorithm_factory import Wor
 
 
 class Worker:
-    def __init__(self, ip_address, port_number, config, jobs_queue):
+    def __init__(self, ip_address, port_number, config):
         self.ip_address = ip_address
         self.port_number = port_number
         self.config = config
-        self.jobs_queue = jobs_queue
         self.orchestrator_address = "http://127.0.0.1:8000"
         self.federated_worker = None
 
@@ -18,7 +17,7 @@ class Worker:
         # register worker
         response = requests.post(self.orchestrator_address + "/register_worker", json={"ip_address": self.ip_address, 'port_number': self.port_number})
         init_conf = loads(response.text)
-        self.federated_worker = WorkerAlgorithmFactory.get_federated_algorithm(init_conf["fedalg"], self.ip_address, self.port_number, self.config, self.jobs_queue, init_conf)
+        self.federated_worker = WorkerAlgorithmFactory.get_federated_algorithm(init_conf["fedalg"], self.ip_address, self.port_number, self.config, init_conf)
 
         if response.status_code == 200:
             logging.info("Registration was successful.")

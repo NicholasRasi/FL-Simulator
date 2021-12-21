@@ -48,7 +48,6 @@ class SCAFFOLDWorker(FedAvgWorker):
         mean_metric = stats.mean(history.history[self.status.metric])
         mean_loss = stats.mean(history.history['loss'])
 
-
         job_completed = {"mean_metric": mean_metric,
                          "mean_loss": mean_loss,
                          "model_weights": model_weights,
