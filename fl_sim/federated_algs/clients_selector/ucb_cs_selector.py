@@ -6,7 +6,7 @@ from fl_sim.federated_algs.clients_selector.clients_selector import ClientsSelec
 from fl_sim.status.orchestrator_status import OrchestratorStatus
 
 
-class LossAndFairnessSelector(ClientsSelector):
+class UCB_CSSelector(ClientsSelector):
 
     def __init__(self, config, status: OrchestratorStatus, logger, params=None):
         super().__init__(config, status, logger, params)
@@ -31,6 +31,8 @@ class LossAndFairnessSelector(ClientsSelector):
             L = [n * sum(cum_loss) for n, cum_loss in zip(N, cumulative_losses)]
             exploitation = np.divide(L, N)
             exploration = U
-            UCB_indexes = exploration + exploitation
+            num_examples = self.status.var["fit"]["upd_opt_configs"]["global"]["num_examples"][num_round]
+            p = [x/sum(num_examples) for x in num_examples]
+            UCB_indexes = np.multiply(p, exploration + exploitation)
             dev_indexes = sorted(range(len(UCB_indexes)), key=lambda x: UCB_indexes[x])[-num_devs:]
         return dev_indexes

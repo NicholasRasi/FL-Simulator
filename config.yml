@@ -4,7 +4,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "scaffold_x.json"
+  output_file: "p1.json"
   # model
   model_name: "mnist"
   # metric
@@ -27,12 +27,12 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "scaffold"
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "ucb_cs"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -93,6 +93,6 @@ data:
   num_examples_mean: 1500
   num_examples_var: 0
   # use non-i.d.d data
-  non_iid_partitions: 0
+  non_iid_partitions: 0.2
   # percentage of mislabelled data
   mislabelling_percentage: 0

@@ -11,7 +11,7 @@ The selection strategy defines how devices are selected.
 | ``best_energy`` | [Best](#best-selector) |
 | ``dynamic_sampling`` | [Dynamic Sampling](#dynamic-sampling-selector) |
 | ``best_round_time`` | [Best Round Time](#best-round-time-selector) |
-| ``loss_and_fairness`` | [Loss and Fairness](#loss-and-fairness-selector) |
+| ``ucb_cs`` | [UCB-CS](#ucb-cs) |
 | ``best_time_expected`` | [Best Expected Time](#best-expected-time-selector) |
 | ``budgeted_fairness_rotation`` | [Budgeted Fairness Rotation](#budgeted-fairness-rotation-selector) |
 | ``budgeted_time_rotation`` | [Budgeted Time Rotation](#budgeted-time-rotation-selector) |
@@ -45,8 +45,8 @@ The **Best Round Time Selector** is built under the assumption that at each roun
 resources information. By taking advantage of this knowledge it's possible to estimate the round time for each device and 
 select devices which are taking the shortest time.
 
-## Loss and Fairness Selector
-The [Loss and Fairness Selector](https://arxiv.org/abs/2012.08009) is a exploration-exploitation based technique. 
+## UCB-CS Selector
+The [UCB-CS Selector](https://arxiv.org/abs/2012.08009) is a exploration-exploitation based technique. 
 The algorithm performs exploitation by selecting clients with larger local loss as that leads to faster convergence, 
 and performs exploration to ensure diversity and achieve a lower error floor.
 
