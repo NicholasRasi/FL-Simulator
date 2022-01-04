@@ -2,9 +2,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2022-01-06
+
+## Removed
+- Useless functions from aggregation strategies
+
+## 2021-12-24
+
+## Changed
+- Loss and Fairness client selection algorithm in UCB_CS
+
+## Fixed
+- Typos in documentation
+
+## 2021-12-17
+
+## Added
+- Autotuned version in Budgeted Fairness client selection
+- Autotuned version in Budgeted Time client selection
+- Autotuned version in Limited Time client selection
+
 ## 2021-12-10
 
-# Added
+## Added
 - Client selection algorithm based on limited consumption
 - Use cases documentation
 
