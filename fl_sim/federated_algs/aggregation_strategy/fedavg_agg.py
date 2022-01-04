@@ -15,7 +15,3 @@ class FedAvgAgg(AggregationStrategy):
     def aggregate_accuracies(self, accuracies: List[Tuple[int, float]]) -> float:
         return Aggregate.weighted_accuracies_avg(accuracies)
 
-    def aggregate_evaluate(self, results: List[Tuple[int, float, float]]) -> Tuple[float, float]:
-        losses = [(num_samples, loss) for num_samples, loss, _ in results]
-        accuracies = [(num_samples, acc) for num_samples, _, acc in results]
-        return Aggregate.weighted_loss_avg(losses), Aggregate.weighted_accuracies_avg(accuracies)

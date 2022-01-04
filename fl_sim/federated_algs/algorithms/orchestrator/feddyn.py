@@ -24,7 +24,7 @@ class FedDyn(FedAvg):
             for result in results:
                 diff = np.subtract(result[1], self.status.global_model_weights)
                 term += diff
-            term = term * self.alfa_parameter / len(results)
+            term = term * self.alfa_parameter / len(self.config.devices["num"])
             self.h = self.h - term
 
     def model_fit(self, num_round):

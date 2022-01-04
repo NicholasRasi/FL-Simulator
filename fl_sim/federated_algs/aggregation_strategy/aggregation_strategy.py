@@ -17,7 +17,7 @@ class AggregationStrategy(ABC):
     @abstractmethod
     def aggregate_fit(self, weights: List[Tuple[int, NDArrayList]]) -> NDArrayList:
         """"
-        Aggregation algorithm during fit
+        Aggregation of weights during fit
         """
     @abstractmethod
     def aggregate_losses(self, losses: List[Tuple[int, float]]) -> float:
@@ -29,10 +29,4 @@ class AggregationStrategy(ABC):
     def aggregate_accuracies(self, accuracies: List[Tuple[int, float]]) -> float:
         """"
         Aggregation of accuracies
-        """
-
-    @abstractmethod
-    def aggregate_evaluate(self, results: List[Tuple[int, float, float]]) -> Tuple[float, float]:
-        """"
-        Aggregation algorithm during evaluation
         """

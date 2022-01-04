@@ -1,6 +1,6 @@
 simulation:
   # number or repetitions
-  repetitions: 3
+  repetitions: 1
   # simulation output folder
   output_folder: "output"
   # simulation output file
@@ -10,7 +10,7 @@ simulation:
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 20
+  num_rounds: 5
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -32,7 +32,7 @@ algorithms:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "ucb_cs"
+    selection: "random"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
