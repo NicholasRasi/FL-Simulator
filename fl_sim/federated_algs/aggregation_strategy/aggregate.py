@@ -52,34 +52,6 @@ class Aggregate(AggregationStrategy):
         return sum(weighted_accuracies) / num_total_evaluation_examples
 
     @staticmethod
-    def federated_normalized_averaging2(results: List[Tuple[int, NDArrayList, int]]) -> NDArrayList:
-
-        # Calculate the total number of examples used during training
-        num_examples_total = sum([num_examples for num_examples, w, l in results])
-
-        local_iterations_scale = [(num_examples * local_iterations)/num_examples_total for num_examples, weights, local_iterations in results]
-
-        local_iterations_scale_sum = sum(local_iterations_scale)
-
-        # Create a list of weights, each multiplied by the related number of examples, divided by the local iterations
-        weighted_weights = [
-            [(layer * num_examples)/local_iterations for layer in weights] for num_examples, weights, local_iterations in results
-        ]
-
-        # Create a list of weights, each multiplied by the related number of examples
-        weighted_weights = [
-            [layer * num_examples for layer in weights] for num_examples, weights in results
-        ]
-
-        # Compute average weights of each layer
-        weights_prime: NDArrayList = [
-            reduce(np.add, layer_updates) / num_examples_total
-            for layer_updates in zip(*weighted_weights)
-        ]
-
-        return weights_prime
-
-    @staticmethod
     def federated_normalized_averaging(global_weights, results: List[Tuple[int, NDArrayList, int]]) -> NDArrayList:
         # Calculate the total number of examples used during training
         num_examples_total = sum([num_examples for num_examples, w, l in results])

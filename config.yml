@@ -10,7 +10,7 @@ simulation:
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 5
+  num_rounds: 20
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -27,12 +27,12 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedavg"
+  federated_algorithm: "fednova"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "random"
+    selection: "limited_time"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -42,7 +42,7 @@ algorithms:
       # fraction of devices used for the computation
       k: 0.5
       # number of epochs executed for fit for each round
-      epochs: 2
+      epochs: 5
       # batch size used for fit for each round
       batch_size: 16
       # number of examples used for fit for each round
@@ -53,7 +53,7 @@ algorithms:
     data: "random"
     params:
       k: 0.5
-      epochs: 2
+      epochs: 5
       batch_size: 16
       num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
@@ -93,6 +93,6 @@ data:
   num_examples_mean: 1500
   num_examples_var: 0
   # use non-i.d.d data
-  non_iid_partitions: 0.2
+  non_iid_partitions: 0
   # percentage of mislabelled data
   mislabelling_percentage: 0
