@@ -29,7 +29,7 @@ class Shakespeare(DatasetModelLoader):
 
         self.vocabulary = sorted(list(set(text)))
 
-        # Select subset of dataset since it's huge (1.600.000 examples)
+        # Select subset of dataset
         text_train = text[:100000]
         text_test = text[100000:160000]
 

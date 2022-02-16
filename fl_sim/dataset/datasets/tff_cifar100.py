@@ -15,6 +15,7 @@ class Cifar100_tff(DatasetModelLoader):
         federated_train_data = [(cifar100_train.create_tf_dataset_for_client(x)) for x in sample_clients_train]
         federated_test_data = [(cifar100_test.create_tf_dataset_for_client(x)) for x in sample_clients_test]
 
+        print(type(federated_train_data))
         images_train, labels_train = self.get_images_and_labels(federated_train_data)
         images_test, labels_test = self.get_images_and_labels(federated_test_data)
 

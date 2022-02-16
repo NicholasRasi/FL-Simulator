@@ -23,7 +23,7 @@ simulation:
  # simulation output folder
  output_folder: "output"
  # simulation output file
- output_file: "image_class_healthcare.json"
+ output_file: "feddyn_usecase2.4.json"
  # model
  model_name: "cifar10"
  # metric
@@ -46,7 +46,7 @@ simulation:
  num_processes: 1
 
 algorithms:
- federated_algorithm: "fedavg"
+ federated_algorithm: "feddyn"
  fit:
    # algorithm used for the FL aggregation
    aggregation: "fedavg"
@@ -85,8 +85,6 @@ devices:
  p_available: 0.9
  # probability a device fails during a round
  p_fail: 0.1
- # number of malicious devices
- adversary_num: 0
 
 computation:
  # mean and variance of number of computed iterations/second per device (among devices) [iter/s]

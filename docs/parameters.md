@@ -157,7 +157,6 @@ modeled with a binomial distribution with probability ```p_available``` and ```p
 | ``num`` | int | the total number of devices that can take part to the network concurrently  |
 | ``p_available`` | float | the probability a device is available for a round, ``(0, 1]`` |
 | ``p_fail`` | float | batch size used for each round ``(0, 1]`` |
-| ``adversary_num`` | float | TODO |
 
 Example:
 ```yaml
@@ -165,7 +164,6 @@ devices:
   num: 50
   p_available: 0.8
   p_fail: 0.1
-  adversary_num: 0
 ```
 
 

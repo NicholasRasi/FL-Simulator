@@ -28,7 +28,7 @@ class LimitedTimeSelector(ClientsSelector):
             in_time_devices = set(avail_indexes)
 
             if self.auto_tuning:
-                self.get_autotuned_devices(num_round)
+                self.apply_autotuning(num_round)
 
             if self.communication_time_limit is not None:
                 mean_square_comm_times = self.get_quadratic_mean_communication_times()
@@ -53,25 +53,17 @@ class LimitedTimeSelector(ClientsSelector):
         return dev_indexes
 
     # Exclude devices with time "too far" from mean time
-    def get_autotuned_devices(self, num_round):
-        mean_square_comm_times = self.get_quadratic_mean_communication_times()
-        mean_comm_time = np.mean(mean_square_comm_times)
+    def apply_autotuning(self, num_round):
 
-        # Compute mean absolute deviation
-        comm_deviations = [x - mean_comm_time for x in mean_square_comm_times]
-        mean_abs_comm_deviation = np.mean(np.abs(comm_deviations))
-        self.communication_time_limit = mean_comm_time + mean_abs_comm_deviation
-
-        # Same for computations times
-        expected_computation_times = self.get_computation_times(num_round)
-        mean_comp_time = np.mean(expected_computation_times)
-        comp_deviations = [x - mean_comp_time for x in expected_computation_times]
-        mean_abs_comp_deviation = np.mean(np.abs(comp_deviations))
-        self.computation_time_limit = mean_comp_time + mean_abs_comp_deviation
-
-        # Same for total times
+        # Compute average round time of all devices
         mean_square_times = self.get_quadratic_mean_times(num_round)
         mean_time = np.mean(mean_square_times)
+
+        # Find differences between average round time of all devices and mean round time of each device
         deviations = [x - mean_time for x in mean_square_times]
+
+        # Compute mean absolute deviation
         mean_abs_deviation = np.mean(np.abs(deviations))
+
+        # Set total limit as the average round time of all devices + the average distance
         self.total_time_limit = mean_time + mean_abs_deviation

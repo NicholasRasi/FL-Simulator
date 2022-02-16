@@ -23,7 +23,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "sentiment_analysis_for_customer_support.json"
+  output_file: "fedavg_usecase3.json"
   # model
   model_name: "sentiment140"
   # metric
@@ -46,7 +46,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "feddyn"
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"

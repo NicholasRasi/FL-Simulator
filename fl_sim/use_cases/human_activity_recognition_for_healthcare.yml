@@ -19,7 +19,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "activity_recognition.json"
+  output_file: "feddyn_usecase1.2.json"
   # model
   model_name: "wisdm"
   # metric
@@ -42,7 +42,7 @@ simulation:
   num_processes: 1
 
 algorithms:
-  federated_algorithm: "fedavg"
+  federated_algorithm: "feddyn"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
@@ -81,8 +81,6 @@ devices:
   p_available: 0.65
   # probability a device fails during a round
   p_fail: 0.1
-  # number of malicious devices
-  adversary_num: 0
 
 computation:
   # mean and variance of number of computed iterations/second per device (among devices) [iter/s]

@@ -6,7 +6,7 @@ simulation:
   # simulation output file
   output_file: "p1.json"
   # model
-  model_name: "mnist"
+  model_name: "tff_cifar100"
   # metric
   metric: "accuracy"
   # maximum number of rounds
@@ -46,7 +46,7 @@ algorithms:
       # batch size used for fit for each round
       batch_size: 16
       # number of examples used for fit for each round
-      num_examples: 100
+      num_examples: 10
   eval:
     selection: "random"
     update: "static"
@@ -55,13 +55,13 @@ algorithms:
       k: 0.5
       epochs: 5
       batch_size: 16
-      num_examples: 100
+      num_examples: 10
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 20
+  num: 2
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round
@@ -90,7 +90,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 1500
+  num_examples_mean: 10
   num_examples_var: 0
   # use non-i.d.d data
   non_iid_partitions: 0

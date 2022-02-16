@@ -269,7 +269,6 @@ class SimAnalyzer:
                 val = status["var"][phase]["devs"]["selected"] - \
                       (status["var"][phase]["devs"]["selected"] & status["con"]["devs"]["failures"])
                 ys.append(np.sum(val, axis=1))
-                print(np.sum(val, axis=0))
             y_mean = [np.mean(y) for y in zip(*ys)]
             y_std = [np.std(y) for y in zip(*ys)]
             x = range(1, len(y_mean) + 1)

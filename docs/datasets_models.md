@@ -28,7 +28,7 @@ The available datasets are:
 
 ## MNIST
 - **name**: ```mnist```
-- **description**: the MNIST database of handwritten digits has a  training set of 60,000 examples,and a test set of
+- **description**: the MNIST dataset of handwritten digits has a  training set of 60,000 examples,and a test set of
   10,000 examples. It is a subset of a larger set available from NIST. The digits have been size-normalized and
   centered in a fixed-size image
 - **url**: [http://yann.lecun.com/exdb/mnist/](http://yann.lecun.com/exdb/mnist/)  
@@ -161,7 +161,7 @@ _________________________________________________________________
 - **name**: ```imdb_reviews```
 - **description**: Large Movie Review Dataset. This is a dataset for binary sentiment classification containing
   substantially more data than previous benchmark datasets. We provide a set of 25,000 highly polar movie reviews for
-  training, and 25,000 for testing. There is additional unlabeled data for use as well
+  training, and 25,000 for testing. There is additional unlabeled data for use as well.
 - **url**: [http://ai.stanford.edu/%7Eamaas/data/sentiment/](http://ai.stanford.edu/%7Eamaas/data/sentiment/)  
 - **source**: [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/imdb_reviews)
 - **IID**: yes
