@@ -12,8 +12,8 @@ class LimitedConsumptionSelector(ClientsSelector):
 
         # Parameters representing budget consumption (None if there is no limit)
         self.energy_limit = 3400
-        self.resources_limit = 100
-        self.network_limit = 14000000
+        self.resources_limit = None
+        self.network_limit = None
 
     def select_devices(self, num_round: int) -> List:
         avail_indexes = self.get_available_devices(num_round)

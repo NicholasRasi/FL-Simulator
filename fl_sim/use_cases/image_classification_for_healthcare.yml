@@ -19,11 +19,11 @@
 
 simulation:
  # number or repetitions
- repetitions: 4
+ repetitions: 2
  # simulation output folder
  output_folder: "output"
  # simulation output file
- output_file: "feddyn_usecase2.4.json"
+ output_file: "feddyn_usecase2.json"
  # model
  model_name: "cifar10"
  # metric

@@ -19,7 +19,7 @@ simulation:
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "feddyn_usecase1.2.json"
+  output_file: "feddyn_usecase1.json"
   # model
   model_name: "wisdm"
   # metric

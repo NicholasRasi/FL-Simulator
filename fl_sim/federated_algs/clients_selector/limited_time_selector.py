@@ -11,7 +11,7 @@ class LimitedTimeSelector(ClientsSelector):
         super().__init__(config, status, logger, params)
         self.computation_time_limit = None
         self.communication_time_limit = None
-        self.total_time_limit = None
+        self.total_time_limit = 5
         self.auto_tuning = False
 
     def select_devices(self, num_round: int) -> List:

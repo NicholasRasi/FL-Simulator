@@ -12,14 +12,14 @@ class BudgetedTimeRotationSelector(ClientsSelector):
         super().__init__(config, status, logger, params)
 
         # Average round time desired
-        self.time_desired = 2.2
-        self.auto_tuning = False
+        self.time_desired = 7.2
+        self.auto_tuning = True
 
         # Frequency in number of rounds with which perform selection based on loss
-        self.loss_frequency = 4
+        self.loss_frequency = 1
 
         # Frequency in number of rounds with which perform selection based on least selected devices
-        self.fairness_frequency = 1
+        self.fairness_frequency = 50
 
         self.fairness_counter = 0
         self.best_loss_counter = 0

@@ -54,7 +54,8 @@ class FedAvg(FedAlg):
         # get dev indexes
         dev_indexes = self.clients_selector[phase].select_devices(num_round)
         # update status
-        self.status.var[phase]["devs"]["selected"][num_round, dev_indexes] = 1
+        if len(dev_indexes) > 0:
+            self.status.var[phase]["devs"]["selected"][num_round, dev_indexes] = 1
         return dev_indexes
 
     def model_fit(self, num_round):

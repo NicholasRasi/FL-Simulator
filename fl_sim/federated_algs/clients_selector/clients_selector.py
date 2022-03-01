@@ -62,12 +62,7 @@ class ClientsSelector(ABC):
         return resources_consumption
 
     def get_network_consumption(self, num_round):
-        network_consumption_upload = self.status.var["fit"]["consumption"]["network_upload"][num_round - 1]
-        network_parameters_upload = network_consumption_upload[network_consumption_upload > 0][0]
-        network_consumption_distribution = self.status.var["fit"]["consumption"]["network_distribution"][
-            num_round - 1]
-        network_parameters_distribution = network_consumption_distribution[network_consumption_distribution > 0][0]
-        network_consumption = (network_parameters_upload + network_parameters_distribution)
+        network_consumption = np.amax(self.status.var["fit"]["consumption"]["network_upload"]) + np.amax(self.status.var["fit"]["consumption"]["network_distribution"])
         return network_consumption
 
     def get_estimated_energy_consumption(self, num_round):

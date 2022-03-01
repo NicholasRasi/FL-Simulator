@@ -1,16 +1,16 @@
 simulation:
   # number or repetitions
-  repetitions: 1
+  repetitions: 4
   # simulation output folder
   output_folder: "output"
   # simulation output file
-  output_file: "p1.json"
+  output_file: "lc1.2.json"
   # model
-  model_name: "tff_cifar100"
+  model_name: "mnist"
   # metric
   metric: "accuracy"
   # maximum number of rounds
-  num_rounds: 20
+  num_rounds: 15
   # list of stopping conditions (OR) for ending the simulation
   stop_conds:
     # global model accuracy (during evaluation)
@@ -23,16 +23,14 @@ simulation:
   seed: 123
   # set the TensorFlow verbosity, 0 = silent, 1 = progress bar, 2 = one line per epoch
   tf_verbosity: 0
-  # number of concurrent processes
-  num_processes: 1
 
 algorithms:
-  federated_algorithm: "fednova"
+  federated_algorithm: "fedavg"
   fit:
     # algorithm used for the FL aggregation
     aggregation: "fedavg"
     # algorithm used for the clients selection
-    selection: "limited_time"
+    selection: "limited_consumption"
     # algorithm used for the update optimizer
     update: "static"
     # algorithm used for the local data optimizer
@@ -42,32 +40,30 @@ algorithms:
       # fraction of devices used for the computation
       k: 0.5
       # number of epochs executed for fit for each round
-      epochs: 5
+      epochs: 2
       # batch size used for fit for each round
       batch_size: 16
       # number of examples used for fit for each round
-      num_examples: 10
+      num_examples: 100
   eval:
     selection: "random"
     update: "static"
     data: "random"
     params:
       k: 0.5
-      epochs: 5
+      epochs: 2
       batch_size: 16
-      num_examples: 10
+      num_examples: 100
   # optimizer used (local iteration) string or optimizer instance
   optimizer: "sgd"
 
 devices:
   # total number of devices (D)
-  num: 2
+  num: 20
   # probability a device is available for a round
   p_available: 0.8
   # probability a device fails during a round
   p_fail: 0.1
-  # number of malicious devices
-  adversary_num: 0
 
 computation:
   # mean and variance of number of computed iterations/second per device (among devices) [iter/s]
@@ -90,7 +86,7 @@ network:
 
 data:
   # mean and variance of number of examples available at each device
-  num_examples_mean: 10
+  num_examples_mean: 1500
   num_examples_var: 0
   # use non-i.d.d data
   non_iid_partitions: 0

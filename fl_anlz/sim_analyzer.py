@@ -700,6 +700,87 @@ class SimAnalyzer:
                                      "std_round": np.mean(std_rts), "min": np.min(tot_tts), "max": np.max(tot_tts)})
         self.console.print(table)
 
+    def print_computation_time(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "min", "max"],
+                                         title=f"COMPUTATION TIME \[s] ({phase})")
+        for name, sim in self.sims:
+            tot_tts = []
+            mean_rts = []
+            std_rts = []
+            for i, status in enumerate(sim["status"]):
+                rt = status["var"][phase]["times"]["computation"]
+                max_round = np.amax(rt, axis=1)
+                tot_tt = np.sum(max_round)
+                mean_rt = np.mean(max_round)
+                std_rt = np.std(max_round)
+                min_rt = np.min(max_round)
+                max_rt = np.max(max_round)
+                tot_tts.append(tot_tt)
+                mean_rts.append(mean_rt)
+                std_rts.append(std_rt)
+                table.add_row(name, str(i + 1), f"{tot_tt:.2f}", f"{mean_rt:.2f}", f"{std_rt:.2f}",
+                              f"{min_rt:.2f}", f"{max_rt:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_tts):.2f}", f"{np.mean(mean_rts):.2f}",
+                          f"{np.mean(std_rts):.2f}", f"{np.min(tot_tts):.2f}", f"{np.max(tot_tts):.2f}")
+            self.output_list.append({"type": "times", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_tts), "mean_round": np.mean(mean_rts),
+                                     "std_round": np.mean(std_rts), "min": np.min(tot_tts), "max": np.max(tot_tts)})
+        self.console.print(table)
+
+    def print_communication_time(self, phase="fit"):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "min", "max"],
+                                         title=f"COMMUNICATION TIME \[s] ({phase})")
+        for name, sim in self.sims:
+            tot_tts = []
+            mean_rts = []
+            std_rts = []
+            for i, status in enumerate(sim["status"]):
+                rt = status["var"][phase]["times"]["communication_upload"] + status["var"][phase]["times"]["communication_distribution"]
+                max_round = np.amax(rt, axis=1)
+                tot_tt = np.sum(max_round)
+                mean_rt = np.mean(max_round)
+                std_rt = np.std(max_round)
+                min_rt = np.min(max_round)
+                max_rt = np.max(max_round)
+                tot_tts.append(tot_tt)
+                mean_rts.append(mean_rt)
+                std_rts.append(std_rt)
+                table.add_row(name, str(i + 1), f"{tot_tt:.2f}", f"{mean_rt:.2f}", f"{std_rt:.2f}",
+                              f"{min_rt:.2f}", f"{max_rt:.2f}")
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_tts):.2f}", f"{np.mean(mean_rts):.2f}",
+                          f"{np.mean(std_rts):.2f}", f"{np.min(tot_tts):.2f}", f"{np.max(tot_tts):.2f}")
+            self.output_list.append({"type": "times", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_tts), "mean_round": np.mean(mean_rts),
+                                     "std_round": np.mean(std_rts), "min": np.min(tot_tts), "max": np.max(tot_tts)})
+        self.console.print(table)
+
+    def print_partial_time(self, phase="fit", until_round=1):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "min", "max", "until round"],
+                                         title=f"PARTIAL TIME \[s] ({phase})")
+        for name, sim in self.sims:
+            tot_tts = []
+            mean_rts = []
+            std_rts = []
+            for i, status in enumerate(sim["status"]):
+                rt = status["var"][phase]["times"]["computation"][:until_round-1, :] + status["var"][phase]["times"]["communication_upload"][:until_round-1, :] + status["var"][phase]["times"]["communication_distribution"][:until_round-1, :]
+                max_round = np.amax(rt, axis=1)
+                tot_tt = np.sum(max_round)
+                mean_rt = np.mean(max_round)
+                std_rt = np.std(max_round)
+                min_rt = np.min(max_round)
+                max_rt = np.max(max_round)
+                tot_tts.append(tot_tt)
+                mean_rts.append(mean_rt)
+                std_rts.append(std_rt)
+                table.add_row(name, str(i + 1), f"{tot_tt:.2f}", f"{mean_rt:.2f}", f"{std_rt:.2f}",
+                              f"{min_rt:.2f}", f"{max_rt:.2f}", str(until_round))
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_tts):.2f}", f"{np.mean(mean_rts):.2f}",
+                          f"{np.mean(std_rts):.2f}", f"{np.min(tot_tts):.2f}", f"{np.max(tot_tts):.2f}", str(until_round))
+            self.output_list.append({"type": "times", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_tts), "mean_round": np.mean(mean_rts),
+                                     "std_round": np.mean(std_rts), "min": np.min(tot_tts), "max": np.max(tot_tts)})
+        self.console.print(table)
+
     def print_resources_consumption(self, phase="fit"):
         table = self._init_console_table(column_names=["total", "mean round", "std round"],
                                          title=f"RESOURCES CONSUMPTION \[iters] ({phase})")
@@ -746,6 +827,29 @@ class SimAnalyzer:
                                      "std_round ": np.mean(std_ecs)})
         self.console.print(table)
 
+    def print_partial_energy_consumption(self, phase="fit", until_round=1):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "until round"],
+                                         title=f"PARTIAL ENERGY CONSUMPTION \[mAh] ({phase})")
+        for name, sim in self.sims:
+            tot_ecs = []
+            mean_ecs = []
+            std_ecs = []
+            for i, status in enumerate(sim["status"]):
+                ec = status["var"][phase]["consumption"]["energy"][:until_round-1, :]
+                tot_ec = np.sum(ec)
+                mean_ec = np.mean(np.sum(ec, axis=1))
+                std_ec = np.std(np.sum(ec, axis=1))
+                tot_ecs.append(tot_ec)
+                mean_ecs.append(mean_ec)
+                std_ecs.append(std_ec)
+                table.add_row(name, str(i + 1), f"{tot_ec:.2e}", f"{mean_ec:.2e}", f"{std_ec:.2e}", str(until_round))
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_ecs):.2e}", f"{np.mean(mean_ecs):.2e}",
+                          f"{np.mean(std_ecs):.2e}", str(until_round))
+            self.output_list.append({"type": "energy_consumption", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_ecs), "mean_round": np.mean(mean_ecs),
+                                     "std_round ": np.mean(std_ecs)})
+        self.console.print(table)
+
     def print_network_consumption(self, phase="fit"):
         table = self._init_console_table(column_names=["total", "mean round", "std round"],
                                          title=f"NETWORK CONSUMPTION \[params] ({phase})")
@@ -764,6 +868,29 @@ class SimAnalyzer:
                 table.add_row(name, str(i + 1), f"{tot_nc:.2e}", f"{mean_nc:.2e}", f"{std_nc:.2e}")
             table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_ncs):.2e}", f"{np.mean(mean_ncs):.2e}",
                           f"{np.mean(std_ncs):.2e}")
+            self.output_list.append({"type": "network_consumption", "phase": phase, "name": name, "rep": "all",
+                                     "mean": np.mean(tot_ncs), "mean_round": np.mean(mean_ncs),
+                                     "std_round": np.mean(std_ncs)})
+        self.console.print(table)
+
+    def print_partial_network_consumption(self, phase="fit", until_round=1):
+        table = self._init_console_table(column_names=["total", "mean round", "std round", "until round"],
+                                         title=f"PARTIAL NETWORK CONSUMPTION \[params] ({phase})")
+        for name, sim in self.sims:
+            tot_ncs = []
+            mean_ncs = []
+            std_ncs = []
+            for i, status in enumerate(sim["status"]):
+                nc = status["var"][phase]["consumption"]["network_upload"][:until_round-1, :] + status["var"][phase]["consumption"]["network_distribution"][:until_round-1, :]
+                tot_nc = np.sum(nc)
+                mean_nc = np.mean(np.sum(nc, axis=1))
+                std_nc = np.std(np.sum(nc, axis=1))
+                tot_ncs.append(tot_nc)
+                mean_ncs.append(mean_nc)
+                std_ncs.append(std_nc)
+                table.add_row(name, str(i + 1), f"{tot_nc:.2e}", f"{mean_nc:.2e}", f"{std_nc:.2e}", str(until_round))
+            table.add_row(f"[red]{name}[/]", "all", f"{np.mean(tot_ncs):.2e}", f"{np.mean(mean_ncs):.2e}",
+                          f"{np.mean(std_ncs):.2e}", str(until_round))
             self.output_list.append({"type": "network_consumption", "phase": phase, "name": name, "rep": "all",
                                      "mean": np.mean(tot_ncs), "mean_round": np.mean(mean_ncs),
                                      "std_round": np.mean(std_ncs)})
@@ -788,6 +915,29 @@ class SimAnalyzer:
             table.add_row(f"[red]{name}[/]", "all", f"{np.mean(latest_accs):.2f}", f"{np.mean(rounds):.2f}")
             self.output_list.append({"type": "accuracy", "phase": phase, "name": name, "rep": "all",
                                      "mean": np.mean(latest_accs), "num_rounds": np.mean(rounds)})
+        self.console.print(table)
+
+    def print_intermediate_metric(self, phase="eval", rounds=[]):
+        round_columns = []
+        for r in rounds:
+            round_columns.append("ROUND " + str(r+1))
+        round_columns.append("num rounds")
+        table = self._init_console_table(column_names=round_columns, title=f"ACCURACY [%] ({phase})")
+
+        for name, sim in self.sims:
+            all_accuracies = []
+            all_rounds_num = []
+            for i, status in enumerate(sim["status"]):
+                accuracies = []
+                for r in rounds:
+                    acc = status["var"][phase]["model_metrics"]["agg_metric"][r]
+                    accuracies.append(acc)
+                all_accuracies.append(accuracies)
+                rounds_num = status["var"][phase]["model_metrics"]["agg_metric"].shape[0]
+                all_rounds_num.append(rounds_num)
+                table.add_row(name, str(i + 1), *(tuple(np.char.mod('%.2f', accuracies))), str(rounds_num))
+            means = np.mean(all_accuracies, axis=0)
+            table.add_row(f"[red]{name}[/]", "all", *(tuple(np.char.mod('%.2f', means))), str(np.mean(all_rounds_num)))
         self.console.print(table)
 
     def print_loss(self, phase="eval", round=-1):
